@@ -1,6 +1,6 @@
 import app from './app.js';
 import config from './config.js';
-import connection from './service/connection.js';
+import connection from './service/service.connection.js';
 
 const startServer = async () => {
   try {

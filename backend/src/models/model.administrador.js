@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../service/connection.js';
+import sequelize from '../services/service.connection.js';
 
 const Administrador = sequelize.define('Administrador', {
     id: {

@@ -1,6 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
 import Sequelize from 'sequelize';
-import OrdenVenta from './ordenventa';
 
 const HistorialContable = Sequelize.define('HistorialContable', {
     id: {
