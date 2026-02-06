@@ -5,14 +5,14 @@ import connection from './service/connection.js';
 const startServer = async () => {
   try {
     await connection.connect();
-    console.log('✅ Conexión establecida con la base de datos');
+    console.log('Conexión establecida con la base de datos');
 
     app.listen(config.port, () => {
-      console.log(`🚀 Servidor corriendo en: http://localhost:${config.port}`);
+      console.log(`Servidor corriendo en: http://localhost:${config.port}`);
     });
 
   } catch (error) {
-    console.error('❌ Error crítico al iniciar:', error.message);
+    console.error('Error crítico al iniciar:', error.message);
     process.exit(1); // Detén el proceso si no hay base de datos
   }
 };
