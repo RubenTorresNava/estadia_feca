@@ -1,7 +1,7 @@
-import express from 'express';
-import config from './config.js';
+import express, {json} from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import AdministradorRoute from './routes/route.administrador.js'
 
 const app = express();
 app.use(morgan('dev'));
@@ -11,6 +11,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use('/api/administrador', AdministradorRoute)
 
 
 
