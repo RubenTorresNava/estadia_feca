@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize'
-import Sequelize from 'sequelize'
+import Sequelize from 'sequelize';
 
 const Producto = Sequelize.define('Producto',{
     id: {
@@ -21,7 +21,7 @@ const Producto = Sequelize.define('Producto',{
     }
 },
 {
-    tableName: 'producto',
+    tableName: 'inventario',
     timestamps: false
 
 })

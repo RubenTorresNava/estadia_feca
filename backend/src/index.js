@@ -1,10 +1,11 @@
 import app from './app.js';
 import config from './config.js';
-import connection from './services/service.connection.js';
+import sequelize from './services/service.connection.js';
 
 const startServer = async () => {
   try {
-    await connection.connect();
+    await sequelize.authenticate();
+    await sequelize.sync()
     console.log('Conexión establecida con la base de datos');
 
     app.listen(config.port, () => {
