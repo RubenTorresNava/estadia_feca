@@ -1,40 +1,49 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
 
-const OrdenVenta = sequelize.define('OrdenVenta', {
-    id:{
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    folio_referencia:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    fecha_creacion:{
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    nombre_alumno:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    matricula:{
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    estado:{
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'PENDIENTE'
+class OrdenVenta extends Model {
+    // Método estático para el Cron Job: Cancelar órdenes viejas
+    static async cancelarOrdenesVencidas() {
+        const hace24Horas = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        return await this.update({ estado: 'cancelado' }, {
+            where: {
+                estado: 'pendiente',
+                fecha_creacion: { [Sequelize.Op.lt]: hace24Horas }
+            }
+        });
     }
-},
-{
-    tableName: 'ordenventa',
-    timestamps: false
-});
 
-Administrador.hasMany(OrdenVenta, { foreignKey: 'administrador_id' });
-OrdenVenta.belongsTo(Administrador, { foreignKey: 'administrador_id' });
+    // Método para confirmar pago vinculando al admin
+    static async confirmarPago(id, administrador_id) {
+        return await this.update({ 
+            estado: 'PAGADO', 
+            administrador_id 
+        }, { where: { id } });
+    }
+}
+
+OrdenVenta.init({
+    folio_referencia: {
+        type: DataTypes.STRING,
+        unique: true,
+        defaultValue: () => `FECA-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    },
+    nombre_alumno: DataTypes.STRING,
+    matricula: DataTypes.STRING,
+    estado: {
+        type: DataTypes.ENUM('PENDIENTE', 'PAGADO', 'CANCELADO'),
+        defaultValue: 'PENDIENTE'
+    },
+    total_pago: DataTypes.DECIMAL(10, 2),
+    fecha_creacion: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, { 
+    sequelize, 
+    modelName: 'OrdenVenta', 
+    tableName: 'ordenventa', 
+    timestamps: false 
+});
 
 export default OrdenVenta;

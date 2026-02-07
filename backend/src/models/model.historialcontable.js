@@ -1,47 +1,38 @@
 import { DataTypes, Model } from 'sequelize';
-import Sequelize from 'sequelize';
+import sequelize from '../services/service.connection';
 
-const HistorialContable = Sequelize.define('HistorialContable', {
+class HistorialContable extends Model {
+    static asyncregistrarEvento(datos) {
+        return this.create(datos);
+    }
+}
+
+HistorialContable.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    orden_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            Model: 'ordenventa',
-            key: 'id'
-        }
-    },
-    administrador_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            Model: 'administrador',
-            key: 'id'
-        }
-    },
-    accion: {
+    orden_id: DataTypes.INTEGER,
+    producto_id: DataTypes.INTEGER,
+    administrador_id: DataTypes.INTEGER,
+    accion:{
         type: DataTypes.STRING,
         allowNull: false
     },
     monto_afectado: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    fecha_registro: {
+    fecha_creacion: {
         type: DataTypes.DATE,
-        allowNull: false
+        defaultValue: DataTypes.NOW
     }
-},
-{
-    tableName: 'historial_contable',
+}, {
+    sequelize,
+    modelName: 'HistorialContable',
+    tableName: 'historialcontable',
     timestamps: false
 });
-
-Administrador.hasMany(HistorialContable, { foreignKey: 'administrador_id' });
-HistorialContable.belongsTo(Administrador, { foreignKey: 'administrador_id' });
 
 export default HistorialContable;

@@ -1,40 +1,25 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
 
-const Venta = sequelize.define('Venta', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    odrden_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            Model: 'ordenventa',
-            key: 'id'
-        }
-    },
-    producto_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            Model: 'producto',
-            key: 'id'
-        }
-    },
-    cantidad: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    precio_unitario: {
-        type: DataTypes.FLOAT,
-        allowNull: false
+class Venta extends Model {
+    static async registrarDetalle(orden_id, productos) {
+        const detalles = productos.map(p => ({ ...p, orden_id }));
+        return await this.bulkCreate(detalles);
     }
-},
-{
-    tableName: 'venta',
-    timestamps: false
+}
+
+Venta.init({
+    orden_id: DataTypes.INTEGER,
+    producto_id: DataTypes.INTEGER,
+    cantidad: DataTypes.INTEGER,
+    precio_unitario: DataTypes.DECIMAL(10, 2)
+}, { 
+    sequelize, 
+    modelName: 'Venta', 
+    tableName: 'venta', 
+    timestamps: false 
 });
+
+
 
 export default Venta;
