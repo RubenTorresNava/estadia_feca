@@ -2,6 +2,8 @@ import express, {json} from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import AdministradorRoute from './routes/route.administrador.js'
+import checkoutroute from './routes/route.checkout.js'
+
 
 const app = express();
 app.use(morgan('dev'));
@@ -13,6 +15,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/administrador', AdministradorRoute)
+app.use('/api/checkout', checkoutroute)
 
 
 

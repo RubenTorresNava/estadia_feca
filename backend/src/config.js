@@ -10,6 +10,7 @@ const config = {
   postgres_db: process.env.POSTGRES_DB,
   host: process.env.POSTGRES_HOST,
   postgres_port: process.env.POSTGRES_PORT,
+  postgres_host: process.env.POSTGRES_HOST,
 };
 
 export default config;

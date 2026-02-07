@@ -34,7 +34,6 @@ OrdenVenta.init({
         type: DataTypes.ENUM('PENDIENTE', 'PAGADO', 'CANCELADO'),
         defaultValue: 'PENDIENTE'
     },
-    total_pago: DataTypes.DECIMAL(10, 2),
     fecha_creacion: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
