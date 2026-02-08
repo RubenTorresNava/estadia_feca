@@ -1,5 +1,5 @@
 import OrdenVenta from '../models/model.ordenventa.js';
-import HistorialContable from '../models/model.historialcontable.js';
+import Producto from '../models/model.producto.js';
 import sequelize from '../services/service.connection.js';
 
 export const obtenerOrdenes = async (req, res) => {
@@ -13,19 +13,15 @@ export const obtenerOrdenes = async (req, res) => {
     }
 };
 
-// 2. Confirmar el Pago (La acción clave)
 export const confirmarPago = async (req, res) => {
     const { id } = req.params;
     const { administrador_id } = req.body;
 
-    // Ahora sequelize ya estará definido gracias al import
     const t = await sequelize.transaction();
 
     try {
-        // Establecemos el ID del admin para que el Trigger lo use
         await sequelize.query(`SET LOCAL app.current_admin_id = '${administrador_id}'`, { transaction: t });
 
-        // Actualizamos a 'pagada' (en minúsculas por el ENUM que recreamos)
         await OrdenVenta.update(
             { estado: 'pagada' }, 
             { where: { id }, transaction: t }
@@ -38,5 +34,45 @@ export const confirmarPago = async (req, res) => {
         if (t) await t.rollback();
         console.error("Error en confirmarPago:", error);
         res.status(500).json({ error: error.message });
+    }
+};
+
+export const agregarProducto = async (req, res) => {
+    try {
+        const { nombre, precio, stock_actual } = req.body;
+        
+        const nuevoProducto = await Producto.create({
+            nombre,
+            precio,
+            stock_actual
+        });
+
+        res.status(201).json({
+            msg: "Producto agregado al inventario",
+            producto: nuevoProducto
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+export const actualizarProducto = async (req, res) => {
+    const { id } = req.params;
+    const { nombre, precio, stock_actual, activo } = req.body;
+
+    try {
+        const producto = await Producto.findByPk(id);
+        if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
+
+        await producto.update({
+            nombre,
+            precio,
+            stock_actual,
+            activo
+        });
+
+        res.json({ msg: "Producto actualizado correctamente", producto });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
 };
