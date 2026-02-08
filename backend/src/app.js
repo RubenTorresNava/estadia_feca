@@ -1,7 +1,7 @@
 import express, {json} from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import AdministradorRoute from './routes/route.administrador.js'
+import AdministradorRoute from './routes/route.admin.js'
 import checkoutroute from './routes/route.checkout.js'
 
 

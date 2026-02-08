@@ -1,8 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../services/service.connection';
+import sequelize from '../services/service.connection.js';
 
 class HistorialContable extends Model {
-    static asyncregistrarEvento(datos) {
+    static async registrarEvento(datos) {
         return this.create(datos);
     }
 }
@@ -31,7 +31,7 @@ HistorialContable.init({
 }, {
     sequelize,
     modelName: 'HistorialContable',
-    tableName: 'historialcontable',
+    tableName: 'historial_contable',
     timestamps: false
 });
 

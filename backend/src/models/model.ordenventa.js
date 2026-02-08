@@ -16,7 +16,7 @@ class OrdenVenta extends Model {
     // Método para confirmar pago vinculando al admin
     static async confirmarPago(id, administrador_id) {
         return await this.update({ 
-            estado: 'PAGADO', 
+            estado: 'pagada', 
             administrador_id 
         }, { where: { id } });
     }
@@ -30,9 +30,13 @@ OrdenVenta.init({
     },
     nombre_alumno: DataTypes.STRING,
     matricula: DataTypes.STRING,
+    total_pago: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
     estado: {
-        type: DataTypes.ENUM('PENDIENTE', 'PAGADO', 'CANCELADO'),
-        defaultValue: 'PENDIENTE'
+        type: DataTypes.ENUM('pendiente', 'pagada', 'cancelado'),
+        defaultValue: 'pendiente'
     },
     fecha_creacion: {
         type: DataTypes.DATE,
@@ -41,7 +45,7 @@ OrdenVenta.init({
 }, { 
     sequelize, 
     modelName: 'OrdenVenta', 
-    tableName: 'ordenventa', 
+    tableName: 'orden_venta', 
     timestamps: false 
 });
 
