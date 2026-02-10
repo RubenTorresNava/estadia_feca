@@ -15,7 +15,7 @@ export const obtenerOrdenes = async (req, res) => {
 
 export const confirmarPago = async (req, res) => {
     const { id } = req.params;
-    const { administrador_id } = req.body;
+    const administrador_id = req.administrador_id;
 
     const t = await sequelize.transaction();
 

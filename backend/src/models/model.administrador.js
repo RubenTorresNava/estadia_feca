@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
+import bcrypt from 'bcryptjs';
 import Producto from './model.producto.js';
 import OrdenVenta from './model.ordenventa.js';
 
@@ -48,7 +49,13 @@ Administrador.init({
     sequelize,
     modelName: 'Administrador',
     tableName: 'administrador',
-    timestamps: false
+    timestamps: false,
+        hooks: {
+        beforeCreate: async (admin) => {
+            const salt = await bcrypt.genSalt(10);
+            admin.password = await bcrypt.hash(admin.password, salt);
+        }
+    }
 });
 
 export default Administrador;
