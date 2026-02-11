@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import AdministradorRoute from './routes/route.admin.js'
 import checkoutroute from './routes/route.checkout.js'
+import DashboarRoute from './routes/route.dashboard.js'
 
 
 const app = express();
@@ -16,6 +17,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/administrador', AdministradorRoute)
 app.use('/api/checkout', checkoutroute)
+app.use('/api/dashboard', DashboarRoute)
 
 
 
