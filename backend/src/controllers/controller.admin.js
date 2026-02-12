@@ -40,11 +40,14 @@ export const confirmarPago = async (req, res) => {
 export const agregarProducto = async (req, res) => {
     try {
         const { nombre, precio, stock_actual } = req.body;
+
+        const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
         
         const nuevoProducto = await Producto.create({
             nombre,
             precio,
-            stock_actual
+            stock_actual,
+            imagen_url
         });
 
         res.status(201).json({

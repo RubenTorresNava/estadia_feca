@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+app.use('/uploads', express.static('uploads'))
 app.use('/api/administrador', AdministradorRoute)
 app.use('/api/checkout', checkoutroute)
 app.use('/api/dashboard', DashboarRoute)

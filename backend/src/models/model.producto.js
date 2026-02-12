@@ -57,6 +57,10 @@ Producto.init({
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+    },
+    imagen_url: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     sequelize,
