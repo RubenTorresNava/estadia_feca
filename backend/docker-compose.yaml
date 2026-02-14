@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: user_feca
+      POSTGRES_PASSWORD: password_feca
+      POSTGRES_DB: fecastore_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://user_feca:password_feca@db:5432/fecastore_db
+    depends_on:
+      - db
