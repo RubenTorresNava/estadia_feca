@@ -1,13 +1,16 @@
 -- 1. CREACIÓN DE LA BASE DE DATOS (Ejecutar en postgres)
--- DROP DATABASE IF EXISTS fecastore;
-CREATE DATABASE fecastore;
-\c fecastore;
+--DROP DATABASE IF EXISTS fecastore_db;
+--CREATE DATABASE fecastore_db;
+--\c fecastore;
 
 -- 2. TIPOS ENUM
-CREATE TYPE estado_orden AS ENUM ('pendiente', 'pagada', 'cancelada');
-
+DO $$ BEGIN
+    CREATE TYPE estado_orden AS ENUM ('pendiente', 'pagada', 'cancelada');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 -- 3. TABLAS BASE
-CREATE TABLE inventario (
+CREATE TABLE IF NOT EXISTS inventario (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
@@ -18,7 +21,7 @@ CREATE TABLE inventario (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE orden_venta (
+CREATE TABLE IF NOT EXISTS orden_venta (
     id SERIAL PRIMARY KEY,
     folio_referencia VARCHAR(20) UNIQUE,
     nombre_alumno VARCHAR(100) NOT NULL,
@@ -29,7 +32,7 @@ CREATE TABLE orden_venta (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE detalle_orden (
+CREATE TABLE IF NOT EXISTS detalle_orden (
     id SERIAL PRIMARY KEY,
     orden_id INT REFERENCES orden_venta(id) ON DELETE CASCADE,
     producto_id INT REFERENCES inventario(id),
@@ -37,7 +40,7 @@ CREATE TABLE detalle_orden (
     precio_unitario DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE historial_contable (
+CREATE TABLE IF NOT EXISTS historial_contable (
     id SERIAL PRIMARY KEY,
     orden_id INT REFERENCES orden_venta(id),
     accion VARCHAR(50),
