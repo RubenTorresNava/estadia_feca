@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CartProvider, useCart } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { ProductProvider } from './context/ProductContext'
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
@@ -75,9 +76,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
+      <ProductProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </ProductProvider>
     </AuthProvider>
   );
 }
