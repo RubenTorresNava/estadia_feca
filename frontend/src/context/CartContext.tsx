@@ -9,8 +9,8 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   createOrder: (order: Order) => void;
+  confirmOrder: (orderId: string) => Promise<void>;
   getCartTotal: () => number;
-  getCartItemsCount: () => number;
   getCartItemsCount: () => number;
 }
 
@@ -75,9 +75,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const confirmOrder = (orderId: string) => {
+    // NOTA: Esta es una implementación local. En un entorno real,
+    // aquí se haría una llamada a la API del backend.
+    // Ejemplo:
+    // const token = localStorage.getItem('admin-token');
+    // await fetch(`http://localhost:3000/api/administrador/${orderId}/pago-confirmado`, {
+    //   method: 'PUT',
+    //   headers: { 'x-token': token }
+    // });
+
     setOrders((prev) =>
       prev.map((order) =>
-        order.id === orderId ? { ...order, status: 'confirmed' } : order
+        order.id === orderId ? { ...order, status: 'paid' } : order
       )
     );
   }

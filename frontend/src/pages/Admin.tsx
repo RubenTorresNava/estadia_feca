@@ -10,9 +10,9 @@ interface AdminProps {
 
 export const Admin = ({ onNavigate }: AdminProps) => {
   const { isAdmin, login, logout } = useAuth();
-  const { orders } = useCart();
+  const { orders, confirmOrder } = useCart();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState("")
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +22,16 @@ export const Admin = ({ onNavigate }: AdminProps) => {
       setPassword("");
     } else {
       setError("Contraseña incorrecta");
+    }
+  };
+
+  const handleConfirmOrder = async (orderId: string) => {
+    try {
+      await confirmOrder(orderId);
+      // Opcional: mostrar una notificación de éxito
+    } catch (err) {
+      // Opcional: mostrar una notificación de error
+      console.error("Error al confirmar la orden:", err);
     }
   };
 
@@ -225,7 +235,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                     {order.status === "pending" && (
                       <div className="mt-4 border-t border-gray/10 pt-4 flex justify-end">
                         <button
-                          onClick={() => confirmOrder(order.id)}
+                          onClick={() => handleConfirmOrder(order.id)}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
                         >
                           <CheckCircle className="h-4 w-4" />
