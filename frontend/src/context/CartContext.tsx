@@ -11,6 +11,7 @@ interface CartContextType {
   createOrder: (order: Order) => void;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
+  getCartItemsCount: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -73,8 +74,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     clearCart();
   };
 
+  const confirmOrder = (orderId: string) => {
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === orderId ? { ...order, status: 'confirmed' } : order
+      )
+    );
+  }
+
   const getCartTotal = () => {
     return cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    
   };
 
   const getCartItemsCount = () => {
@@ -91,6 +101,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         updateQuantity,
         clearCart,
         createOrder,
+        confirmOrder,
         getCartTotal,
         getCartItemsCount,
       }}
