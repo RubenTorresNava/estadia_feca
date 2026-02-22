@@ -2,20 +2,23 @@ import { useState } from 'react';
 import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
 import { ProductFormModal } from './ProductFormModal';
+import { ConfirmationModal } from './ConfirmationModal'; 
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 export const AdminProducts = () => {
   const { products, loading, error, addProduct, updateProduct, deleteProduct } = useProducts();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null); 
 
-  const handleOpenModal = (product?: Product) => {
+  const handleOpenFormModal = (product?: Product) => {
     setEditingProduct(product || null);
-    setIsModalOpen(true);
+    setIsFormModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseFormModal = () => {
+    setIsFormModalOpen(false);
     setEditingProduct(null);
   };
 
@@ -27,10 +30,17 @@ export const AdminProducts = () => {
     }
   };
 
-  const handleDelete = async (productId: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-      await deleteProduct(productId);
+  const handleDeleteRequest = (productId: string) => {
+    setDeletingProductId(productId);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deletingProductId) {
+      await deleteProduct(deletingProductId);
     }
+    setIsConfirmModalOpen(false);
+    setDeletingProductId(null);
   };
 
   if (loading) return <p>Cargando productos...</p>;
@@ -42,7 +52,7 @@ export const AdminProducts = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-dark">Inventario de Productos</h2>
           <button
-            onClick={() => handleOpenModal()}
+            onClick={() => handleOpenFormModal()}
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-semibold"
           >
             <Plus className="h-4 w-4" />
@@ -76,8 +86,8 @@ export const AdminProducts = () => {
                   </td>
                   <td className="td-style">
                     <div className="flex gap-2">
-                      <button onClick={() => handleOpenModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
-                      <button onClick={() => handleDelete(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
+                      <button onClick={() => handleOpenFormModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
+                      <button onClick={() => handleDeleteRequest(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
                     </div>
                   </td>
                 </tr>
@@ -87,10 +97,17 @@ export const AdminProducts = () => {
         </div>
       </div>
       <ProductFormModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isFormModalOpen}
+        onClose={handleCloseFormModal}
         onSubmit={handleSubmit}
         product={editingProduct}
+      />
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirmar Eliminación"
+        message="¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer."
       />
       <style>{`
         .th-style { text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; color: #4A4A4D; }
