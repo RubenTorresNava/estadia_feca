@@ -19,9 +19,18 @@ export interface Order {
   items: CartItem[];
   total: number;
   reference: string;
-  status: 'pending' | 'paid' | 'cancelled';
+  status: "pending" | "paid" | "cancelled";
   createdAt: string;
   expiresAt: string;
+  customerName: string;
+  customerEmail: string;
+  paymentMethod: "credit_card" | "debit_card";
 }
 
-export type Page = 'home' | 'catalog' | 'product' | 'cart' | 'checkout' | 'admin';
+export type Page =
+  | "home"
+  | "catalog"
+  | "product"
+  | "cart"
+  | "checkout"
+  | "admin";
