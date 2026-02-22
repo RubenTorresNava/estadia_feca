@@ -14,12 +14,13 @@ export const Footer = () => {
             </p>
           </div>
 
+
           <div>
             <h3 className="font-semibold mb-4">Contacto</h3>
             <ul className="space-y-2 text-sm text-gray">
-              <li>Universidad Juárez del Estado de Durango</li>
-              <li>Durango, Dgo.</li>
-              <li>contacto@feca.ujed.mx</li>
+              <li>Dirección: Fanny Anitua s/n, Los Ángeles, 34000 Durango, Dgo.</li>
+              <li>Teléfono: 618 827 1365</li>
+              <li>atencionusuarios@ujed.mx</li>
             </ul>
           </div>
 
@@ -33,7 +34,7 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-gray/20 mt-8 pt-8 text-center text-sm text-gray">
-          <p>&copy; 2024 FECA UJED. Todos los derechos reservados.</p>
+        <p> &copy; {new Date().getFullYear()} FECA UJED. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
