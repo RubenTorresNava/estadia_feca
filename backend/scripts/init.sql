@@ -9,7 +9,14 @@ DO $$ BEGIN
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
+
 -- 3. TABLAS BASE
+CREATE TABLE IF NOT EXISTS administrador (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS inventario (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -136,3 +143,13 @@ INSERT INTO detalle_orden (orden_id, producto_id, cantidad, precio_unitario) VAL
 (1, 1, 1, 450.00),
 (2, 4, 1, 120.00),
 (3, 3, 1, 65.00);
+
+-- 7. EXTENSION pgcrypto 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- 8. ADMINISTRADOR DE PRUEBA
+INSERT INTO administrador (usuario, password)
+VALUES (
+    'admin_root', 
+    crypt('1234', gen_salt('bf')) 
+);
