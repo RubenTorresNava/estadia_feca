@@ -1,0 +1,45 @@
+POST /api/login
+{
+  "usuario": "admin_root",
+  "password": "1234"
+}
+
+PUT /api/productos
+
+{
+  "nombre": "Sudadera FECA XL",
+  "descripcion": "Color guinda con bordado oficial",
+  "precio": 450.0,
+  "stock_actual": 30,
+  "imagen_url": "/uploads/1740950000-sudadera.jpg"
+}
+
+PUT /api/productos/:id
+{
+  "precio": 480.0,
+  "stock_actual": 25,
+  "activo": true
+}
+
+POST /api/ventas
+{
+  "nombre_alumno": "Rubén García",
+  "matricula": "202400123",
+  "correo": "ruben@ujed.mx",
+  "productos": [
+    {
+      "producto_id": 1,
+      "cantidad": 2
+    },
+    {
+      "producto_id": 3,
+      "cantidad": 1
+    }
+  ]
+}
+
+PATCH /api/ventas/:id/estado
+{
+  "nuevoEstado": "pagada"
+}
+
