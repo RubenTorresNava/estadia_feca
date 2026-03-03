@@ -13,15 +13,21 @@ type AdminTab = 'summary' | 'products' | 'reports';
 
 export const Admin = ({ onNavigate }: AdminProps) => {
   const { isAdmin, login, logout } = useAuth();
+  const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<AdminTab>('summary');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(password);
+    setError('');
+    if (!usuario || !password) {
+      setError('Usuario y contraseña son requeridos.');
+      return;
+    }
+    const success = await login(usuario, password);
     if (!success) {
-      setError('Contraseña incorrecta');
+      setError('Usuario o contraseña incorrectos');
     }
   };
 
@@ -40,29 +46,39 @@ export const Admin = ({ onNavigate }: AdminProps) => {
           <h1 className="text-2xl font-bold text-dark text-center mb-6">
             Panel de Administración
           </h1>
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-dark mb-2">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label htmlFor="usuario" className="block text-sm font-medium text-dark">
+                Usuario
+              </label>
+              <input
+                id="usuario"
+                type="text"
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-dark">
                 Contraseña
               </label>
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Ingresa la contraseña"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />
-              {error && <p className="text-primary text-sm mt-2">{error}</p>}
             </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
             >
+              <LogOut className="h-4 w-4" />
               Iniciar Sesión
             </button>
-            <p className="text-xs text-gray text-center mt-4">
-              Demo: usa la contraseña "feca2024"
-            </p>
           </form>
         </div>
       </div>
