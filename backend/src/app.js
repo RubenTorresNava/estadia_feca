@@ -4,6 +4,7 @@ import cors from 'cors';
 import AdministradorRoute from './routes/route.admin.js'
 import checkoutroute from './routes/route.checkout.js'
 import DashboarRoute from './routes/route.dashboard.js'
+import ProductoRoute from './routes/route.producto.js'
 
 
 const app = express();
@@ -19,7 +20,6 @@ app.use('/uploads', express.static('uploads'))
 app.use('/api/administrador', AdministradorRoute)
 app.use('/api/checkout', checkoutroute)
 app.use('/api/dashboard', DashboarRoute)
-
-
+app.use('/api/producto', ProductoRoute)
 
 export default app;
