@@ -11,10 +11,10 @@ const router = express.Router();
 
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
-router.get('/', verificarToken, adminController.obtenerOrdenes);
+router.get('/obtenerOrdenes', verificarToken, adminController.obtenerOrdenes);
 router.put('/:id/pago-confirmado', verificarToken, adminController.confirmarPago);
-router.post('/', [upload.single('imagen')], adminController.agregarProducto);
+router.post('/agregarProducto', [upload.single('imagen')], adminController.agregarProducto);
 router.put('/:id', verificarToken, adminController.actualizarProducto);
-router.patch('/destacar/:id', verificarToken, alternarDestacado);
+router.patch('/destacarProducto/:id', verificarToken, alternarDestacado);
 
 export default router;

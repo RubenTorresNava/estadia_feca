@@ -11,7 +11,6 @@ PUT /api/productos
   "descripcion": "Color guinda con bordado oficial",
   "precio": 450.0,
   "stock_actual": 30,
-  "imagen_url": "/uploads/1740950000-sudadera.jpg"
 }
 
 PUT /api/productos/:id
@@ -42,4 +41,8 @@ PATCH /api/ventas/:id/estado
 {
   "nuevoEstado": "pagada"
 }
+
+PATCH /api/administrador/destacar/:id
+
+GET /api/productos/
 

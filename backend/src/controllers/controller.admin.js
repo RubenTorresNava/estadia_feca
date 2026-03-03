@@ -39,7 +39,7 @@ export const confirmarPago = async (req, res) => {
 
 export const agregarProducto = async (req, res) => {
     try {
-        const { nombre, precio, stock_actual } = req.body;
+        const { nombre, precio, stock_actual, categoria } = req.body;
 
         const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
         
@@ -47,6 +47,7 @@ export const agregarProducto = async (req, res) => {
             nombre,
             precio,
             stock_actual,
+            categoria,
             imagen_url
         });
 

@@ -53,6 +53,11 @@ Producto.init({
             min: 0
         }
     },
+    categoria: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'General'
+    },
     activo: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

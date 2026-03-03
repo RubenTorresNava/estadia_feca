@@ -3,6 +3,8 @@ import * as productoController from '../controllers/controller.producto.js';
 
 const router = express.Router();
 
-router.get('/', productoController.obtenerProductos);
+router.get('/destacados', productoController.obtenerProductosDestacados);
+router.get('/', productoController.obtenerCatalogo);
+router.get('/categorias', productoController.obtenerCategoriasDisponibles);
 
 export default router;

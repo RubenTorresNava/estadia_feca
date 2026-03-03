@@ -10,7 +10,8 @@ export const ProductosTienda = sequelize.define('productos_tienda', {
     descripcion: DataTypes.STRING,
     precio: DataTypes.DECIMAL(10, 2),
     imagen_url: DataTypes.STRING,
-    disponibilidad: DataTypes.STRING
+    disponibilidad: DataTypes.STRING,
+    categoria: DataTypes.STRING
 }, {
     freezeTableName: true,
     timestamps: false,
