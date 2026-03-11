@@ -22,8 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (usuario: string, password: string): Promise<boolean> => {
     try {
-      // 1. Usamos 'api' en lugar de 'fetch'
-      // Ya no necesitas poner la URL completa ni los headers manualmente
+
       const response = await api.post("/administrador/login", { 
         usuario, 
         password 

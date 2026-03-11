@@ -15,7 +15,7 @@ router.get('/obtenerOrdenes', verificarToken, adminController.obtenerOrdenes);
 router.get('/obtenerProductos', verificarToken, adminController.obtenerProductos);
 router.put('/:id/pago-confirmado', verificarToken, adminController.confirmarPago);
 router.post('/agregarProducto', [upload.single('imagen')], adminController.agregarProducto);
-router.put('/:id', verificarToken, adminController.actualizarProducto);
+router.put('/editarProducto/:id', [upload.single('imagen')], verificarToken, adminController.actualizarProducto);
 router.patch('/destacarProducto/:id', verificarToken, alternarDestacado);
 
 export default router;

@@ -17,16 +17,24 @@ export const AdminProducts = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleCloseFormModal = () => {
+// Dentro de AdminProducts.tsx
+const handleCloseFormModal = () => {
     setIsFormModalOpen(false);
     setEditingProduct(null);
   };
 
   const handleSubmit = async (formData: FormData) => {
-    if (editingProduct) {
-      await updateProduct(editingProduct.id, formData);
-    } else {
-      await addProduct(formData);
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, formData);
+      } else {
+        await addProduct(formData);
+      }
+      // 3. SOLO si la petición fue exitosa, cerramos el modal
+      handleCloseFormModal();
+    } catch (err) {
+      // Si hay un error 400 o 500, el modal se queda abierto para que el usuario corrija
+      console.error("Error al procesar el producto en el componente:", err);
     }
   };
 

@@ -62,22 +62,28 @@ export const agregarProducto = async (req, res) => {
 };
 
 export const actualizarProducto = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, descripcion, precio, stock_actual, activo } = req.body;
-
     try {
+        const { id } = req.params;
+        const { nombre, descripcion, precio, stock_actual, categoria } = req.body;
+
         const producto = await Producto.findByPk(id);
         if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
+
+        const imagen_url = req.file ? `/uploads/${req.file.filename}` : producto.imagen_url;
 
         await producto.update({
             nombre,
             descripcion,
             precio,
             stock_actual,
-            activo
+            categoria,
+            imagen_url
         });
 
-        res.json({ msg: "Producto actualizado correctamente", producto });
+        res.json({
+            msg: "Producto actualizado",
+            producto
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -90,5 +96,4 @@ export const obtenerProductos = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-
 }

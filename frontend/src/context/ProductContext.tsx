@@ -74,20 +74,31 @@ const addProduct = async (productData: FormData) => {
 };
 
   // 3. Actualizar producto
-  const updateProduct = async (productId: string, productData: FormData) => {
-    try {
-      const response = await api.put(`/productos/${productId}`, productData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      setProducts((prev) =>
-        prev.map((p) => (p.id === productId ? response.data : p))
-      );
-    } catch (e) {
-      console.error('Error al actualizar:', e);
-      throw e;
-    }
-  };
+const updateProduct = async (productId: string, productData: FormData) => {
+  try {
+    const response = await api.put(`/administrador/editarProducto/${productId}`, productData);
+    
+    const updatedProdBackend = response.data.producto;
+    const URL_BASE = "http://localhost:3000";
+
+    const productoValidado: Product = {
+      ...updatedProdBackend,
+      id: updatedProdBackend.id.toString(),
+      precio: parseFloat(updatedProdBackend.precio),
+      imagen_url: updatedProdBackend.imagen_url.startsWith('http') 
+                  ? updatedProdBackend.imagen_url 
+                  : `${URL_BASE}${updatedProdBackend.imagen_url}`
+    };
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? productoValidado : p))
+    );
+
+  } catch (e) {
+    console.error("Error al editar producto:", e);
+    throw e;
+  }
+};
 
   // 4. Eliminar producto
   const deleteProduct = async (productId: string) => {
