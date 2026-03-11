@@ -89,11 +89,33 @@ export const actualizarProducto = async (req, res) => {
     }
 };
 
+//obtener solo los que tengan los que tengan el estado de activo
 export const obtenerProductos = async (req, res) => {
     try {
-        const productos = await Producto.findAll();
+        const productos = await Producto.findAll({
+            where: { activo: true }
+        });
         res.json(productos);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
+
+export const eliminarProducto = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const producto = await Producto.findByPk(id);
+
+        if(!producto){
+            return res.status(404).json({ msg: "Producto no encontrado" });
+        }
+
+        await producto.update({
+            activo: false
+        });
+
+        res.json({ msg: "Producto eliminado" });
+    } catch (error) {
+        res.status(500).json({ error: error.message }); 
+        }
+    }

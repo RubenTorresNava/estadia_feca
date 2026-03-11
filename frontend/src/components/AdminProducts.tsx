@@ -43,13 +43,20 @@ const handleCloseFormModal = () => {
     setIsConfirmModalOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (deletingProductId) {
+ const handleConfirmDelete = async () => {
+  if (deletingProductId) {
+    try {
+      // Llamamos a la función del contexto
       await deleteProduct(deletingProductId);
+      
+      // Cerramos el modal de confirmación
+      setIsConfirmModalOpen(false);
+      setDeletingProductId(null);
+    } catch (error) {
+      alert("No se pudo eliminar el producto");
     }
-    setIsConfirmModalOpen(false);
-    setDeletingProductId(null);
-  };
+  }
+};
 
   if (loading) return <p>Cargando productos...</p>;
   if (error) return <p className="text-primary">{error}</p>;

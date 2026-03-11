@@ -17,5 +17,6 @@ router.put('/:id/pago-confirmado', verificarToken, adminController.confirmarPago
 router.post('/agregarProducto', [upload.single('imagen')], adminController.agregarProducto);
 router.put('/editarProducto/:id', [upload.single('imagen')], verificarToken, adminController.actualizarProducto);
 router.patch('/destacarProducto/:id', verificarToken, alternarDestacado);
+router.delete('/eliminarProducto/:id', verificarToken, adminController.eliminarProducto);
 
 export default router;

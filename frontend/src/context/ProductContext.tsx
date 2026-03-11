@@ -104,7 +104,7 @@ const updateProduct = async (productId: string, productData: FormData) => {
   const deleteProduct = async (productId: string) => {
     try {
       // Si tu backend hace soft delete, usa PATCH o PUT según tu API
-      await api.delete(`/productos/${productId}`);
+      await api.delete(`/administrador/eliminarProducto/${productId}`);
       
       setProducts((prev) => prev.filter((p) => p.id !== productId));
     } catch (e) {
