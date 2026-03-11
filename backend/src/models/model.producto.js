@@ -42,6 +42,10 @@ Producto.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    descripcion: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     precio: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false

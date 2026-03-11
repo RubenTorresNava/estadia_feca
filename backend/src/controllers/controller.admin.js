@@ -39,12 +39,13 @@ export const confirmarPago = async (req, res) => {
 
 export const agregarProducto = async (req, res) => {
     try {
-        const { nombre, precio, stock_actual, categoria } = req.body;
+        const { nombre, descripcion, precio, stock_actual, categoria } = req.body;
 
         const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
         
         const nuevoProducto = await Producto.create({
             nombre,
+            descripcion,
             precio,
             stock_actual,
             categoria,
@@ -62,7 +63,7 @@ export const agregarProducto = async (req, res) => {
 
 export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
-    const { nombre, precio, stock_actual, activo } = req.body;
+    const { nombre, descripcion, precio, stock_actual, activo } = req.body;
 
     try {
         const producto = await Producto.findByPk(id);
@@ -70,6 +71,7 @@ export const actualizarProducto = async (req, res) => {
 
         await producto.update({
             nombre,
+            descripcion,
             precio,
             stock_actual,
             activo

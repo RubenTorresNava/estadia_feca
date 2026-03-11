@@ -1,4 +1,5 @@
 import express, {json} from 'express';
+import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
 import AdministradorRoute from './routes/route.admin.js'

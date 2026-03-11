@@ -10,54 +10,51 @@ interface ProductFormModalProps {
 }
 
 export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: ProductFormModalProps) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [category, setCategory] = useState('');
-  const [image, setImage] = useState<File | null>(null);
+  // Sincronizamos los estados con tu interfaz en español
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [stock_actual, setStockActual] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [imagen, setImagen] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Al cargar un producto para editar, usamos los nombres nuevos
   useEffect(() => {
     if (product) {
-      setName(product.name);
-      setDescription(product.description);
-      setPrice(String(product.price));
-      setStock(String(product.stock));
-      setCategory(product.category);
-      setImagePreview(product.image);
-      setImage(null);
+      setNombre(product.nombre);
+      setDescripcion(product.descripcion);
+      setPrecio(String(product.precio));
+      setStockActual(String(product.stock_actual));
+      setCategoria(product.categoria);
+      setImagePreview(product.imagen_url); // Mostramos la imagen que ya tiene
+      setImagen(null);
     } else {
-      setName('');
-      setDescription('');
-      setPrice('');
-      setStock('');
-      setCategory('');
-      setImage(null);
+      setNombre('');
+      setPrecio('');
+      setStockActual('');
+      setCategoria('');
+      setImagen(null);
       setImagePreview(null);
     }
   }, [product, isOpen]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // IMPORTANTE: Los nombres en append deben coincidir con lo que espera tu Backend (Multer/Controller)
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('stock', stock);
-    formData.append('category', category);
-    if (image) {
-      formData.append('image', image);
+    formData.append('nombre', nombre);
+    formData.append('descripcion', descripcion);
+    formData.append('precio', precio);
+    formData.append('stock_actual', stock_actual);
+    formData.append('categoria', categoria);
+    
+    if (imagen) {
+      // El nombre 'imagen' debe ser el mismo que uses en el backend: upload.single('imagen')
+      formData.append('imagen', imagen);
     }
 
     try {
@@ -69,6 +66,24 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       setIsSubmitting(false);
     }
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    
+    // 1. Guardamos el archivo real para el FormData
+    setImagen(file);
+
+    // 2. Creamos una URL temporal para que el usuario vea la foto antes de subirla
+    // Si ya había una previa de un archivo anterior, la liberamos
+    if (imagePreview && !imagePreview.startsWith('http')) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  }
+};
 
   if (!isOpen) return null;
 
@@ -83,29 +98,61 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
             <X className="h-5 w-5 text-gray" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-dark mb-1">Nombre</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full input-style" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-dark mb-1">Descripción</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} required className="w-full input-style" rows={4}></textarea>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-dark mb-1">Precio</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required className="w-full input-style" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-dark mb-1">Stock</label>
-              <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} required className="w-full input-style" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-dark mb-1">Categoría</label>
-              <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} required className="w-full input-style" />
-            </div>
-          </div>
+<form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-dark mb-1">Nombre</label>
+        <input 
+          type="text" 
+          value={nombre} 
+          onChange={(e) => setNombre(e.target.value)} 
+          required 
+          className="w-full input-style" 
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-dark mb-1">Descripción</label>
+        <textarea 
+          value={descripcion} 
+          onChange={(e) => setDescripcion(e.target.value)} 
+          required 
+          className="w-full input-style" 
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-dark mb-1">Precio</label>
+          <input 
+            type="number" 
+            step="0.01" // Permite decimales
+            value={precio} 
+            onChange={(e) => setPrecio(e.target.value)} 
+            required 
+            className="w-full input-style" 
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-dark mb-1">Stock</label>
+          <input 
+            type="number" 
+            value={stock_actual} 
+            onChange={(e) => setStockActual(e.target.value)} 
+            required 
+            className="w-full input-style" 
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-dark mb-1">Categoría</label>
+          <input 
+            type="text" 
+            value={categoria} 
+            onChange={(e) => setCategoria(e.target.value)} 
+            required 
+            className="w-full input-style" 
+          />
+        </div>
+      </div>
           <div>
             <label className="block text-sm font-medium text-dark mb-1">Imagen</label>
             <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray/40 px-6 py-10">

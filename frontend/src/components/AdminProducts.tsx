@@ -65,6 +65,7 @@ export const AdminProducts = () => {
               <tr className="border-b border-gray/20">
                 <th className="th-style">Producto</th>
                 <th className="th-style">Categoría</th>
+                <th className="th-style">Descripcion</th>
                 <th className="th-style">Precio</th>
                 <th className="th-style">Stock</th>
                 <th className="th-style">Acciones</th>
@@ -78,6 +79,7 @@ export const AdminProducts = () => {
                     <span className="font-medium text-dark">{product.nombre}</span>
                   </td>
                   <td className="td-style text-gray">{product.categoria}</td>
+                  <td className="td-style text-gray">{product.descripcion}</td>
                   <td className="td-style text-dark font-semibold">${product.precio.toFixed(2)}</td>
                   <td className="td-style">
                     <span className={`font-semibold ${product.stock_actual === 0 ? 'text-primary' : product.stock_actual <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>

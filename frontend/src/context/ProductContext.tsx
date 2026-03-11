@@ -14,6 +14,8 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
+const URL_BASE = 'http://localhost:3000';
+
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,9 @@ const fetchProducts = async () => {
     const validatedProducts = data.map((p: any) => ({
       ...p,
       precio: parseFloat(p.precio) || 0, 
-      imagen_url: p.imagen_url || 'https://via.placeholder.com/150',
+      imagen_url: p.imagen_url 
+    ? `${URL_BASE}${p.imagen_url.startsWith('/') ? '' : '/'}${p.imagen_url}`
+    : 'https://via.placeholder.com/150',
       id: p.id.toString() 
     }));
 
@@ -47,18 +51,27 @@ const fetchProducts = async () => {
   }, []);
 
   // 2. Agregar producto (Usando FormData para imágenes)
-  const addProduct = async (productData: FormData) => {
-    try {
-      const response = await api.post('/productos', productData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      // Actualizamos el estado con el producto que devuelve el backend
-      setProducts((prev) => [...prev, response.data]);
-    } catch (e) {
-      console.error('Error al agregar:', e);
-      throw e; // Lánzalo para que el componente UI pueda mostrar una alerta
-    }
-  };
+const addProduct = async (productData: FormData) => {
+  try {
+    const response = await api.post('/administrador/agregarProducto', productData);
+    
+    const nuevoProdBackend = response.data.producto;
+
+    const URL_BASE = "http://localhost:3000";
+    const productoParaEstado: Product = {
+      ...nuevoProdBackend,
+      id: nuevoProdBackend.id.toString(),
+      precio: parseFloat(nuevoProdBackend.precio),
+      imagen_url: `${URL_BASE}${nuevoProdBackend.imagen_url}`
+    };
+
+    setProducts((prev) => [...prev, productoParaEstado]);
+
+  } catch (e) {
+    console.error("Error al agregar producto:", e);
+    throw e;
+  }
+};
 
   // 3. Actualizar producto
   const updateProduct = async (productId: string, productData: FormData) => {
