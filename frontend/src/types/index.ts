@@ -1,12 +1,11 @@
 export interface Product {
   id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  stock: number;
-  featured?: boolean;
+  nombre: string;
+  precio: number;
+  stock_actual: number;
+  categoria: string;
+  activo: boolean;
+  imagen_url: string;
 }
 
 export interface CartItem {

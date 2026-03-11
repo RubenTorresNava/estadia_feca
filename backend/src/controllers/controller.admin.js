@@ -80,3 +80,13 @@ export const actualizarProducto = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+export const obtenerProductos = async (req, res) => {
+    try {
+        const productos = await Producto.findAll();
+        res.json(productos);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+
+}

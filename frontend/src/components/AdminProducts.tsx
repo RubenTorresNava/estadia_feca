@@ -74,14 +74,14 @@ export const AdminProducts = () => {
               {products.map((product) => (
                 <tr key={product.id} className="border-b border-gray/10">
                   <td className="td-style flex items-center gap-3">
-                    <img src={product.image} alt={product.name} className="h-10 w-10 object-cover rounded" />
-                    <span className="font-medium text-dark">{product.name}</span>
+                    <img src={product.imagen_url} alt={product.nombre} className="h-10 w-10 object-cover rounded" />
+                    <span className="font-medium text-dark">{product.nombre}</span>
                   </td>
-                  <td className="td-style text-gray">{product.category}</td>
-                  <td className="td-style text-dark font-semibold">${product.price.toFixed(2)}</td>
+                  <td className="td-style text-gray">{product.categoria}</td>
+                  <td className="td-style text-dark font-semibold">${product.precio.toFixed(2)}</td>
                   <td className="td-style">
-                    <span className={`font-semibold ${product.stock === 0 ? 'text-primary' : product.stock <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                      {product.stock} unidades
+                    <span className={`font-semibold ${product.stock_actual === 0 ? 'text-primary' : product.stock_actual <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {product.stock_actual} unidades
                     </span>
                   </td>
                   <td className="td-style">

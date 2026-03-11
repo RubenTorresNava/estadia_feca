@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import api from "../api/api.ts";
 
 interface AuthContextType {
   isAdmin: boolean;
@@ -14,36 +15,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = "http://localhost:3000/api/administrador";
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    const token = localStorage.getItem("feca-admin-token");
-    return !!token;
+    return !!localStorage.getItem("feca-admin-token");
   });
-
-  useEffect(() => {
-    const token = localStorage.getItem("feca-admin-token");
-    setIsAdmin(!!token);
-  }, []);
 
   const login = async (usuario: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ usuario, password }),
+      // 1. Usamos 'api' en lugar de 'fetch'
+      // Ya no necesitas poner la URL completa ni los headers manualmente
+      const response = await api.post("/administrador/login", { 
+        usuario, 
+        password 
       });
 
-      if (!response.ok) {
-        return false;
-      }
+      const { token } = response.data;
 
-      const data = await response.json();
-      if (data.token) {
-        localStorage.setItem("feca-admin-token", data.token);
+      if (token) {
+        localStorage.setItem("feca-admin-token", token);
         setIsAdmin(true);
         return true;
       }
@@ -68,8 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };

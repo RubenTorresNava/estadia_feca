@@ -9,7 +9,10 @@ import ProductoRoute from './routes/route.producto.js'
 
 const app = express();
 app.use(morgan('dev'));
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  allowedHeaders: ['Content-Type', 'x-token']
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
