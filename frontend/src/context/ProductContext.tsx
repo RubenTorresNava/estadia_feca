@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Product } from '../types';
 // Importa tu instancia de axios configurada
 import api from '../api/api.ts'; 
+import { useAuth } from './AuthContext.tsx';
+
 
 interface ProductContextType {
   products: Product[];
@@ -20,6 +22,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { isAdmin } = useAuth(); // Esto detectará cuando el login cambie isAdmin a true
 
 const fetchProducts = async () => {
   setLoading(true);
@@ -47,8 +51,10 @@ const fetchProducts = async () => {
 };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (isAdmin) {
+      fetchProducts();
+    }
+    }, [isAdmin]);
 
   // 2. Agregar producto (Usando FormData para imágenes)
 const addProduct = async (productData: FormData) => {

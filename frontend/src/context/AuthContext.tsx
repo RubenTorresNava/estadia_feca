@@ -20,27 +20,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return !!localStorage.getItem("feca-admin-token");
   });
 
-  const login = async (usuario: string, password: string): Promise<boolean> => {
-    try {
+const login = async (usuario: string, password: string): Promise<boolean> => {
+  try {
+    const response = await api.post("/administrador/login", { usuario, password });
+    const { token } = response.data;
 
-      const response = await api.post("/administrador/login", { 
-        usuario, 
-        password 
-      });
-
-      const { token } = response.data;
-
-      if (token) {
-        localStorage.setItem("feca-admin-token", token);
-        setIsAdmin(true);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error en el inicio de sesión:", error);
-      return false;
+    if (token) {
+      localStorage.setItem("feca-admin-token", token);
+      setIsAdmin(true);
+      
+      // Opcional: Si tienes acceso a fetchProducts aquí, puedes llamarlo
+      // o simplemente dejar que la redirección al Dashboard dispare el fetch
+      return true;
     }
-  };
+    return false;
+  } catch (error) {
+    console.error("Error en el inicio de sesión:", error);
+    return false;
+  }
+};
 
   const logout = () => {
     localStorage.removeItem("feca-admin-token");

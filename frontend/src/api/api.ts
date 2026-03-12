@@ -4,10 +4,12 @@ const api = axios.create({
   baseURL: 'http://localhost:3000/api'
 });
 
+// En tu archivo de configuración de API (donde creas axios.create)
+// api.ts
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('feca-admin-token');
+  const token = localStorage.getItem("feca-admin-token");
   if (token) {
-    config.headers['x-token'] = token;
+    config.headers["x-token"] = token;
   }
   return config;
 });
@@ -16,10 +18,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Si el token no es válido o expiró
+      // Solo limpiar y redirigir si NO estamos ya en la página de login
       localStorage.removeItem("feca-admin-token");
-      // Opcional: Redirigir al login
-      window.location.href = "/login";
+      
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
