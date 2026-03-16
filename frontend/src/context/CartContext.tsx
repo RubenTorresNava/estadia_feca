@@ -28,18 +28,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 const fetchOrders = async () => {
   try {
     const response = await api.get('/administrador/obtenerOrdenes');
+    // Si tu backend devuelve el array directo, usamos response.data
     const rawData = response.data.ordenes || response.data;
 
     const validatedOrders = rawData.map((o: any) => ({
+      ...o, // Esto mantiene id, folio_referencia, nombre_alumno, correo, estado, total_pago
       id: o.id.toString(),
-      reference: o.folio_referencia,
-      customerName: o.nombre_alumno,
-      customerEmail: o.correo,
-      total: parseFloat(o.total_pago),
-      status: o.estado === 'pagada' ? 'paid' : o.estado === 'pendiente' ? 'pending' : 'cancelled',
-      createdAt: o.fecha_creacion,
-      // Manejo de los items (detalle_orden)
-      items: o.detalles || [] 
+      // Nos aseguramos de que detalles exista y tenga los nombres correctos
+      detalles: (o.detalles || []).map((d: any) => ({
+        ...d,
+        nombre: d.producto?.nombre || 'Producto', 
+        precio_unitario: parseFloat(d.precio_unitario) || 0
+      }))
     }));
 
     setOrders(validatedOrders);
