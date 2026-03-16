@@ -1,13 +1,12 @@
 import { useCart } from '../context/CartContext';
-import { products } from '../data/products';
 import { useState } from 'react';
 import { Package, Clock, DollarSign, CheckCircle } from 'lucide-react';
-import { Order } from '../types';
+import { useProducts } from '../context/ProductContext';
 
 export const AdminSummary = () => {
   const { orders, confirmOrder } = useCart();
-  // Nota: Usa el contexto de productos para el contador si ya lo tienes conectado
-  // const { products } = useProducts(); 
+  //Nota: Usa el contexto de productos para el contador si ya lo tienes conectado
+  const { products } = useProducts(); 
 
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
@@ -23,6 +22,11 @@ export const AdminSummary = () => {
     }
   };
 
+const totalStock = products.reduce((sum, product) => {
+    return sum + (Number(product.stock_actual) || 0);
+  }, 0);
+
+
   // Filtrado ajustado a los nombres del JSON
   const pendingOrders = orders.filter((o) => o.estado === 'pendiente');
   const totalRevenue = orders
@@ -37,7 +41,7 @@ export const AdminSummary = () => {
             <Package className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Productos</h3>
           </div>
-          <p className="text-3xl font-bold text-dark">{products.length}</p>
+          <p className="text-3xl font-bold text-dark">{totalStock}</p>
           <p className="text-sm text-gray">Total en catálogo</p>
         </div>
 
