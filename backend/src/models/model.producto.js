@@ -1,5 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
+import OrdenVenta from './model.ordenventa.js';
+import DetalleOrden from './model.detalleorden.js';
+
 
 class Producto extends Model {
     
@@ -77,5 +80,8 @@ Producto.init({
     tableName: 'inventario',
     timestamps: false
 });
+
+OrdenVenta.hasMany(DetalleOrden, { foreignKey: 'orden_id', as: 'detalles'});
+DetalleOrden.belongsTo(Producto, { foreignKey: 'producto_id', as: 'producto'});
 
 export default Producto;

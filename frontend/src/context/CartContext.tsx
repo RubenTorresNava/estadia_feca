@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CartItem, Product, Order } from '../types';
+import api from '../api/api';
 
 interface CartContextType {
   cart: CartItem[];
@@ -20,32 +21,51 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('feca-cart');
     return saved ? JSON.parse(saved) : [];
-  });
+});
 
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('feca-orders');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('feca-cart', JSON.stringify(cart));
-  }, [cart]);
+const fetchOrders = async () => {
+  try {
+    const response = await api.get('/administrador/obtenerOrdenes');
+    const rawData = response.data.ordenes || response.data;
 
-  useEffect(() => {
-    localStorage.setItem('feca-orders', JSON.stringify(orders));
-  }, [orders]);
+    const validatedOrders = rawData.map((o: any) => ({
+      id: o.id.toString(),
+      reference: o.folio_referencia,
+      customerName: o.nombre_alumno,
+      customerEmail: o.correo,
+      total: parseFloat(o.total_pago),
+      status: o.estado === 'pagada' ? 'paid' : o.estado === 'pendiente' ? 'pending' : 'cancelled',
+      createdAt: o.fecha_creacion,
+      // Manejo de los items (detalle_orden)
+      items: o.detalles || [] 
+    }));
 
-  const addToCart = (product: Product, quantity: number) => {
+    setOrders(validatedOrders);
+  } catch (err) {
+    console.error("Error al cargar órdenes:", err);
+  }
+};
+
+    useEffect(() => {
+      const token = localStorage.getItem('feca-admin-token');
+      if (token) {
+        fetchOrders();
+      }
+  },[]);
+
+  const addToCart = (product: Product, cantidad: number) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, cantidad: item.cantidad + cantidad }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, cantidad }];
     });
   };
 
@@ -69,35 +89,37 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart([]);
   };
 
-  const createOrder = (order: Order) => {
-    setOrders((prev) => [...prev, order]);
-    clearCart();
+  const createOrder = async (order: Order) => {
+    try {
+      const response = await api.post('/checkout/', order);
+      clearCart();
+      return response.data;
+    } catch (err) {
+      console.error('Error al crear la orden:', err);
+      throw err;
+    }
   };
 
-  const confirmOrder = (orderId: string) => {
-    // NOTA: Esta es una implementación local. En un entorno real,
-    // aquí se haría una llamada a la API del backend.
-    // Ejemplo:
-    // const token = localStorage.getItem('admin-token');
-    // await fetch(`http://localhost:3000/api/administrador/${orderId}/pago-confirmado`, {
-    //   method: 'PUT',
-    //   headers: { 'x-token': token }
-    // });
+  const confirmOrder = async (orderId: string) => {
+    try {
+      await api.put(`/administrador/${orderId}/pago-confirmado}`, {status: 'pagado'});
+      setOrders((prev) => prev.map((order) =>
+        order.id === orderId ? { ...order, status: 'pagado' } : order
+      ));
 
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId ? { ...order, status: 'paid' } : order
-      )
-    );
+    } catch (err) {
+      console.error('Error al confirmar la orden:', err);
+      throw err;
+    }
   }
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    return cart.reduce((total, item) => total + item.product.precio * item.cantidad, 0);
     
   };
 
   const getCartItemsCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0);
+    return cart.reduce((count, item) => count + item.cantidad, 0);
   };
 
   return (

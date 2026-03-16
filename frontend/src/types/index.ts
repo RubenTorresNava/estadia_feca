@@ -10,21 +10,21 @@ export interface Product {
 }
 
 export interface CartItem {
-  product: Product;
-  quantity: number;
+  product: Product; // Este se mantiene para la lógica del carrito
+  cantidad: number;
+  precio_unitario: number;
 }
 
 export interface Order {
   id: string;
-  items: CartItem[];
-  total: number;
-  reference: string;
-  status: "pending" | "paid" | "cancelled";
-  createdAt: string;
-  expiresAt: string;
-  customerName: string;
-  customerEmail: string;
-  paymentMethod: "credit_card" | "debit_card";
+  folio_referencia: string; // Antes reference
+  nombre_alumno: string;    // Antes customerName
+  matricula: string;        // Nueva
+  correo: string;           // Antes customerEmail
+  total_pago: number;       // Antes total
+  estado: 'pendiente' | 'pagada' | 'cancelada'; // En español como tu ENUM
+  fecha_creacion: string;
+  detalles?: any[];         // Aquí vendrán los datos de detalle_orden
 }
 
 export type Page =

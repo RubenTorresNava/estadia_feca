@@ -1,15 +1,24 @@
 import OrdenVenta from '../models/model.ordenventa.js';
 import Producto from '../models/model.producto.js';
+import DetalleOrden from '../models/model.detalleorden.js';
 import sequelize from '../services/service.connection.js';
 
 export const obtenerOrdenes = async (req, res) => {
     try {
         const ordenes = await OrdenVenta.findAll({
+            include: [{
+                model: DetalleOrden,
+                as: 'detalles',
+                include: [{
+                    model: Producto,
+                    as: 'producto' // Esto traerá el nombre, imagen, etc.
+                }]
+            }],
             order: [['fecha_creacion', 'DESC']]
         });
         res.json(ordenes);
     } catch (error) {
-        res.status(500).json({ error: "Error al obtener las órdenes" });
+        res.status(500).json({ error: error.message });
     }
 };
 

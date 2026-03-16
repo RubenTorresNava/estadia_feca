@@ -83,7 +83,7 @@ export const AdminSummary = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray">{order.items.length} producto(s)</p>
+                    <p className="text-sm text-gray">{order.items?.length || 0} producto(s)</p>
                     <p className="font-bold text-primary">${order.total.toFixed(2)}</p>
                   </div>
                   {order.status === 'pending' && (
