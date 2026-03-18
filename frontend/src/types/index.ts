@@ -6,6 +6,7 @@ export interface Product {
   stock_actual: number;
   categoria: string;
   activo: boolean;
+  destacado: boolean
   imagen_url: string;
 }
 

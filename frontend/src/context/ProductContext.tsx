@@ -29,8 +29,9 @@ const fetchProducts = async () => {
   setLoading(true);
   try {
     const response = await api.get('/administrador/obtenerProductos');
-    
-    const data = response.data;
+    const rawData = response.data.productos || response.data;
+
+    const data = Array.isArray(rawData) ? rawData : [rawData];
 
     const validatedProducts = data.map((p: any) => ({
       ...p,
@@ -42,6 +43,7 @@ const fetchProducts = async () => {
     }));
 
     setProducts(validatedProducts);
+    setError(null);
   } catch (e) {
     console.error('Error al cargar productos:', e);
     setError('Error al cargar los productos');
@@ -51,10 +53,8 @@ const fetchProducts = async () => {
 };
 
   useEffect(() => {
-    if (isAdmin) {
       fetchProducts();
-    }
-    }, [isAdmin]);
+    }, []);
 
   // 2. Agregar producto (Usando FormData para imágenes)
 const addProduct = async (productData: FormData) => {
