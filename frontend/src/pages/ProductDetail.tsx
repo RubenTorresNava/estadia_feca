@@ -9,16 +9,14 @@ interface ProductDetailProps {
 }
 
 export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => {
-  const { products } = useProducts(); // Traemos los productos de la DB
+  const { products } = useProducts();
   
-  // Buscamos el producto en la lista que ya descargó el contexto
   const product = products.find((p) => p.id === productId);
   
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  // Si no hay productos o no se encuentra el ID
   if (!product) {
     return (
       <div className="min-h-screen bg-light flex items-center justify-center">
@@ -53,26 +51,21 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
         </button>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* IMAGEN DEL PRODUCTO */}
           <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray/10">
             <img
-              /* ✅ Usar imagen_url */
               src={product.imagen_url || '/placeholder-product.png'}
               alt={product.nombre}
               className="w-full h-[500px] object-cover"
             />
           </div>
 
-          {/* INFORMACIÓN DEL PRODUCTO */}
           <div>
-            {/* ✅ Usar categoria y nombre */}
             <p className="text-sm text-gray uppercase tracking-widest mb-2">{product.categoria}</p>
             <h1 className="text-4xl font-bold text-dark mb-4">{product.nombre}</h1>
             <p className="text-3xl font-bold text-primary mb-6">${Number(product.precio).toFixed(2)}</p>
 
             <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
               <h2 className="font-semibold text-dark mb-2">Descripción</h2>
-              {/* ✅ Usar descripcion */}
               <p className="text-gray leading-relaxed">
                 {product.descripcion || 'Sin descripción disponible por el momento.'}
               </p>
@@ -81,7 +74,6 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
             <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-dark font-medium">Disponibilidad:</span>
-                {/* ✅ Usar stock_actual */}
                 {product.stock_actual > 0 ? (
                   <span className="text-green-600 font-bold bg-green-50 px-2 py-1 rounded">
                     {product.stock_actual} unidades disponibles
@@ -106,7 +98,6 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
                         {quantity}
                       </span>
                       <button
-                        /* ✅ El límite superior es stock_actual */
                         onClick={() => setQuantity(Math.min(product.stock_actual, quantity + 1))}
                         className="p-2 rounded border border-gray-300 hover:bg-light transition-colors"
                       >
