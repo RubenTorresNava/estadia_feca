@@ -22,7 +22,7 @@ ChartJS.register(
   PointElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
 type ReportTab = "analysis" | "clients";
@@ -32,23 +32,23 @@ export const AdminReports = () => {
   const { products } = useProducts();
   const [activeTab, setActiveTab] = useState<ReportTab>("analysis");
 
-  // --- Lógica para los datos de los gráficos ---
-
-  // 1. Ventas por categoría
-  const salesByCategory = products.reduce(
-    (acc, product) => {
-      acc[product.category] = 0;
-      return acc;
-    },
-    {} as { [key: string]: number },
-  );
+  // --- 1. Lógica para Ventas por Categoría ---
+  const salesByCategory = products.reduce((acc, product) => {
+    // Usamos 'categoria' (nombre de tu DB)
+    if (product.categoria) {
+      acc[product.categoria] = 0;
+    }
+    return acc;
+  }, {} as { [key: string]: number });
 
   orders.forEach((order) => {
-    if (order.status === "paid") {
-      order.items.forEach((item) => {
-        if (salesByCategory[item.product.category] !== undefined) {
-          salesByCategory[item.product.category] +=
-            item.product.price * item.quantity;
+    // Usamos 'pagada' (estado real en tu DB)
+    if (order.estado === "pagada") {
+      // Usamos 'detalles' en lugar de 'items'
+      order.detalles?.forEach((detalle: any) => {
+        const cat = detalle.producto?.categoria;
+        if (cat && salesByCategory[cat] !== undefined) {
+          salesByCategory[cat] += Number(detalle.precio_unitario) * detalle.cantidad;
         }
       });
     }
@@ -58,7 +58,7 @@ export const AdminReports = () => {
     labels: Object.keys(salesByCategory),
     datasets: [
       {
-        label: "Ingresos por Categoría",
+        label: "Ingresos por Categoría ($)",
         data: Object.values(salesByCategory),
         backgroundColor: "#C73A3A",
         borderColor: "#6E2C2F",
@@ -67,29 +67,28 @@ export const AdminReports = () => {
     ],
   };
 
-  // 2. Evolución de órdenes
-  const ordersByDate = orders.reduce(
-    (acc, order) => {
-      const date = new Date(order.createdAt).toLocaleDateString();
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    },
-    {} as { [key: string]: number },
-  );
+  // --- 2. Evolución de órdenes ---
+  const ordersByDate = orders.reduce((acc, order) => {
+    // Usamos 'fecha_creacion' de tu JSON
+    const date = new Date(order.fecha_creacion).toLocaleDateString();
+    acc[date] = (acc[date] || 0) + 1;
+    return acc;
+  }, {} as { [key: string]: number });
 
   const sortedDates = Object.keys(ordersByDate).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    (a, b) => new Date(a).getTime() - new Date(b).getTime()
   );
 
   const ordersChartData = {
     labels: sortedDates,
     datasets: [
       {
-        label: "Órdenes Creadas por Día",
+        label: "Órdenes Totales por Día",
         data: sortedDates.map((date) => ordersByDate[date]),
-        fill: false,
+        fill: true,
+        backgroundColor: "rgba(199, 58, 58, 0.1)",
         borderColor: "#C73A3A",
-        tension: 0.1,
+        tension: 0.4,
       },
     ],
   };
@@ -99,16 +98,16 @@ export const AdminReports = () => {
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-dark mb-4">
-              Ventas por Categoría
-            </h3>
-            <Bar data={categoryChartData} options={{ responsive: true }} />
+            <h3 className="text-lg font-bold text-dark mb-4">Ventas por Categoría</h3>
+            <div className="h-[300px]">
+                <Bar data={categoryChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-dark mb-4">
-              Evolución de Órdenes
-            </h3>
-            <Line data={ordersChartData} options={{ responsive: true }} />
+            <h3 className="text-lg font-bold text-dark mb-4">Evolución de Órdenes</h3>
+            <div className="h-[300px]">
+                <Line data={ordersChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            </div>
           </div>
         </div>
       );
@@ -117,60 +116,39 @@ export const AdminReports = () => {
     if (activeTab === "clients") {
       return (
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-dark mb-4">
-            Resumen por Cliente
-          </h3>
+          <h3 className="text-lg font-bold text-dark mb-4">Resumen de Alumnos</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray/20">
-                  <th className="th-style">Cliente</th>
-                  <th className="th-style">Método de Pago</th>
-                  <th className="th-style">Total</th>
-                  <th className="th-style">Estado</th>
+                <tr className="border-b border-gray/20 text-left">
+                  <th className="p-3 text-sm font-bold text-gray-600">Alumno</th>
+                  <th className="p-3 text-sm font-bold text-gray-600">Matrícula</th>
+                  <th className="p-3 text-sm font-bold text-gray-600">Total</th>
+                  <th className="p-3 text-sm font-bold text-gray-600">Estado</th>
                 </tr>
               </thead>
               <tbody>
-                {orders
-                  .slice()
-                  .reverse()
-                  .map((order) => (
-                    <tr key={order.id} className="border-b border-gray/10">
-                      <td className="td-style">
-                        <p className="font-medium text-dark">
-                          {order.customerName}
-                        </p>
-                        <p className="text-xs text-gray">
-                          {order.customerEmail}
-                        </p>
-                      </td>
-                      <td className="td-style text-gray">
-                        {order.paymentMethod === "credit_card"
-                          ? "Tarjeta de Crédito"
-                          : "Tarjeta de Débito"}
-                      </td>
-                      <td className="td-style text-dark font-semibold">
-                        ${order.total.toFixed(2)}
-                      </td>
-                      <td className="td-style">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            order.status === "paid"
-                              ? "bg-green-100 text-green-700"
-                              : order.status === "pending"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {order.status === "paid"
-                            ? "Pagado"
-                            : order.status === "pending"
-                              ? "Pendiente"
-                              : "Cancelado"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                {orders.slice().reverse().map((order) => (
+                  <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
+                    <td className="p-3 text-sm">
+                      <p className="font-bold text-dark">{order.nombre_alumno}</p>
+                      <p className="text-xs text-gray">{order.correo}</p>
+                    </td>
+                    <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
+                    <td className="p-3 text-sm font-bold text-primary">
+                      ${Number(order.total_pago).toFixed(2)}
+                    </td>
+                    <td className="p-3 text-sm">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        order.estado === "pagada" ? "bg-green-100 text-green-700" : 
+                        order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
+                        "bg-red-100 text-red-700"
+                      }`}>
+                        {order.estado}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -180,36 +158,28 @@ export const AdminReports = () => {
   };
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <div className="mb-6 border-b border-gray/20">
         <nav className="flex space-x-4">
           <button
             onClick={() => setActiveTab("analysis")}
-            className={`py-3 px-4 font-medium text-sm ${activeTab === "analysis" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
+            className={`py-3 px-4 font-bold text-sm transition-colors ${activeTab === "analysis" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
           >
             Análisis de Ventas
           </button>
           <button
             onClick={() => setActiveTab("clients")}
-            className={`py-3 px-4 font-medium text-sm ${activeTab === "clients" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
+            className={`py-3 px-4 font-bold text-sm transition-colors ${activeTab === "clients" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
           >
-            Clientes
+            Lista de Alumnos
           </button>
         </nav>
       </div>
-      {orders.length > 0 ? (
-        renderContent()
-      ) : (
-        <div className="text-center py-16 bg-white rounded-lg shadow-md">
-          <p className="text-gray">
-            No hay suficientes datos para generar reportes.
-          </p>
+      {orders.length > 0 ? renderContent() : (
+        <div className="text-center py-20 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-200">
+          <p className="text-gray font-medium">No hay órdenes registradas para generar reportes.</p>
         </div>
       )}
-      <style>{`
-        .th-style { text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; color: #4A4A4D; }
-        .td-style { padding: 0.75rem 1rem; font-size: 0.875rem; }
-      `}</style>
     </div>
   );
 };
