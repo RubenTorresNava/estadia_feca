@@ -5,9 +5,9 @@ import api from '../api/api';
 interface CartContextType {
   cart: CartItem[];
   orders: Order[];
-  addToCart: (product: Product, quantity: number) => void;
+  addToCart: (product: Product, cantidad: number) => void;
   removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  updateQuantity: (productId: string, cantidad: number) => void;
   clearCart: () => void;
   createOrder: (order: Order) => void;
   confirmOrder: (orderId: string) => Promise<void>;
@@ -28,13 +28,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 const fetchOrders = async () => {
   try {
     const response = await api.get('/administrador/obtenerOrdenes');
-    // Si tu backend devuelve el array directo, usamos response.data
     const rawData = response.data.ordenes || response.data;
 
     const validatedOrders = rawData.map((o: any) => ({
-      ...o, // Esto mantiene id, folio_referencia, nombre_alumno, correo, estado, total_pago
       id: o.id.toString(),
-      // Nos aseguramos de que detalles exista y tenga los nombres correctos
       detalles: (o.detalles || []).map((d: any) => ({
         ...d,
         nombre: d.producto?.nombre || 'Producto', 
@@ -73,14 +70,14 @@ const fetchOrders = async () => {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
+  const updateQuantity = (productId: string, cantidad: number) => {
+    if (cantidad <= 0) {
       removeFromCart(productId);
       return;
     }
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product.id === productId ? { ...item, cantidad } : item
       )
     );
   };
@@ -89,20 +86,25 @@ const fetchOrders = async () => {
     setCart([]);
   };
 
-  const createOrder = async (order: Order) => {
-    try {
-      const response = await api.post('/checkout/', order);
+const createOrder = async (orderData: any) => {
+  try {
+    const response = await api.post('checkout/', orderData);
+    
+    const ordenFinal = response.data.nuevaOrden;
+
+    if (ordenFinal) {
       clearCart();
-      return response.data;
-    } catch (err) {
-      console.error('Error al crear la orden:', err);
-      throw err;
+      return ordenFinal;
     }
-  };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 
   const confirmOrder = async (orderId: string) => {
     try {
-      await api.put(`/administrador/${orderId}/pago-confirmado}`, {status: 'pagado'});
+      await api.put(`/administrador/${orderId}/pago-confirmado`, {status: 'pagado'});
       setOrders((prev) => prev.map((order) =>
         order.id === orderId ? { ...order, status: 'pagado' } : order
       ));

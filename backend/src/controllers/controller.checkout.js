@@ -48,7 +48,7 @@ export const checkout = async (req, res) => {
 
         await t.commit();
 
-        res.status(201).json({ msg: "Pedido generado", folio: nuevaOrden.folio_referencia });
+        res.status(201).json({ msg: "Pedido generado", nuevaOrden});
 
     } catch (error) {
         if (t) await t.rollback();

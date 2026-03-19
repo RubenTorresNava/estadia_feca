@@ -15,7 +15,8 @@ import { OrderConfirmation } from './components/OrderConfirmation';
 function AppContent() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [lastOrderId, setLastOrderId] = useState<string | null>(null);
+  const [lastCreatedOrder, setLastCreatedOrder] = useState<any | null>(null); 
+  
   const { orders } = useCart();
 
   const handleNavigate = (page: string, productId?: string) => {
@@ -26,9 +27,10 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleOrderCreated = (orderId: string) => {
-    setLastOrderId(orderId);
-    handleNavigate('confirmation');
+const handleOrderCreated = (order: any) => {
+    setLastCreatedOrder(order);
+    setCurrentPage('confirmation');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const renderPage = () => {
@@ -49,16 +51,14 @@ function AppContent() {
         return <Checkout onNavigate={handleNavigate} onOrderCreated={handleOrderCreated} />;
       case 'admin':
         return <Admin onNavigate={handleNavigate} />;
-      case 'confirmation': {
-        const lastOrder = orders.find((o) => o.id === lastOrderId);
-        return lastOrder ? (
-          <OrderConfirmation order={lastOrder} onNavigate={handleNavigate} />
+        case 'confirmation':
+          return lastCreatedOrder ? (
+          <OrderConfirmation order={lastCreatedOrder} onNavigate={handleNavigate} />
         ) : (
-          <Home onNavigate={handleNavigate} />
-        );
-      }
+        <Home onNavigate={handleNavigate} />
+      );
       default:
-        return <Home onNavigate={handleNavigate} />;
+      return <Home onNavigate={handleNavigate} />;
     }
   };
 

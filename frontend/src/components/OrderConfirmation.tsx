@@ -9,9 +9,11 @@ interface OrderConfirmationProps {
 
 export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps) => {
   const [copied, setCopied] = useState(false);
+  console.log(order);
+
 
   const handleCopyReference = () => {
-    navigator.clipboard.writeText(order.reference);
+    navigator.clipboard.writeText(order.folio_referencia);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -33,7 +35,7 @@ export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps)
             <p className="text-sm text-gray mb-2">Referencia de pago:</p>
             <div className="flex items-center justify-center gap-3">
               <p className="text-2xl font-bold text-primary font-mono">
-                {order.reference}
+                {order.folio_referencia}
               </p>
               <button
                 onClick={handleCopyReference}
@@ -57,12 +59,12 @@ export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps)
               <li>
                 3. Proporciona la referencia:{' '}
                 <span className="font-mono font-semibold">
-                  {order.reference}
+                  {order.folio_referencia}
                 </span>
               </li>
               <li>
                 4. Realiza el pago por:{' '}
-                <span className="font-bold text-primary">${order.total}</span>
+                <span className="font-bold text-primary">${Number(order.total_pago).toFixed(2)}</span>
               </li>
               <li>
                 5. El pedido será autorizado en 1-2 horas después del pago.
@@ -73,7 +75,7 @@ export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps)
           <div className="border-t border-gray/20 pt-6 mb-6">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray">Total a pagar:</span>
-              <span className="font-bold text-dark text-xl">${order.total}</span>
+              <span className="font-bold text-dark text-xl">${order.total_pago}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray">Expira en:</span>
