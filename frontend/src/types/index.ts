@@ -1,12 +1,23 @@
+
+export type Category =
+  | "Ropa"
+  | "Accesorios"
+  | "Papelería"
+  | "Electrónica"
+  | "Botellas y termos"
+  | "Bolsas y mochilas"
+  | "Stickers y pines"
+  | "Otros";
+
 export interface Product {
   id: string;
   nombre: string;
   descripcion: string;
   precio: number;
   stock_actual: number;
-  categoria: string;
+  categoria: Category;
   activo: boolean;
-  destacado: boolean
+  destacado: boolean;
   imagen_url: string;
 }
 
