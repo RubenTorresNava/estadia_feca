@@ -3,7 +3,7 @@ import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 import { ConfirmationModal } from './ConfirmationModal'; 
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Star } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 
 
@@ -141,6 +141,12 @@ const handleCloseFormModal = () => {
                     </td>
                     <td className="td-style">
                       <div className="flex gap-2">
+                        <button
+                          className="p-2 hover:bg-yellow-100 rounded-full group"
+                          title="Destacar producto"
+                        >
+                          <Star className="h-4 w-4 text-yellow-400 group-hover:scale-110 transition-transform" fill="none" />
+                        </button>
                         <button onClick={() => handleOpenFormModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
                         <button onClick={() => handleDeleteRequest(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
                       </div>
