@@ -10,7 +10,7 @@ interface ProductFormModalProps {
 }
 
 export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: ProductFormModalProps) => {
-  // Sincronizamos los estados con tu interfaz en español
+  
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [precio, setPrecio] = useState('');
@@ -21,7 +21,6 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Al cargar un producto para editar, usamos los nombres nuevos
   useEffect(() => {
     if (product) {
       setNombre(product.nombre);
@@ -29,7 +28,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       setPrecio(String(product.precio));
       setStockActual(String(product.stock_actual));
       setCategoria(product.categoria);
-      setImagePreview(product.imagen_url); // Mostramos la imagen que ya tiene
+      setImagePreview(product.imagen_url); 
       setImagen(null);
     } else {
       setNombre('');
@@ -43,7 +42,6 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
 
   // Función para limpiar y validar entradas
   const sanitizeText = (text: string, maxLen: number = 100) => {
-    // Elimina espacios al inicio/fin, reemplaza múltiples espacios, elimina caracteres peligrosos
     return text
       .trim()
       .replace(/\s+/g, ' ')
@@ -58,7 +56,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
     if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) newErrors.precio = 'Precio inválido';
     if (!stock_actual || isNaN(Number(stock_actual)) || Number(stock_actual) < 0) newErrors.stock_actual = 'Stock inválido';
     if (!categoria) newErrors.categoria = 'Selecciona una categoría';
-    // Imagen: opcional, pero podrías validar tipo/tamaño aquí
+    
     return newErrors;
   };
 
@@ -71,7 +69,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       setIsSubmitting(false);
       return;
     }
-    // Sanitizar antes de enviar
+    
     const cleanNombre = sanitizeText(nombre);
     const cleanDescripcion = sanitizeText(descripcion, 300);
     const cleanPrecio = String(Number(precio));
