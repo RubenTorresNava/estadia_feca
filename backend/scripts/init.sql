@@ -85,7 +85,8 @@ CREATE VIEW vista_stock_critico AS
 SELECT id, nombre, stock_actual FROM inventario WHERE stock_actual < 10 AND activo = true;
 
 -- Datos Semilla (Seeders)
-INSERT INTO administradores (usuario, password, nombre) VALUES ('admin_root', crypt('1234', gen_salt('bf')));
+-- Hash bcrypt para '1234' generado previamente
+INSERT INTO administradores (usuario, password) VALUES ('admin_root', '$2b$10$ul6Wr0C9pNEnq7k/wwLjoO//Oa3gcvoeWzB1Q1EYc/NeNiMtgPJ0e');
 
 INSERT INTO inventario (nombre, descripcion, precio, stock_actual, categoria, destacado) VALUES
 ('Sudadera FECA L', 'Guinda oficial', 450.00, 20, 'Ropa', true),
