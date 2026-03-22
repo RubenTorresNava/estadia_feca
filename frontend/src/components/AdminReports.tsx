@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../context/ProductContext";
 import {
@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { SearchBar } from "./SearchBar";
 import { Bar, Line } from "react-chartjs-2";
 
 ChartJS.register(
@@ -25,16 +26,33 @@ ChartJS.register(
   Legend
 );
 
+
 type ReportTab = "analysis" | "clients";
 
 export const AdminReports = () => {
   const { orders } = useCart();
   const { products } = useProducts();
   const [activeTab, setActiveTab] = useState<ReportTab>("analysis");
+  const [search, setSearch] = useState("");
+
+  // Filtrado de órdenes general (para ambos tabs)
+  const filteredOrders = useMemo(() => {
+    const lower = search.trim().toLowerCase();
+    return orders.filter(
+      (order) =>
+        !lower ||
+        order.id?.toString().includes(lower) ||
+        order.nombre_alumno?.toLowerCase().includes(lower) ||
+        order.matricula?.toLowerCase().includes(lower) ||
+        order.correo?.toLowerCase().includes(lower) ||
+        order.estado?.toLowerCase().includes(lower) ||
+        order.fecha_creacion?.toLowerCase().includes(lower) ||
+        order.total_pago?.toString().includes(lower)
+    );
+  }, [orders, search]);
 
   // --- 1. Lógica para Ventas por Categoría ---
   const salesByCategory = products.reduce((acc, product) => {
-    // Usamos 'categoria' (nombre de tu DB)
     if (product.categoria) {
       acc[product.categoria] = 0;
     }
@@ -42,9 +60,7 @@ export const AdminReports = () => {
   }, {} as { [key: string]: number });
 
   orders.forEach((order) => {
-    // Usamos 'pagada' (estado real en tu DB)
     if (order.estado === "pagada") {
-      // Usamos 'detalles' en lugar de 'items'
       order.detalles?.forEach((detalle: any) => {
         const cat = detalle.producto?.categoria;
         if (cat && salesByCategory[cat] !== undefined) {
@@ -69,7 +85,6 @@ export const AdminReports = () => {
 
   // --- 2. Evolución de órdenes ---
   const ordersByDate = orders.reduce((acc, order) => {
-    // Usamos 'fecha_creacion' de tu JSON
     const date = new Date(order.fecha_creacion).toLocaleDateString();
     acc[date] = (acc[date] || 0) + 1;
     return acc;
@@ -96,20 +111,78 @@ export const AdminReports = () => {
   const renderContent = () => {
     if (activeTab === "analysis") {
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-dark mb-4">Ventas por Categoría</h3>
-            <div className="h-[300px]">
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-bold text-dark mb-4">Ventas por Categoría</h3>
+              <div className="h-[300px]">
                 <Bar data={categoryChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-bold text-dark mb-4">Evolución de Órdenes</h3>
+              <div className="h-[300px]">
+                <Line data={ordersChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+              </div>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-dark mb-4">Evolución de Órdenes</h3>
-            <div className="h-[300px]">
-                <Line data={ordersChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <h3 className="text-lg font-bold text-dark">Órdenes Recientes</h3>
+              <SearchBar
+                placeholder="Buscar orden por ID, alumno, correo, estado, fecha..."
+                onSearch={setSearch}
+                className="sm:w-72 w-full"
+              />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray/20 text-left">
+                    <th className="p-3 text-sm font-bold text-gray-600">ID</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Alumno</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Matrícula</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Correo</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Fecha</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Total</th>
+                    <th className="p-3 text-sm font-bold text-gray-600">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-gray">No hay órdenes que coincidan con la búsqueda.</td>
+                    </tr>
+                  ) : (
+                    filteredOrders.slice().reverse().map((order) => (
+                      <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
+                        <td className="p-3 text-sm">{order.id}</td>
+                        <td className="p-3 text-sm">
+                          <p className="font-bold text-dark">{order.nombre_alumno}</p>
+                        </td>
+                        <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
+                        <td className="p-3 text-sm text-gray-600">{order.correo}</td>
+                        <td className="p-3 text-sm text-gray-600">{order.fecha_creacion}</td>
+                        <td className="p-3 text-sm font-bold text-primary">
+                          ${Number(order.total_pago).toFixed(2)}
+                        </td>
+                        <td className="p-3 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            order.estado === "pagada" ? "bg-green-100 text-green-700" : 
+                            order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
+                            "bg-red-100 text-red-700"
+                          }`}>
+                            {order.estado}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
+        </>
       );
     }
 
@@ -117,6 +190,13 @@ export const AdminReports = () => {
       return (
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-bold text-dark mb-4">Resumen de Alumnos</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <SearchBar
+              placeholder="Buscar alumno, matrícula, correo o estado..."
+              onSearch={setSearch}
+              className="sm:w-72 w-full"
+            />
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -128,27 +208,33 @@ export const AdminReports = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.slice().reverse().map((order) => (
-                  <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
-                    <td className="p-3 text-sm">
-                      <p className="font-bold text-dark">{order.nombre_alumno}</p>
-                      <p className="text-xs text-gray">{order.correo}</p>
-                    </td>
-                    <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
-                    <td className="p-3 text-sm font-bold text-primary">
-                      ${Number(order.total_pago).toFixed(2)}
-                    </td>
-                    <td className="p-3 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        order.estado === "pagada" ? "bg-green-100 text-green-700" : 
-                        order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
-                        "bg-red-100 text-red-700"
-                      }`}>
-                        {order.estado}
-                      </span>
-                    </td>
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="text-center py-8 text-gray">No hay órdenes que coincidan con la búsqueda.</td>
                   </tr>
-                ))}
+                ) : (
+                  filteredOrders.slice().reverse().map((order) => (
+                    <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
+                      <td className="p-3 text-sm">
+                        <p className="font-bold text-dark">{order.nombre_alumno}</p>
+                        <p className="text-xs text-gray">{order.correo}</p>
+                      </td>
+                      <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
+                      <td className="p-3 text-sm font-bold text-primary">
+                        ${Number(order.total_pago).toFixed(2)}
+                      </td>
+                      <td className="p-3 text-sm">
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                          order.estado === "pagada" ? "bg-green-100 text-green-700" : 
+                          order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
+                          "bg-red-100 text-red-700"
+                        }`}>
+                          {order.estado}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
