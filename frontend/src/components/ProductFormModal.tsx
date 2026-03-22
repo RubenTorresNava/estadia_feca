@@ -99,11 +99,11 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   if (e.target.files && e.target.files[0]) {
     const file = e.target.files[0];
     
-    // 1. Guardamos el archivo real para el FormData
+    
     setImagen(file);
 
-    // 2. Creamos una URL temporal para que el usuario vea la foto antes de subirla
-    // Si ya había una previa de un archivo anterior, la liberamos
+    
+    
     if (imagePreview && !imagePreview.startsWith('http')) {
       URL.revokeObjectURL(imagePreview);
     }
