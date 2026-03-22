@@ -40,8 +40,10 @@ export const Admin = ({ onNavigate }: AdminProps) => {
     return (
       <div className="min-h-screen bg-light flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-          <div className="flex justify-center mb-6">
-            <img src="/fecastor.png" alt="FECA" className="h-16 w-16" />
+          <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-full shadow-lg border-2 border-primary flex items-center justify-center" style={{ width: 140, height: 140 }}>
+              <img src="/fecastor.png" alt="FECA" className="h-32 w-32 object-contain" />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-dark text-center mb-6">
             Panel de Administración
