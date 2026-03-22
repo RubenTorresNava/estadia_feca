@@ -48,7 +48,7 @@ Administrador.init({
 }, {
     sequelize,
     modelName: 'Administrador',
-    tableName: 'administrador',
+    tableName: 'administradores',
     timestamps: false,
         hooks: {
         beforeCreate: async (admin) => {
