@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION fn_cambio_estado_orden() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.estado = 'pagada' AND OLD.estado = 'pendiente' THEN
         INSERT INTO historial_contable (orden_id, accion, monto) VALUES (NEW.id, 'VENTA_CONFIRMADA', NEW.total_pago);
-    ELSIF NEW.estado = 'cancelada' AND OLD.estado = 'pendiente' THEN
+    ELSIF NEW.estado = 'cancelado' AND OLD.estado = 'pendiente' THEN
         UPDATE inventario i SET stock_actual = i.stock_actual + det.cantidad
         FROM detalle_orden det WHERE det.producto_id = i.id AND det.orden_id = NEW.id;
         INSERT INTO historial_contable (orden_id, accion, monto) VALUES (NEW.id, 'ORDEN_CANCELADA', NEW.total_pago);

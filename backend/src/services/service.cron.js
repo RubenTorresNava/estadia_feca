@@ -9,7 +9,7 @@ const tarea = async () => {
 
     try {
         const [actualizados] = await OrdenVenta.update(
-            { estado: 'cancelada' },
+            { estado: 'cancelado' },
             {
                 where: {
                     estado: 'pendiente',
