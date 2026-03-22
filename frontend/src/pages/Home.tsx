@@ -1,6 +1,8 @@
+import { useState, useMemo } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { ArrowRight } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
+import { SearchBar } from '../components/SearchBar';
 interface HomeProps {
   onNavigate: (page: string, productId?: string) => void;
 }
@@ -10,11 +12,23 @@ export const Home = ({ onNavigate }: HomeProps) => {
   // Extraemos productos y estado de carga del contexto
   const { products, loading } = useProducts();
 
-  // Filtramos: solo productos marcados como destacados o con stock disponible
-  // Nota: Si no tienes columna 'featured', puedes usar .slice(0, 4) para los más nuevos
-  const featuredProducts = products
-    .filter((p) => p.destacado || p.stock_actual > 0)
-    .slice(0, 4); 
+
+  // Estado para búsqueda
+  const [search, setSearch] = useState('');
+
+  // Filtrado y búsqueda combinados
+  const filteredProducts = useMemo(() => {
+    const lower = search.trim().toLowerCase();
+    return products
+      .filter((p) => p.destacado || p.stock_actual > 0)
+      .filter((p) =>
+        !lower ||
+        p.nombre?.toLowerCase().includes(lower) ||
+        p.categoria?.toLowerCase().includes(lower) ||
+        p.descripcion?.toLowerCase().includes(lower)
+      )
+      .slice(0, 4);
+  }, [products, search]);
 
   if (loading) {
     return (
@@ -26,23 +40,30 @@ export const Home = ({ onNavigate }: HomeProps) => {
 
   return (
     <div className="min-h-screen bg-light">
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex items-center justify-between mb-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <h2 className="text-3xl font-bold text-dark">Novedades FECA</h2>
-          <button
-            onClick={() => onNavigate('catalog')}
-            className="text-primary hover:text-primary-dark font-medium inline-flex items-center gap-1 transition-colors"
-          >
-            Ver catálogo completo
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <SearchBar
+              placeholder="Buscar producto, categoría o descripción..."
+              onSearch={setSearch}
+              className="sm:w-72 w-full"
+            />
+            <button
+              onClick={() => onNavigate('catalog')}
+              className="text-primary hover:text-primary-dark font-medium inline-flex items-center gap-1 transition-colors sm:ml-2"
+            >
+              Ver catálogo completo
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {featuredProducts.length === 0 ? (
-          <p className="text-center text-gray py-10">No hay productos disponibles actualmente.</p>
+        {filteredProducts.length === 0 ? (
+          <p className="text-center text-gray py-10">No hay productos que coincidan con la búsqueda.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}

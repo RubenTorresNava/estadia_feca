@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 import { ConfirmationModal } from './ConfirmationModal'; 
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import { SearchBar } from './SearchBar';
+
 
 export const AdminProducts = () => {
   const { products, loading, error, addProduct, updateProduct, deleteProduct } = useProducts();
@@ -11,6 +13,19 @@ export const AdminProducts = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null); 
+  const [search, setSearch] = useState('');
+
+  // Filtrado de productos por búsqueda
+  const filteredProducts = useMemo(() => {
+    const lower = search.trim().toLowerCase();
+    return products.filter(
+      (p) =>
+        !lower ||
+        p.nombre?.toLowerCase().includes(lower) ||
+        p.categoria?.toLowerCase().includes(lower) ||
+        p.descripcion?.toLowerCase().includes(lower)
+    );
+  }, [products, search]);
 
   const handleOpenFormModal = (product?: Product) => {
     setEditingProduct(product || null);
@@ -64,15 +79,22 @@ const handleCloseFormModal = () => {
   return (
     <>
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <h2 className="text-xl font-bold text-dark">Inventario de Productos</h2>
-          <button
-            onClick={() => handleOpenFormModal()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-semibold"
-          >
-            <Plus className="h-4 w-4" />
-            Agregar Producto
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <SearchBar
+              placeholder="Buscar producto, categoría o descripción..."
+              onSearch={setSearch}
+              className="sm:w-72 w-full"
+            />
+            <button
+              onClick={() => handleOpenFormModal()}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-semibold sm:ml-2"
+            >
+              <Plus className="h-4 w-4" />
+              Agregar Producto
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -87,28 +109,34 @@ const handleCloseFormModal = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
-                <tr key={product.id} className="border-b border-gray/10">
-                  <td className="td-style flex items-center gap-3">
-                    <img src={product.imagen_url} alt={product.nombre} className="h-10 w-10 object-cover rounded" />
-                    <span className="font-medium text-dark">{product.nombre}</span>
-                  </td>
-                  <td className="td-style text-gray">{product.categoria}</td>
-                  <td className="td-style text-gray">{product.descripcion}</td>
-                  <td className="td-style text-dark font-semibold">${product.precio.toFixed(2)}</td>
-                  <td className="td-style">
-                    <span className={`font-semibold ${product.stock_actual === 0 ? 'text-primary' : product.stock_actual <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                      {product.stock_actual} unidades
-                    </span>
-                  </td>
-                  <td className="td-style">
-                    <div className="flex gap-2">
-                      <button onClick={() => handleOpenFormModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
-                      <button onClick={() => handleDeleteRequest(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
-                    </div>
-                  </td>
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-gray">No hay productos que coincidan con la búsqueda.</td>
                 </tr>
-              ))}
+              ) : (
+                filteredProducts.map((product) => (
+                  <tr key={product.id} className="border-b border-gray/10">
+                    <td className="td-style flex items-center gap-3">
+                      <img src={product.imagen_url} alt={product.nombre} className="h-10 w-10 object-cover rounded" />
+                      <span className="font-medium text-dark">{product.nombre}</span>
+                    </td>
+                    <td className="td-style text-gray">{product.categoria}</td>
+                    <td className="td-style text-gray">{product.descripcion}</td>
+                    <td className="td-style text-dark font-semibold">${product.precio.toFixed(2)}</td>
+                    <td className="td-style">
+                      <span className={`font-semibold ${product.stock_actual === 0 ? 'text-primary' : product.stock_actual <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
+                        {product.stock_actual} unidades
+                      </span>
+                    </td>
+                    <td className="td-style">
+                      <div className="flex gap-2">
+                        <button onClick={() => handleOpenFormModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
+                        <button onClick={() => handleDeleteRequest(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
