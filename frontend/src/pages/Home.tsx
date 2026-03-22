@@ -13,22 +13,24 @@ export const Home = ({ onNavigate }: HomeProps) => {
   const { products, loading } = useProducts();
 
 
-  // Estado para búsqueda
+  // Estado para búsqueda y filtro
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('nombre');
 
-  // Filtrado y búsqueda combinados
+  // Filtrado y búsqueda combinados por campo
   const filteredProducts = useMemo(() => {
     const lower = search.trim().toLowerCase();
     return products
       .filter((p) => p.destacado || p.stock_actual > 0)
-      .filter((p) =>
-        !lower ||
-        p.nombre?.toLowerCase().includes(lower) ||
-        p.categoria?.toLowerCase().includes(lower) ||
-        p.descripcion?.toLowerCase().includes(lower)
-      )
+      .filter((p) => {
+        if (!lower) return true;
+        if (filter === 'nombre') return p.nombre?.toLowerCase().includes(lower);
+        if (filter === 'categoria') return p.categoria?.toLowerCase().includes(lower);
+        if (filter === 'descripcion') return p.descripcion?.toLowerCase().includes(lower);
+        return false;
+      })
       .slice(0, 4);
-  }, [products, search]);
+  }, [products, search, filter]);
 
   if (loading) {
     return (
@@ -45,9 +47,15 @@ export const Home = ({ onNavigate }: HomeProps) => {
           <h2 className="text-3xl font-bold text-dark">Novedades FECA</h2>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <SearchBar
-              placeholder="Buscar producto, categoría o descripción..."
-              onSearch={setSearch}
+              placeholder="Buscar..."
+              onSearch={(q, f) => { setSearch(q); setFilter(f); }}
               className="sm:w-72 w-full"
+              options={[
+                { value: 'nombre', label: 'Producto' },
+                { value: 'categoria', label: 'Categoría' },
+                { value: 'descripcion', label: 'Descripción' },
+              ]}
+              defaultFilter="nombre"
             />
             <button
               onClick={() => onNavigate('catalog')}

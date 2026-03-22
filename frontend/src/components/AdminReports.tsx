@@ -34,22 +34,23 @@ export const AdminReports = () => {
   const { products } = useProducts();
   const [activeTab, setActiveTab] = useState<ReportTab>("analysis");
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("id");
 
-  // Filtrado de órdenes general (para ambos tabs)
+  // Filtrado de órdenes general (para ambos tabs) por campo
   const filteredOrders = useMemo(() => {
     const lower = search.trim().toLowerCase();
-    return orders.filter(
-      (order) =>
-        !lower ||
-        order.id?.toString().includes(lower) ||
-        order.nombre_alumno?.toLowerCase().includes(lower) ||
-        order.matricula?.toLowerCase().includes(lower) ||
-        order.correo?.toLowerCase().includes(lower) ||
-        order.estado?.toLowerCase().includes(lower) ||
-        order.fecha_creacion?.toLowerCase().includes(lower) ||
-        order.total_pago?.toString().includes(lower)
-    );
-  }, [orders, search]);
+    return orders.filter((order) => {
+      if (!lower) return true;
+      if (filter === 'id') return order.id?.toString().includes(lower);
+      if (filter === 'nombre_alumno') return order.nombre_alumno?.toLowerCase().includes(lower);
+      if (filter === 'matricula') return order.matricula?.toLowerCase().includes(lower);
+      if (filter === 'correo') return order.correo?.toLowerCase().includes(lower);
+      if (filter === 'estado') return order.estado?.toLowerCase().includes(lower);
+      if (filter === 'fecha_creacion') return order.fecha_creacion?.toLowerCase().includes(lower);
+      if (filter === 'total_pago') return order.total_pago?.toString().includes(lower);
+      return false;
+    });
+  }, [orders, search, filter]);
 
   // --- 1. Lógica para Ventas por Categoría ---
   const salesByCategory = products.reduce((acc, product) => {
@@ -130,9 +131,19 @@ export const AdminReports = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <h3 className="text-lg font-bold text-dark">Órdenes Recientes</h3>
               <SearchBar
-                placeholder="Buscar orden por ID, alumno, correo, estado, fecha..."
-                onSearch={setSearch}
+                placeholder="Buscar..."
+                onSearch={(q, f) => { setSearch(q); setFilter(f); }}
                 className="sm:w-72 w-full"
+                options={[
+                  { value: 'id', label: 'ID' },
+                  { value: 'nombre_alumno', label: 'Alumno' },
+                  { value: 'matricula', label: 'Matrícula' },
+                  { value: 'correo', label: 'Correo' },
+                  { value: 'estado', label: 'Estado' },
+                  { value: 'fecha_creacion', label: 'Fecha' },
+                  { value: 'total_pago', label: 'Total' },
+                ]}
+                defaultFilter="id"
               />
             </div>
             <div className="overflow-x-auto">
@@ -192,9 +203,15 @@ export const AdminReports = () => {
           <h3 className="text-lg font-bold text-dark mb-4">Resumen de Alumnos</h3>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <SearchBar
-              placeholder="Buscar alumno, matrícula, correo o estado..."
-              onSearch={setSearch}
+              placeholder="Buscar..."
+              onSearch={(q, f) => { setSearch(q); setFilter(f); }}
               className="sm:w-72 w-full"
+              options={[
+                { value: 'nombre_alumno', label: 'Alumno' },
+                { value: 'matricula', label: 'Matrícula' },
+                { value: 'correo', label: 'Correo' },
+              ]}
+              defaultFilter="nombre_alumno"
             />
           </div>
           <div className="overflow-x-auto">

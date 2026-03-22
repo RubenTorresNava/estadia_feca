@@ -14,18 +14,21 @@ export const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null); 
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('nombre');
 
-  // Filtrado de productos por búsqueda
+  // Filtrado de productos por búsqueda y campo
   const filteredProducts = useMemo(() => {
     const lower = search.trim().toLowerCase();
-    return products.filter(
-      (p) =>
-        !lower ||
-        p.nombre?.toLowerCase().includes(lower) ||
-        p.categoria?.toLowerCase().includes(lower) ||
-        p.descripcion?.toLowerCase().includes(lower)
-    );
-  }, [products, search]);
+    return products.filter((p) => {
+      if (!lower) return true;
+      if (filter === 'nombre') return p.nombre?.toLowerCase().includes(lower);
+      if (filter === 'categoria') return p.categoria?.toLowerCase().includes(lower);
+      if (filter === 'descripcion') return p.descripcion?.toLowerCase().includes(lower);
+      if (filter === 'stock') return p.stock_actual?.toString().includes(lower);
+      if (filter === 'precio') return p.precio?.toString().includes(lower);
+      return false;
+    });
+  }, [products, search, filter]);
 
   const handleOpenFormModal = (product?: Product) => {
     setEditingProduct(product || null);
@@ -83,9 +86,17 @@ const handleCloseFormModal = () => {
           <h2 className="text-xl font-bold text-dark">Inventario de Productos</h2>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <SearchBar
-              placeholder="Buscar producto, categoría o descripción..."
-              onSearch={setSearch}
+              placeholder="Buscar..."
+              onSearch={(q, f) => { setSearch(q); setFilter(f); }}
               className="sm:w-72 w-full"
+              options={[
+                { value: 'nombre', label: 'Producto' },
+                { value: 'categoria', label: 'Categoría' },
+                { value: 'descripcion', label: 'Descripción' },
+                { value: 'precio', label: 'Precio' },
+                { value: 'stock', label: 'Stock' },
+              ]}
+              defaultFilter="nombre"
             />
             <button
               onClick={() => handleOpenFormModal()}
