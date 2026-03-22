@@ -16,6 +16,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   const [precio, setPrecio] = useState('');
   const [stock_actual, setStockActual] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [imagen, setImagen] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,20 +41,49 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
     }
   }, [product, isOpen]);
 
+  // Función para limpiar y validar entradas
+  const sanitizeText = (text: string, maxLen: number = 100) => {
+    // Elimina espacios al inicio/fin, reemplaza múltiples espacios, elimina caracteres peligrosos
+    return text
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[<>"'`\\]/g, '')
+      .slice(0, maxLen);
+  };
+
+  const validateInputs = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!nombre || sanitizeText(nombre).length < 2) newErrors.nombre = 'Nombre inválido';
+    if (!descripcion || sanitizeText(descripcion, 300).length < 5) newErrors.descripcion = 'Descripción inválida';
+    if (!precio || isNaN(Number(precio)) || Number(precio) <= 0) newErrors.precio = 'Precio inválido';
+    if (!stock_actual || isNaN(Number(stock_actual)) || Number(stock_actual) < 0) newErrors.stock_actual = 'Stock inválido';
+    if (!categoria) newErrors.categoria = 'Selecciona una categoría';
+    // Imagen: opcional, pero podrías validar tipo/tamaño aquí
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // IMPORTANTE: Los nombres en append deben coincidir con lo que espera tu Backend (Multer/Controller)
+    const newErrors = validateInputs();
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+    // Sanitizar antes de enviar
+    const cleanNombre = sanitizeText(nombre);
+    const cleanDescripcion = sanitizeText(descripcion, 300);
+    const cleanPrecio = String(Number(precio));
+    const cleanStock = String(Number(stock_actual));
+
     const formData = new FormData();
-    formData.append('nombre', nombre);
-    formData.append('descripcion', descripcion);
-    formData.append('precio', precio);
-    formData.append('stock_actual', stock_actual);
+    formData.append('nombre', cleanNombre);
+    formData.append('descripcion', cleanDescripcion);
+    formData.append('precio', cleanPrecio);
+    formData.append('stock_actual', cleanStock);
     formData.append('categoria', categoria);
-    
     if (imagen) {
-      // El nombre 'imagen' debe ser el mismo que uses en el backend: upload.single('imagen')
       formData.append('imagen', imagen);
     }
 
@@ -104,20 +134,24 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
         <input 
           type="text" 
           value={nombre} 
-          onChange={(e) => setNombre(e.target.value)} 
+          onChange={(e) => setNombre(sanitizeText(e.target.value))} 
           required 
+          maxLength={100}
           className="w-full input-style" 
         />
+        {errors.nombre && <span className="text-red-500 text-xs">{errors.nombre}</span>}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-dark mb-1">Descripción</label>
         <textarea 
           value={descripcion} 
-          onChange={(e) => setDescripcion(e.target.value)} 
+          onChange={(e) => setDescripcion(sanitizeText(e.target.value, 300))} 
           required 
+          maxLength={300}
           className="w-full input-style" 
         />
+        {errors.descripcion && <span className="text-red-500 text-xs">{errors.descripcion}</span>}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -125,22 +159,26 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
           <label className="block text-sm font-medium text-dark mb-1">Precio</label>
           <input 
             type="number" 
-            step="0.01" // Permite decimales
-            value={precio} 
-            onChange={(e) => setPrecio(e.target.value)} 
-            required 
-            className="w-full input-style" 
+            step="0.01"
+            min="0.01"
+            value={precio}
+            onChange={(e) => setPrecio(e.target.value.replace(/[^\d.]/g, ''))}
+            required
+            className="w-full input-style"
           />
+          {errors.precio && <span className="text-red-500 text-xs">{errors.precio}</span>}
         </div>
         <div>
           <label className="block text-sm font-medium text-dark mb-1">Stock</label>
           <input 
             type="number" 
-            value={stock_actual} 
-            onChange={(e) => setStockActual(e.target.value)} 
-            required 
-            className="w-full input-style" 
+            min="0"
+            value={stock_actual}
+            onChange={(e) => setStockActual(e.target.value.replace(/[^\d]/g, ''))}
+            required
+            className="w-full input-style"
           />
+          {errors.stock_actual && <span className="text-red-500 text-xs">{errors.stock_actual}</span>}
         </div>
         <div>
           <label className="block text-sm font-medium text-dark mb-1">Categoría</label>
@@ -160,6 +198,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
             <option value="Stickers y pines">Stickers y pines</option>
             <option value="Otros">Otros</option>
           </select>
+          {errors.categoria && <span className="text-red-500 text-xs">{errors.categoria}</span>}
         </div>
       </div>
           <div>
