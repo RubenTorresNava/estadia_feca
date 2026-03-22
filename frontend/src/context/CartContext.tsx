@@ -107,10 +107,8 @@ const createOrder = async (orderData: any) => {
   const confirmOrder = async (orderId: string) => {
     try {
       await api.put(`/administrador/${orderId}/pago-confirmado`, {status: 'pagado'});
-      setOrders((prev) => prev.map((order) =>
-        order.id === orderId ? { ...order, status: 'pagado' } : order
-      ));
-
+      // Recargar órdenes desde el backend para reflejar el cambio real
+      await fetchOrders();
     } catch (err) {
       console.error('Error al confirmar la orden:', err);
       throw err;
