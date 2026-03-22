@@ -60,6 +60,7 @@ export const Home = ({ onNavigate }: HomeProps) => {
             <button
               onClick={() => onNavigate('catalog')}
               className="text-primary hover:text-primary-dark font-medium inline-flex items-center gap-1 transition-colors sm:ml-2"
+              title="Ver catálogo completo"
             >
               Ver catálogo completo
               <ArrowRight className="h-4 w-4" />

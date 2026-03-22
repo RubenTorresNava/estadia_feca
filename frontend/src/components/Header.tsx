@@ -27,6 +27,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
             <button
               onClick={() => onNavigate("home")}
               className="flex items-center"
+              title="Ir a inicio"
             >
               <img
                 src="/fecastor.png"
@@ -45,6 +46,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
                     ? "text-primary"
                     : "text-dark hover:text-primary"
                 }`}
+                title={item.id === 'home' ? 'Ir a inicio' : item.id === 'catalog' ? 'Ver catálogo' : item.label}
               >
                 {item.label}
               </button>
@@ -55,6 +57,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
             <button
               onClick={() => onNavigate("cart")}
               className="relative p-2 text-dark hover:text-primary transition-colors"
+              title="Ver carrito"
             >
               <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
@@ -69,6 +72,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
               className={`p-2 transition-colors ${
                 isAdmin ? "text-primary" : "text-dark hover:text-primary"
               }`}
+              title="Panel de administración"
             >
               <User className="h-6 w-6" />
             </button>
@@ -76,6 +80,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-dark"
+              title={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />

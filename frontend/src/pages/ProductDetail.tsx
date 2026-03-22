@@ -45,6 +45,7 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
         <button
           onClick={() => onNavigate('catalog')}
           className="inline-flex items-center gap-2 text-gray hover:text-primary transition-colors mb-8 font-medium"
+          title="Volver al catálogo"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver al catálogo
@@ -91,6 +92,7 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         className="p-2 rounded border border-gray-300 hover:bg-light transition-colors"
+                        title="Disminuir cantidad"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
@@ -100,6 +102,7 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
                       <button
                         onClick={() => setQuantity(Math.min(product.stock_actual, quantity + 1))}
                         className="p-2 rounded border border-gray-300 hover:bg-light transition-colors"
+                        title="Aumentar cantidad"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -113,6 +116,7 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
                         ? 'bg-green-600 text-white shadow-green-200'
                         : 'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/20'
                     }`}
+                    title="Agregar producto al carrito"
                   >
                     <ShoppingCart className="h-5 w-5" />
                     {added ? '¡Producto Agregado!' : 'Agregar al carrito'}

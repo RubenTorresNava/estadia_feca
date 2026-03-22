@@ -101,6 +101,7 @@ const handleCloseFormModal = () => {
             <button
               onClick={() => handleOpenFormModal()}
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-semibold sm:ml-2"
+              title="Agregar nuevo producto"
             >
               <Plus className="h-4 w-4" />
               Agregar Producto
@@ -147,8 +148,20 @@ const handleCloseFormModal = () => {
                         >
                           <Star className="h-4 w-4 text-yellow-400 group-hover:scale-110 transition-transform" fill="none" />
                         </button>
-                        <button onClick={() => handleOpenFormModal(product)} className="p-2 hover:bg-light rounded-full"><Edit className="h-4 w-4 text-dark" /></button>
-                        <button onClick={() => handleDeleteRequest(product.id)} className="p-2 hover:bg-light rounded-full"><Trash2 className="h-4 w-4 text-primary" /></button>
+                        <button
+                          onClick={() => handleOpenFormModal(product)}
+                          className="p-2 hover:bg-light rounded-full"
+                          title="Editar producto"
+                        >
+                          <Edit className="h-4 w-4 text-dark" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRequest(product.id)}
+                          className="p-2 hover:bg-light rounded-full"
+                          title="Eliminar producto"
+                        >
+                          <Trash2 className="h-4 w-4 text-primary" />
+                        </button>
                       </div>
                     </td>
                   </tr>

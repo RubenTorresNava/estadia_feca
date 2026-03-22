@@ -10,7 +10,8 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden group cursor-pointer transition-transform hover:scale-105 h-full flex flex-col">
       <div
         onClick={() => onViewDetails(product.id)}
-        className="aspect-square overflow-hidden bg-light"
+        className="aspect-square overflow-hidden bg-light cursor-pointer"
+        title={`Ver detalles de ${product.nombre}`}
       >
         <img
           /* CORRECCIÓN: Usamos imagen_url */
@@ -23,7 +24,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
         <div>
           {/* CORRECCIÓN: categoria y nombre */}
           <p className="text-xs text-gray uppercase mb-1">{product.categoria}</p>
-          <h3 className="font-semibold text-dark mb-2 line-clamp-2">
+          <h3 className="font-semibold text-dark mb-2 line-clamp-2" title={product.nombre}>
             {product.nombre}
           </h3>
         </div>
@@ -37,6 +38,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
             <button
               onClick={() => onViewDetails(product.id)}
               className="text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+              title="Ver detalles del producto"
             >
               Ver detalles
             </button>

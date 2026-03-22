@@ -57,6 +57,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                title="Ingresa tu usuario de administrador"
               />
             </div>
             <div>
@@ -69,12 +70,14 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                title="Ingresa tu contraseña de administrador"
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+              title="Iniciar sesión en el panel de administración"
             >
               <LogOut className="h-4 w-4" />
               Iniciar Sesión

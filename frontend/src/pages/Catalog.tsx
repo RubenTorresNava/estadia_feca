@@ -58,6 +58,7 @@ export const Catalog = ({ onNavigate }: CatalogProps) => {
                         ? 'bg-primary text-white shadow-md shadow-primary/20'
                         : 'bg-gray-50 text-dark hover:bg-primary/10'
                     }`}
+                    title={`Filtrar por categoría: ${category}`}
                   >
                     {category}
                   </button>
@@ -94,6 +95,7 @@ export const Catalog = ({ onNavigate }: CatalogProps) => {
                 <button 
                   onClick={() => setSelectedCategory('Todos')}
                   className="mt-4 text-primary font-bold hover:underline"
+                  title="Ver todo el catálogo"
                 >
                   Ver todo el catálogo
                 </button>
