@@ -39,28 +39,34 @@ export const SearchBar = ({
   };
 
   return (
-    <div className={`relative flex items-center gap-2 ${className}`}>
+    <div
+      className={`relative flex items-center bg-white rounded-lg shadow-md border border-gray-200 px-2 py-1 ${className}`}
+      style={{ minHeight: 48 }}
+    >
       <select
-        className="border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+        className="h-10 min-w-[110px] border-none bg-transparent text-sm text-gray-700 rounded-l-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all px-3 py-2"
         value={filter}
         onChange={handleFilterChange}
         aria-label="Filtrar por"
+        style={{ boxShadow: 'none' }}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
-      <input
-        type="text"
-        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary transition text-sm bg-white shadow-sm"
-        placeholder={placeholder}
-        value={query}
-        onChange={handleChange}
-        aria-label="Buscar"
-      />
-      <span className="absolute left-10 text-gray-400 pointer-events-none">
-        <Search className="h-5 w-5" />
-      </span>
+      <div className="relative flex-1">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <Search className="h-5 w-5" />
+        </span>
+        <input
+          type="text"
+          className="w-full pl-10 pr-4 py-2 h-10 bg-transparent border-none focus:ring-2 focus:ring-primary focus:outline-none text-sm text-gray-800 rounded-r-lg transition-all"
+          placeholder={placeholder}
+          value={query}
+          onChange={handleChange}
+          aria-label="Buscar"
+        />
+      </div>
     </div>
   );
 };
