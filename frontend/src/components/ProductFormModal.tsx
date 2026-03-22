@@ -144,13 +144,22 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
         </div>
         <div>
           <label className="block text-sm font-medium text-dark mb-1">Categoría</label>
-          <input 
-            type="text" 
-            value={categoria} 
-            onChange={(e) => setCategoria(e.target.value)} 
-            required 
-            className="w-full input-style" 
-          />
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            required
+            className="w-full input-style"
+          >
+            <option value="" disabled>Selecciona una categoría</option>
+            <option value="Ropa">Ropa</option>
+            <option value="Accesorios">Accesorios</option>
+            <option value="Papelería">Papelería</option>
+            <option value="Electrónica">Electrónica</option>
+            <option value="Botellas y termos">Botellas y termos</option>
+            <option value="Bolsas y mochilas">Bolsas y mochilas</option>
+            <option value="Stickers y pines">Stickers y pines</option>
+            <option value="Otros">Otros</option>
+          </select>
         </div>
       </div>
           <div>
