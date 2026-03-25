@@ -1,22 +1,16 @@
 import express from 'express';
 import * as adminController from '../controllers/controller.admin.js';
-import * as authController from '../controllers/controller.auth.js';
-import { alternarDestacado } from '../controllers/controller.producto.js';
-import { verificarToken } from '../middleware/middleware.authMiddleware.js';
+import { verificarToken, esAdmin } from '../middleware/middleware.authMiddleware.js';
 import { upload } from '../services/service.upload.js';
-
-
 
 const router = express.Router();
 
-router.post('/login', authController.login);
-router.post('/logout', authController.logout);
-router.get('/obtenerOrdenes', adminController.obtenerOrdenes);
-router.get('/obtenerProductos', adminController.obtenerProductos);
-router.put('/:id/pago-confirmado', verificarToken, adminController.confirmarPago);
-router.post('/agregarProducto', [upload.single('imagen')], adminController.agregarProducto);
-router.put('/editarProducto/:id', [upload.single('imagen')], verificarToken, adminController.actualizarProducto);
-router.patch('/destacarProducto/:id', verificarToken, alternarDestacado);
-router.delete('/eliminarProducto/:id', verificarToken, adminController.eliminarProducto);
+router.get('/revisiones', [verificarToken, esAdmin] , adminController.obtenerRevisiones);
+router.put('/revisiones/:id', [verificarToken, esAdmin], adminController.procesarPago);
+router.post('/productos', [verificarToken, esAdmin], upload.single('imagen'), adminController.agregarProducto);
+router.post('/agregar', [verificarToken, esAdmin], upload.single('imagen'), adminController.agregarProducto);
+router.patch('/modificar', [verificarToken, esAdmin], upload.single('imagen'), adminController.actualizarProducto);
+router.delete('/eliminar/:id', [verificarToken, esAdmin], adminController.eliminarProducto);
+router.patch('/destacado/:id', [verificarToken, esAdmin], adminController.alternarDestacado);
 
 export default router;

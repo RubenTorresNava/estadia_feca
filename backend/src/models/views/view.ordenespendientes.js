@@ -20,4 +20,4 @@ const OrdenesRevision = sequelize.define('ordenes_revision', {
     tableName: 'vista_revision_pagos'
 });
 
-export default OrdenesPendientes;
+export default OrdenesRevision;

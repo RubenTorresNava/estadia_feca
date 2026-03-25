@@ -1,70 +1,63 @@
 import OrdenVenta from '../models/model.ordenventa.js';
 import Producto from '../models/model.producto.js';
-import DetalleOrden from '../models/model.detalleorden.js';
+import OrdenesRevision from '../models/views/view.ordenespendientes.js'; // La vista actualizada
 import sequelize from '../services/service.connection.js';
 
-export const obtenerOrdenes = async (req, res) => {
+// 1. Obtener órdenes usando la VISTA (específica para revisión de comprobantes)
+export const obtenerRevisiones = async (req, res) => {
     try {
-        const ordenes = await OrdenVenta.findAll({
-            include: [{
-                model: DetalleOrden,
-                as: 'detalles',
-                include: [{
-                    model: Producto,
-                    as: 'producto' // Esto traerá el nombre, imagen, etc.
-                }]
-            }],
+        const revisiones = await OrdenesRevision.findAll({
             order: [['fecha_creacion', 'DESC']]
         });
-        res.json(ordenes);
+        res.json(revisiones);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-export const confirmarPago = async (req, res) => {
+// 2. Decidir sobre un pago (Aprobar o Rechazar)
+export const procesarPago = async (req, res) => {
     const { id } = req.params;
-    const administrador_id = req.administrador_id;
+    const { decision, nota } = req.body; // decision: 'pagada' o 'rechazado'
+    const adminId = req.usuario.id; // ID del admin que procesa
 
     const t = await sequelize.transaction();
 
     try {
-        await sequelize.query(`SET LOCAL app.current_admin_id = '${administrador_id}'`, { transaction: t });
+        const orden = await OrdenVenta.findByPk(id);
+        if (!orden) return res.status(404).json({ msg: "Orden no encontrada" });
 
-        await OrdenVenta.update(
-            { estado: 'pagada' }, 
-            { where: { id }, transaction: t }
-        );
+        // Actualizamos estado y nota (en caso de rechazo)
+        await orden.update({ 
+            estado: decision, 
+            nota_admin: decision === 'rechazado' ? nota : null,
+            fecha_pago: decision === 'pagada' ? new Date() : null
+        }, { transaction: t });
+
+        // Aquí podrías llamar a tu servicio de correos (Nodemailer) 
+        // usando la plantilla correspondiente según la 'decision'
 
         await t.commit();
-        res.json({ msg: "Pago confirmado y registrado con éxito" });
+        res.json({ msg: `La orden ha sido ${decision === 'pagada' ? 'aprobada' : 'rechazada'}` });
 
     } catch (error) {
         if (t) await t.rollback();
-        console.error("Error en confirmarPago:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
+// 3. CRUD de Productos (Se mantiene similar, solo ajustando rutas de imágenes si es necesario)
 export const agregarProducto = async (req, res) => {
     try {
         const { nombre, descripcion, precio, stock_actual, categoria } = req.body;
-
+        // En Arch Linux, asegúrate que la carpeta public/uploads exista
         const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
         
         const nuevoProducto = await Producto.create({
-            nombre,
-            descripcion,
-            precio,
-            stock_actual,
-            categoria,
-            imagen_url
+            nombre, descripcion, precio, stock_actual, categoria, imagen_url
         });
 
-        res.status(201).json({
-            msg: "Producto agregado al inventario",
-            producto: nuevoProducto
-        });
+        res.status(201).json({ msg: "Producto agregado", producto: nuevoProducto });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -73,58 +66,54 @@ export const agregarProducto = async (req, res) => {
 export const actualizarProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, descripcion, precio, stock_actual, categoria } = req.body;
-
         const producto = await Producto.findByPk(id);
-        if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
+        if (!producto) return res.status(404).json({ msg: "No encontrado" });
 
         const imagen_url = req.file ? `/uploads/${req.file.filename}` : producto.imagen_url;
 
-        await producto.update({
-            nombre,
-            descripcion,
-            precio,
-            stock_actual,
-            categoria,
-            imagen_url
-        });
-
-        res.json({
-            msg: "Producto actualizado",
-            producto
-        });
+        await producto.update({ ...req.body, imagen_url });
+        res.json({ msg: "Actualizado", producto });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 };
 
-//obtener solo los que tengan los que tengan el estado de activo
-export const obtenerProductos = async (req, res) => {
+export const eliminarProducto = async (req, res) => {
     try {
-        const productos = await Producto.findAll({
-            where: { activo: true }
+        const { id } = req.params;
+        const producto = await Producto.findByPk(id);
+        if(!producto) return res.status(404).json({ msg: "No encontrado" });
+
+        await producto.update({ activo: false });
+        res.json({ msg: "Producto desactivado" });
+    } catch (error) {
+        res.status(500).json({ error: error.message }); 
+    }
+};
+
+
+export const alternarDestacado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const producto = await Producto.findByPk(id);
+        
+        if (!producto) {
+            return res.status(404).json({ msg: "Producto no encontrado" });
+        }
+
+        producto.destacado = !producto.destacado;
+        await producto.save();
+
+        res.json({
+            mensaje: `Producto ${producto.destacado ? 'destacado' : 'Quitado de destacados'} con éxito`,
+            producto: {
+                id: producto.id,
+                nombre: producto.nombre,
+                destacado: producto.destacado
+            }
         });
-        res.json(productos);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
-
-export const eliminarProducto = async (req, res) => {
-    try{
-        const { id } = req.params;
-        const producto = await Producto.findByPk(id);
-
-        if(!producto){
-            return res.status(404).json({ msg: "Producto no encontrado" });
-        }
-
-        await producto.update({
-            activo: false
-        });
-
-        res.json({ msg: "Producto eliminado" });
-    } catch (error) {
-        res.status(500).json({ error: error.message }); 
-        }
-    }

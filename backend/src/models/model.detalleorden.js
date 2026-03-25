@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
+import Producto from './model.producto.js';
 
 class DetalleOrden extends Model {}
 
