@@ -35,4 +35,6 @@ DetalleOrden.init({
     timestamps: false
 });
 
+DetalleOrden.belongsTo(Producto, { foreignKey: 'producto_id', as: 'producto' });
+
 export default DetalleOrden;

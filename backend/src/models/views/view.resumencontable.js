@@ -7,6 +7,7 @@ const ResumenContable = sequelize.define('resumen_contable', {
         primaryKey: true,
     },
     ingresos_totales: DataTypes.DECIMAL(10, 2),
+    pagos_pendientes_revisar: DataTypes.INTEGER 
 }, {
     freezeTableName: true,
     timestamps: false,
