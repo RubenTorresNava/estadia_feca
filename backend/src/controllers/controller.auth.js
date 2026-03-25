@@ -1,22 +1,68 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import Administrador from '../models/model.administrador.js';
+import Usuario from '../models/model.usuario.js';
+import { Op } from 'sequelize';
 
 export const login = async (req, res) => {
-    const { usuario, password } = req.body;
-    const admin = await Administrador.findOne({ where: { usuario } });
+    try {
+        const { identificador, password } = req.body;
 
-    if (!admin || !(await bcrypt.compare(password, admin.password))) {
-        return res.status(401).json({ msg: "Credenciales inválidas" });
+        // Validación básica para evitar el error de "undefined"
+        if (!identificador || !password) {
+            return res.status(400).json({ msg: "Correo/Matrícula y contraseña son requeridos" });
+        }
+
+        const usuario = await Usuario.findOne({ 
+            where: { 
+                activo: true,
+                [Op.or]: [
+                    { correo: identificador },
+                    { matricula: identificador }
+                ]
+            } 
+        });
+
+        // El resto del código sigue igual...
+        if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
+            return res.status(401).json({ msg: "Credenciales inválidas" });
+        }
+
+        const token = jwt.sign(
+            { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol },
+            process.env.JWT_SECRET || 'secret_feca_key',
+            { expiresIn: '8h' }
+        );
+
+        res.json({ 
+            token, 
+            usuario: { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol } 
+        });
+
+    } catch (error) {
+        console.error("Error en login:", error); // Aquí es donde viste el error en tu terminal de Arch
+        res.status(500).json({ error: "Error interno del servidor" });
     }
+};
 
-    const token = jwt.sign(
-        { id: admin.id, usuario: admin.usuario },
-        process.env.JWT_SECRET,
-        { expiresIn: '8h' }
-    );
+export const register = async (req, res) => {
+    try {
+        const { nombre, correo, password, matricula } = req.body;
 
-    res.json({ token, admin: { id: admin.id, usuario: admin.usuario } });
+        const existe = await Usuario.findOne({ where: { correo } });
+        if (existe) return res.status(400).json({ msg: "El correo ya está registrado" });
+
+        const nuevoUsuario = await Usuario.create({
+            nombre,
+            correo,
+            password,
+            matricula,
+            rol: 'alumno'
+        });
+
+        res.status(201).json({ msg: "Usuario registrado con éxito" });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 };
 
 export const logout = (req, res) => {

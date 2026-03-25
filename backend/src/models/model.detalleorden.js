@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
+import Producto from './model.producto.js';
 
 class DetalleOrden extends Model {}
 
@@ -34,5 +35,7 @@ DetalleOrden.init({
     tableName: 'detalle_orden',
     timestamps: false
 });
+
+DetalleOrden.belongsTo(Producto, { foreignKey: 'producto_id', as: 'producto' });
 
 export default DetalleOrden;

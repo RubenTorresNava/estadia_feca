@@ -14,8 +14,8 @@ const ResumenVenta = sequelize.define('resumen_venta', {
     precio_unitario: DataTypes.DECIMAL(10, 2),
     subtotal: DataTypes.DECIMAL(10, 2),
     fecha_creacion: DataTypes.DATE,
-    estado: DataTypes.ENUM('pendiente', 'pagada', 'cancelado'), 
-}, {
+    estado: DataTypes.ENUM('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado'),},
+    {
     freezeTableName: true,
     timestamps: false,
     tableName: 'vista_ventas_completas'

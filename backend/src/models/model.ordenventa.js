@@ -1,23 +1,24 @@
+// model.ordenventa.js
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../services/service.connection.js';
+import DetalleOrden from './model.detalleorden.js';
 
 class OrdenVenta extends Model {
-    // Método estático para el Cron Job: Cancelar órdenes viejas
     static async cancelarOrdenesVencidas() {
         const hace24Horas = new Date(Date.now() - 24 * 60 * 60 * 1000);
         return await this.update({ estado: 'cancelado' }, {
             where: {
                 estado: 'pendiente',
-                fecha_creacion: { [Sequelize.Op.lt]: hace24Horas }
+                fecha_creacion: { [Op.lt]: hace24Horas }
             }
         });
     }
 
-    // Método para confirmar pago vinculando al admin
-    static async confirmarPago(id, administrador_id) {
+    static async cambiarEstadoPago(id, estado, nota = "") {
         return await this.update({ 
-            estado: 'pagada', 
-            administrador_id 
+            estado: estado, 
+            nota_admin: nota,
+            fecha_pago: estado === 'pagada' ? new Date() : null
         }, { where: { id } });
     }
 }
@@ -28,25 +29,26 @@ OrdenVenta.init({
         unique: true,
         defaultValue: () => `FECA-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
     },
-    nombre_alumno: DataTypes.STRING,
-    matricula: DataTypes.STRING,
-    total_pago: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+    usuario_id: { 
+        type: DataTypes.INTEGER, 
+        references: { model: 'usuarios', key: 'id' } 
     },
+    total_pago: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     estado: {
-        type: DataTypes.ENUM('pendiente', 'pagada', 'cancelado'),
+        type: DataTypes.ENUM('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado'),
         defaultValue: 'pendiente'
     },
-    fecha_creacion: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    }
+    comprobante_url: { type: DataTypes.STRING, allowNull: true },
+    nota_admin: { type: DataTypes.TEXT, allowNull: true },
+    fecha_creacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, { 
     sequelize, 
     modelName: 'OrdenVenta', 
     tableName: 'orden_venta', 
     timestamps: false 
 });
+
+OrdenVenta.hasMany(DetalleOrden, { foreignKey: 'orden_id', as: 'detalles' });
+DetalleOrden.belongsTo(OrdenVenta, { foreignKey: 'orden_id' });
 
 export default OrdenVenta;
