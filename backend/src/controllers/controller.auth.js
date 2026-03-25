@@ -1,12 +1,17 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Usuario from '../models/model.usuario.js';
+import { Op } from 'sequelize';
 
 export const login = async (req, res) => {
     try {
         const { identificador, password } = req.body;
 
-        // Buscamos al usuario por correo O por matrícula
+        // Validación básica para evitar el error de "undefined"
+        if (!identificador || !password) {
+            return res.status(400).json({ msg: "Correo/Matrícula y contraseña son requeridos" });
+        }
+
         const usuario = await Usuario.findOne({ 
             where: { 
                 activo: true,
@@ -17,32 +22,24 @@ export const login = async (req, res) => {
             } 
         });
 
+        // El resto del código sigue igual...
         if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
             return res.status(401).json({ msg: "Credenciales inválidas" });
         }
 
         const token = jwt.sign(
-            { 
-                id: usuario.id, 
-                nombre: usuario.nombre,
-                rol: usuario.rol
-            },
-            process.env.JWT_SECRET,
+            { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol },
+            process.env.JWT_SECRET || 'secret_feca_key',
             { expiresIn: '8h' }
         );
 
         res.json({ 
             token, 
-            usuario: { 
-                id: usuario.id, 
-                nombre: usuario.nombre, 
-                rol: usuario.rol,
-                correo: usuario.correo
-            } 
+            usuario: { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol } 
         });
 
     } catch (error) {
-        console.error("Error en login:", error);
+        console.error("Error en login:", error); // Aquí es donde viste el error en tu terminal de Arch
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };
