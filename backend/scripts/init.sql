@@ -165,6 +165,22 @@ SELECT
 FROM inventario 
 WHERE stock_actual < 10 AND activo = true;
 
+CREATE OR REPLACE VIEW vista_mis_pedidos AS
+SELECT 
+    ov.id AS orden_id,
+    ov.usuario_id,
+    ov.folio_referencia,
+    ov.total_pago,
+    ov.estado,
+    ov.comprobante_url,
+    ov.nota_admin,
+    ov.fecha_creacion,
+    (SELECT STRING_AGG(i.nombre || ' (x' || det.cantidad || ')', ', ') 
+     FROM detalle_orden det 
+     JOIN inventario i ON det.producto_id = i.id 
+     WHERE det.orden_id = ov.id) AS resumen_productos
+FROM orden_venta ov;
+
 ---
 --- DATOS INICIALES (Seeds)
 ---

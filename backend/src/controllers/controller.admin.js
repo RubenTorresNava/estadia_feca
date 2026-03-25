@@ -1,9 +1,8 @@
 import OrdenVenta from '../models/model.ordenventa.js';
 import Producto from '../models/model.producto.js';
-import OrdenesRevision from '../models/views/view.ordenespendientes.js'; // La vista actualizada
+import OrdenesRevision from '../models/views/view.ordenespendientes.js';
 import sequelize from '../services/service.connection.js';
 
-// 1. Obtener órdenes usando la VISTA (específica para revisión de comprobantes)
 export const obtenerRevisiones = async (req, res) => {
     try {
         const revisiones = await OrdenesRevision.findAll({
@@ -15,11 +14,10 @@ export const obtenerRevisiones = async (req, res) => {
     }
 };
 
-// 2. Decidir sobre un pago (Aprobar o Rechazar)
 export const procesarPago = async (req, res) => {
     const { id } = req.params;
-    const { decision, nota } = req.body; // decision: 'pagada' o 'rechazado'
-    const adminId = req.usuario.id; // ID del admin que procesa
+    const { decision, nota } = req.body;
+    const adminId = req.usuario.id; 
 
     const t = await sequelize.transaction();
 
@@ -27,15 +25,11 @@ export const procesarPago = async (req, res) => {
         const orden = await OrdenVenta.findByPk(id);
         if (!orden) return res.status(404).json({ msg: "Orden no encontrada" });
 
-        // Actualizamos estado y nota (en caso de rechazo)
         await orden.update({ 
             estado: decision, 
             nota_admin: decision === 'rechazado' ? nota : null,
             fecha_pago: decision === 'pagada' ? new Date() : null
         }, { transaction: t });
-
-        // Aquí podrías llamar a tu servicio de correos (Nodemailer) 
-        // usando la plantilla correspondiente según la 'decision'
 
         await t.commit();
         res.json({ msg: `La orden ha sido ${decision === 'pagada' ? 'aprobada' : 'rechazada'}` });
@@ -46,11 +40,9 @@ export const procesarPago = async (req, res) => {
     }
 };
 
-// 3. CRUD de Productos (Se mantiene similar, solo ajustando rutas de imágenes si es necesario)
 export const agregarProducto = async (req, res) => {
     try {
         const { nombre, descripcion, precio, stock_actual, categoria } = req.body;
-        // En Arch Linux, asegúrate que la carpeta public/uploads exista
         const imagen_url = req.file ? `/uploads/${req.file.filename}` : null;
         
         const nuevoProducto = await Producto.create({
@@ -90,7 +82,6 @@ export const eliminarProducto = async (req, res) => {
         res.status(500).json({ error: error.message }); 
     }
 };
-
 
 export const alternarDestacado = async (req, res) => {
     try {
