@@ -26,7 +26,6 @@ app.use('/api/auth', AuthRoute)
 app.use('/uploads', express.static('uploads'))
 app.use('/api/alumno', AlumnoRoute)
 app.use('/api/administrador', AdministradorRoute)
-app.use('/api/checkout', checkoutroute)
 app.use('/api/dashboard', DashboarRoute)
 app.use('/api/producto', ProductoRoute)
 
