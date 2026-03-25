@@ -7,9 +7,8 @@ const router = express.Router();
 
 router.get('/revisiones', [verificarToken, esAdmin] , adminController.obtenerRevisiones);
 router.put('/revisiones/:id', [verificarToken, esAdmin], adminController.procesarPago);
-router.post('/productos', [verificarToken, esAdmin], upload.single('imagen'), adminController.agregarProducto);
 router.post('/agregar', [verificarToken, esAdmin], upload.single('imagen'), adminController.agregarProducto);
-router.patch('/modificar', [verificarToken, esAdmin], upload.single('imagen'), adminController.actualizarProducto);
+router.patch('/modificar/:id', [verificarToken, esAdmin], upload.single('imagen'), adminController.actualizarProducto);
 router.delete('/eliminar/:id', [verificarToken, esAdmin], adminController.eliminarProducto);
 router.patch('/destacado/:id', [verificarToken, esAdmin], adminController.alternarDestacado);
 

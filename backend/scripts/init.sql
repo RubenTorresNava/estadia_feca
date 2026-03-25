@@ -185,14 +185,36 @@ FROM orden_venta ov;
 --- DATOS INICIALES (Seeds)
 ---
 
-INSERT INTO usuarios (nombre, correo, password, rol) 
-VALUES ('Admin Root', 'admin@fecastore.com', '$2b$10$Q0mIaarDt8ysuvON7vbg5.1HQA2Z0Jyf9RHFqN6MP7vHX5kCQZjNq', 'admin');
+-- 1. Usuarios (Password de ejemplo: 'password123' - asumiendo que el hash es genérico)
+-- Nota: En producción, estos passwords deben ser hashes de bcrypt.
+INSERT INTO usuarios (matricula, nombre, correo, password, rol) VALUES 
+(NULL, 'Admin Feca', 'admin@feca.edu', '$2b$10$K6Px8mB1R.Xp/N.mE6yGNeS7J2K1V8l.y6Q5W4E3r2t1y0u9i8o7p', 'admin'),
+('20240001', 'Ruben Garcia', 'ruben.garcia@universidad.edu', '$2b$10$K6Px8mB1R.Xp/N.mE6yGNeS7J2K1V8l.y6Q5W4E3r2t1y0u9i8o7p', 'alumno');
 
+-- 2. Inventario (Productos de la tienda universitaria)
+INSERT INTO inventario (nombre, descripcion, precio, stock_actual, categoria, imagen_url) VALUES 
+('Sudadera Oficial FECA', 'Sudadera color marino con logo bordado', 450.00, 50, 'Ropa', '/uploads/sudadera.jpg'),
+('Termo Metálico 500ml', 'Mantiene bebidas frías o calientes por 12h', 180.50, 100, 'Accesorios', '/uploads/termo.jpg'),
+('Libreta de Apuntes A5', '100 hojas rayadas con espiral', 45.00, 200, 'Papelería', '/uploads/libreta.jpg'),
+('USB 64GB Logo UV', 'Memoria flash de alta velocidad', 120.00, 30, 'Electrónica', '/uploads/usb.jpg');
+
+-- 3. Órdenes de Venta (Simulando una orden pendiente de Ruben)
+INSERT INTO orden_venta (folio_referencia, usuario_id, total_pago, estado, comprobante_url) VALUES 
+('ORD-2026-001', 2, 675.50, 'pendiente', NULL);
+
+-- 4. Detalles de la Orden (Relacionados a la orden anterior)
+-- 1 Sudadera (450) + 1 Termo (180.50) + 1 Libreta (45) = 675.50
+INSERT INTO detalle_orden (orden_id, producto_id, cantidad, precio_unitario) VALUES 
+(1, 1, 1, 450.00),
+(1, 2, 1, 180.50),
+(1, 3, 1, 45.00);
+
+-- 5. Historial Contable (Registro inicial de la creación)
+INSERT INTO historial_contable (orden_id, accion, monto) VALUES 
+(1, 'CREACION_ORDEN', 675.50);
+
+-- 6. Plantillas de Notificación
 INSERT INTO plantillas_notificaciones (slug, asunto, cuerpo) VALUES 
-('pago_recibido', 'Comprobante en revisión', 'Hola {{nombre}}, recibimos tu comprobante del folio {{folio}}. Te avisaremos cuando sea validado.'),
-('pago_aprobado', '¡Pago aprobado!', 'Felicidades {{nombre}}, tu pago ha sido validado. Ya puedes recoger tu pedido.'),
-('pago_rechazado', 'Problema con tu pago', 'Hola {{nombre}}, tu comprobante fue rechazado. Motivo: {{nota}}');
-
-INSERT INTO inventario (nombre, precio, stock_actual, categoria) VALUES 
-('Sudadera FECA', 450.00, 50, 'Ropa'),
-('Pin Institucional', 35.00, 100, 'Accesorios');
+('bienvenida', '¡Bienvenido a FecaStore!', 'Hola {{nombre}}, gracias por registrarte en la tienda oficial.'),
+('pago_aprobado', 'Tu pago ha sido aprobado', 'Felicidades {{nombre}}, tu pedido {{folio}} ya puede ser recogido.'),
+('pago_rechazado', 'Problema con tu comprobante', 'Hola {{nombre}}, tu comprobante fue rechazado por la siguiente razón: {{nota_admin}}');

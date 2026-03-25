@@ -7,7 +7,6 @@ export const login = async (req, res) => {
     try {
         const { identificador, password } = req.body;
 
-        // Validación básica para evitar el error de "undefined"
         if (!identificador || !password) {
             return res.status(400).json({ msg: "Correo/Matrícula y contraseña son requeridos" });
         }
@@ -22,7 +21,6 @@ export const login = async (req, res) => {
             } 
         });
 
-        // El resto del código sigue igual...
         if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
             return res.status(401).json({ msg: "Credenciales inválidas" });
         }
@@ -39,7 +37,7 @@ export const login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error en login:", error); // Aquí es donde viste el error en tu terminal de Arch
+        console.error("Error en login:", error); 
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };

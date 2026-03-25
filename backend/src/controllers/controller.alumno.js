@@ -52,9 +52,7 @@ export const obtenerMisPedidos = async (req, res) => {
 };
 
 export const checkout = async (req, res) => {
-    // El 'carrito' es lo único que necesitamos del body ahora
     const { carrito } = req.body;
-    // El ID del alumno viene del middleware de autenticación
     const usuario_id = req.usuario.id; 
 
     if (!carrito || carrito.length === 0) {
@@ -74,12 +72,10 @@ export const checkout = async (req, res) => {
                 throw new Error(`El producto con ID ${item.id} no existe`);
             }
 
-            // Usamos el método de tu modelo Producto para validar stock
             if (!producto.validarDisponibilidad(item.cantidad)) {
                 throw new Error(`Stock insuficiente para: ${producto.nombre}`);
             }
 
-            // Calculamos el total basado en el precio actual de la DB (por seguridad)
             totalAcumulado += parseFloat(producto.precio) * item.cantidad;
             
             detallesParaInsertar.push({
@@ -89,14 +85,12 @@ export const checkout = async (req, res) => {
             });
         }
 
-        // Creamos la orden vinculada al usuario_id
         const nuevaOrden = await OrdenVenta.create({
-            usuario_id, // Relación con la tabla usuarios
+            usuario_id,
             total_pago: totalAcumulado,
             estado: 'pendiente'
         }, { transaction: t });
 
-        // Insertamos los detalles vinculados a la nueva orden
         const mapeoDetalles = detallesParaInsertar.map(d => ({ 
             ...d, 
             orden_id: nuevaOrden.id 
@@ -104,8 +98,6 @@ export const checkout = async (req, res) => {
         
         await DetalleOrden.bulkCreate(mapeoDetalles, { transaction: t });
 
-        // Al hacer commit, el TRIGGER de PostgreSQL que escribimos 
-        // restará automáticamente el stock del inventario.
         await t.commit();
 
         res.status(201).json({ 
