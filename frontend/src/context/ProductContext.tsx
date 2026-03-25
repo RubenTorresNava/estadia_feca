@@ -28,7 +28,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
 const fetchProducts = async () => {
   setLoading(true);
   try {
-    const response = await api.get('/administrador/obtenerProductos');
+    // Cambiado a la ruta correcta del backend para obtener productos (según backend: /api/producto)
+    const response = await api.get('/producto');
     const rawData = response.data.productos || response.data;
 
     const data = Array.isArray(rawData) ? rawData : [rawData];
@@ -59,7 +60,8 @@ const fetchProducts = async () => {
   // 2. Agregar producto (Usando FormData para imágenes)
 const addProduct = async (productData: FormData) => {
   try {
-    const response = await api.post('/administrador/agregarProducto', productData);
+    // Cambiado a la ruta correcta del backend para agregar producto
+    const response = await api.post('/administrador/agregar', productData);
     
     const nuevoProdBackend = response.data.producto;
 
@@ -82,7 +84,8 @@ const addProduct = async (productData: FormData) => {
   // 3. Actualizar producto
 const updateProduct = async (productId: string, productData: FormData) => {
   try {
-    const response = await api.put(`/administrador/editarProducto/${productId}`, productData);
+    // Cambiado a la ruta correcta del backend para modificar producto
+    const response = await api.patch(`/administrador/modificar/${productId}`, productData);
     
     const updatedProdBackend = response.data.producto;
     const URL_BASE = "http://localhost:3000";
@@ -110,7 +113,8 @@ const updateProduct = async (productId: string, productData: FormData) => {
   const deleteProduct = async (productId: string) => {
     try {
       // Si tu backend hace soft delete, usa PATCH o PUT según tu API
-      await api.delete(`/administrador/eliminarProducto/${productId}`);
+      // Cambiado a la ruta correcta del backend para eliminar producto
+      await api.delete(`/administrador/eliminar/${productId}`);
       
       setProducts((prev) => prev.filter((p) => p.id !== productId));
     } catch (e) {
