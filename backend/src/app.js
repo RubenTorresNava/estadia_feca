@@ -4,7 +4,6 @@ import morgan from 'morgan';
 import cors from 'cors';
 import AuthRoute from './routes/route.auth.js'
 import AdministradorRoute from './routes/route.admin.js'
-import checkoutroute from './routes/route.checkout.js'
 import DashboarRoute from './routes/route.dashboard.js'
 import ProductoRoute from './routes/route.producto.js'
 import AlumnoRoute from './routes/route.alumno.js'
