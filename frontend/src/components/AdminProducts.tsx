@@ -5,6 +5,23 @@ import { ProductFormModal } from './ProductFormModal';
 import { ConfirmationModal } from './ConfirmationModal'; 
 import { Plus, Edit, Trash2, Star } from 'lucide-react';
 import { SearchBar } from './SearchBar';
+import api from '../api/api';
+  // Botón destacar producto
+  const handleToggleFeatured = async (product: Product) => {
+    try {
+      const token = localStorage.getItem('feca-admin-token');
+      await api.patch(`/administrador/destacado/${product.id}`, {}, {
+        headers: {
+          'x-token': token || '',
+        },
+      });
+      // Refrescar productos tras destacar
+      await new Promise(res => setTimeout(res, 200));
+      window.location.reload(); // O usa fetchProducts si lo tienes expuesto
+    } catch (err) {
+      console.error("Error al destacar producto:", err);
+    }
+  };
 
 export const AdminProducts = () => {
   // 1. Hooks de Contexto
@@ -139,6 +156,13 @@ export const AdminProducts = () => {
                   </td>
                   <td className="p-3 text-sm">
                     <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleToggleFeatured(product)}
+                        className={`p-2 rounded hover:bg-yellow-50 transition-colors ${product.destacado ? 'bg-yellow-100' : ''}`}
+                        title={product.destacado ? 'Quitar de destacados' : 'Destacar producto'}
+                      >
+                        <Star className={`h-4 w-4 ${product.destacado ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                      </button>
                       <button
                         onClick={() => handleOpenFormModal(product)}
                         className="p-2 rounded hover:bg-blue-50"
