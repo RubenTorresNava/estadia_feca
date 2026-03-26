@@ -131,6 +131,16 @@ export const AdminSummary = () => {
                         disabled={uploadingOrderId === order.id}
                       />
                     </label>
+                    {order.comprobante_url && (
+                      <div className="flex flex-col items-end mt-2">
+                        <img
+                          src={order.comprobante_url}
+                          alt="Comprobante actual"
+                          className="w-full max-w-xs md:max-w-md object-contain rounded border"
+                        />
+                        <span className="text-xs text-gray-500">Comprobante actual</span>
+                      </div>
+                    )}
                     {uploadingOrderId === order.id && <span className="text-xs text-gray-500">Subiendo...</span>}
                     {uploadSuccess && uploadingOrderId === null && <span className="text-xs text-green-600">{uploadSuccess}</span>}
                   </div>

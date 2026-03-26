@@ -37,6 +37,7 @@ export interface Order {
   estado: 'pendiente' | 'pagada' | 'cancelada'; // En español como tu ENUM
   fecha_creacion: string;
   detalles?: any[];         // Aquí vendrán los datos de detalle_orden
+  comprobante_url?: string; // URL del comprobante de pago
 }
 
 export type Page =

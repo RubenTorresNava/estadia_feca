@@ -85,7 +85,11 @@ export const History = ({ onLogout }: HistoryProps) => {
                 <div className="flex flex-col items-center gap-2">
                   {pedido.comprobante_url ? (
                     <>
-                      <img src={pedido.comprobante_url} alt="Comprobante" className="h-20 object-contain rounded border" />
+                      <img
+                        src={pedido.comprobante_url}
+                        alt="Comprobante"
+                        className="w-full max-w-xs md:max-w-md object-contain rounded border"
+                      />
                       <span className="text-xs text-green-600">Comprobante enviado</span>
                     </>
                   ) : (

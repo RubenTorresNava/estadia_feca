@@ -9,7 +9,11 @@ if (!fs.existsSync(dir)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        const comprobantesDir = 'uploads/comprobantes';
+        if (!fs.existsSync(comprobantesDir)) {
+            fs.mkdirSync(comprobantesDir, { recursive: true });
+        }
+        cb(null, comprobantesDir);
     },
 
     filename: (req, file, cb) =>{

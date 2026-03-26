@@ -8,7 +8,16 @@ export const obtenerRevisiones = async (req, res) => {
         const revisiones = await OrdenesRevision.findAll({
             order: [['fecha_creacion', 'DESC']]
         });
-        res.json(revisiones);
+        // Mapear para asegurar que comprobante_url esté presente y bien nombrado
+        const revisionesConComprobante = revisiones.map(r => {
+            // Si es instancia Sequelize, convertir a JSON plano
+            const obj = r.toJSON ? r.toJSON() : r;
+            return {
+                ...obj,
+                comprobante_url: obj.comprobante_url || null
+            };
+        });
+        res.json(revisionesConComprobante);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
