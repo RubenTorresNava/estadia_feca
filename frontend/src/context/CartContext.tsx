@@ -114,10 +114,14 @@ const createOrder = async (orderData: any) => {
   }
 };
 
+  // Ya no se usa directamente, la lógica de confirmación/rechazo está en AdminSummary
+  // Se deja para compatibilidad, pero apunta al endpoint correcto y solo para aprobar
   const confirmOrder = async (orderId: string) => {
     try {
-      await api.put(`/administrador/${orderId}/pago-confirmado`, {status: 'pagado'});
-      // Recargar órdenes desde el backend para reflejar el cambio real
+      await api.put(`/administrador/revisiones/${orderId}`, {
+        decision: 'pagada',
+        nota: 'Pago verificado por el administrador.'
+      });
       await fetchOrders();
     } catch (err) {
       console.error('Error al confirmar la orden:', err);
