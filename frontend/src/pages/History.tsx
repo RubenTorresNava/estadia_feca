@@ -78,7 +78,24 @@ export const History = ({ onLogout }: HistoryProps) => {
               <div key={pedido.id} className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-gray-100">
                 <div className="flex-1 text-left">
                   <div className="font-semibold text-dark">Folio: {pedido.id}</div>
-                  <div className="text-sm text-gray-600">Estado: <span className="font-medium text-primary">{pedido.estado}</span></div>
+                  <div className="text-sm text-gray-600">Estado: 
+                    <span
+                      className={`font-medium px-2 py-1 rounded-full text-xs
+                        ${pedido.estado === 'pagada' ? 'bg-green-100 text-green-700'
+                        : pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
+                        : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : 'bg-gray-100 text-gray-700'}
+                      `}
+                    >
+                      {pedido.estado === 'pagada'
+                        ? 'Pagada'
+                        : pedido.estado === 'pendiente'
+                        ? 'Pendiente'
+                        : pedido.estado === 'en_revision'
+                        ? 'En revisión'
+                        : pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
+                    </span>
+                  </div>
                   <div className="text-sm text-gray-600">Total: ${Number(pedido.total_pago).toFixed(2)}</div>
                   <div className="text-xs text-gray-400">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
                 </div>
