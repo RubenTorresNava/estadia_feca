@@ -7,7 +7,8 @@ export type Category =
   | "Botellas y termos"
   | "Bolsas y mochilas"
   | "Stickers y pines"
-  | "Otros";
+  | "Otro"
+  | string; // Permite personalizadas
 
 export interface Product {
   id: string;

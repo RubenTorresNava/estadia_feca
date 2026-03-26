@@ -16,6 +16,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   const [precio, setPrecio] = useState('');
   const [stock_actual, setStockActual] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [customCategoria, setCustomCategoria] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [imagen, setImagen] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -27,7 +28,8 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       setDescripcion(product.descripcion);
       setPrecio(String(product.precio));
       setStockActual(String(product.stock_actual));
-      setCategoria(product.categoria);
+      setCategoria(product.categoria === 'Otro' ? 'Otro' : product.categoria);
+      setCustomCategoria(product.categoria !== 'Otro' && !categoriasPredefinidas.includes(product.categoria) ? product.categoria : '');
       setImagePreview(product.imagen_url); 
       setImagen(null);
     } else {
@@ -35,10 +37,22 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       setPrecio('');
       setStockActual('');
       setCategoria('');
+      setCustomCategoria('');
       setImagen(null);
       setImagePreview(null);
     }
   }, [product, isOpen]);
+
+  const categoriasPredefinidas = [
+    'Ropa',
+    'Accesorios',
+    'Papelería',
+    'Electrónica',
+    'Botellas y termos',
+    'Bolsas y mochilas',
+    'Stickers y pines',
+    'Otro'
+  ];
 
   // Función para limpiar y validar entradas
   const sanitizeText = (text: string, maxLen: number = 100) => {
@@ -80,7 +94,7 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
     formData.append('descripcion', cleanDescripcion);
     formData.append('precio', cleanPrecio);
     formData.append('stock_actual', cleanStock);
-    formData.append('categoria', categoria);
+    formData.append('categoria', categoria === 'Otro' ? customCategoria : categoria);
     if (imagen) {
       formData.append('imagen', imagen);
     }
@@ -187,15 +201,21 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
             className="w-full input-style"
           >
             <option value="" disabled>Selecciona una categoría</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Accesorios">Accesorios</option>
-            <option value="Papelería">Papelería</option>
-            <option value="Electrónica">Electrónica</option>
-            <option value="Botellas y termos">Botellas y termos</option>
-            <option value="Bolsas y mochilas">Bolsas y mochilas</option>
-            <option value="Stickers y pines">Stickers y pines</option>
-            <option value="Otros">Otros</option>
+            {categoriasPredefinidas.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
+          {categoria === 'Otro' && (
+            <input
+              type="text"
+              value={customCategoria}
+              onChange={e => setCustomCategoria(e.target.value)}
+              placeholder="Escribe la categoría"
+              className="w-full input-style mt-2"
+              required
+              maxLength={40}
+            />
+          )}
           {errors.categoria && <span className="text-red-500 text-xs">{errors.categoria}</span>}
         </div>
       </div>
