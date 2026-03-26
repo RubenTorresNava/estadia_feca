@@ -6,9 +6,11 @@ import { ConfirmationModal } from './ConfirmationModal';
 import { Plus, Edit, Trash2, Star } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 
-
 export const AdminProducts = () => {
+  // 1. Hooks de Contexto
   const { products, loading, error, addProduct, updateProduct, deleteProduct } = useProducts();
+
+  // 2. Estados Locales
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -16,68 +18,61 @@ export const AdminProducts = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('nombre');
 
-  // Filtrado de productos por búsqueda y campo
-  const filteredProducts = useMemo(() => {
-    const lower = search.trim().toLowerCase();
-    return products.filter((p) => {
-      if (!lower) return true;
-      if (filter === 'nombre') return p.nombre?.toLowerCase().includes(lower);
-      if (filter === 'categoria') return p.categoria?.toLowerCase().includes(lower);
-      if (filter === 'descripcion') return p.descripcion?.toLowerCase().includes(lower);
-      if (filter === 'stock') return p.stock_actual?.toString().includes(lower);
-      if (filter === 'precio') return p.precio?.toString().includes(lower);
-      return false;
-    });
-  }, [products, search, filter]);
-
+  // 3. Lógica de Handlers (Ahora dentro del componente)
+  
   const handleOpenFormModal = (product?: Product) => {
     setEditingProduct(product || null);
     setIsFormModalOpen(true);
   };
 
-// Dentro de AdminProducts.tsx
-const handleCloseFormModal = () => {
+  const handleCloseFormModal = () => {
     setIsFormModalOpen(false);
     setEditingProduct(null);
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (product: Product) => {
     try {
       if (editingProduct) {
-        await updateProduct(editingProduct.id, formData);
+        await updateProduct(product);
       } else {
-        await addProduct(formData);
+        await addProduct(product);
       }
-      // 3. SOLO si la petición fue exitosa, cerramos el modal
       handleCloseFormModal();
     } catch (err) {
-      // Si hay un error 400 o 500, el modal se queda abierto para que el usuario corrija
-      console.error("Error al procesar el producto en el componente:", err);
+      console.error("Error al procesar producto:", err);
     }
   };
 
-  const handleDeleteRequest = (productId: string) => {
-    setDeletingProductId(productId);
+  const handleDeleteRequest = (id: string) => {
+    setDeletingProductId(id);
     setIsConfirmModalOpen(true);
   };
 
- const handleConfirmDelete = async () => {
-  if (deletingProductId) {
-    try {
-      // Llamamos a la función del contexto
-      await deleteProduct(deletingProductId);
-      
-      // Cerramos el modal de confirmación
-      setIsConfirmModalOpen(false);
-      setDeletingProductId(null);
-    } catch (error) {
-      alert("No se pudo eliminar el producto");
+  const handleConfirmDelete = async () => {
+    if (deletingProductId) {
+      try {
+        await deleteProduct(deletingProductId);
+        setDeletingProductId(null);
+      } catch (err) {
+        console.error("Error al eliminar:", err);
+      }
     }
-  }
-};
+    setIsConfirmModalOpen(false);
+  };
 
-  if (loading) return <p>Cargando productos...</p>;
-  if (error) return <p className="text-primary">{error}</p>;
+  // 4. Lógica de Filtrado
+  const filteredProducts = useMemo(() => {
+    const lower = search.trim().toLowerCase();
+    return products.filter((p) => {
+      if (!lower) return true;
+      const val = p[filter as keyof Product]; // Acceso dinámico seguro
+      return val?.toString().toLowerCase().includes(lower);
+    });
+  }, [products, search, filter]);
+
+  // 5. Renderizado de contingencia
+  if (loading) return <div className="p-6 text-center">Cargando inventario...</div>;
+  if (error) return <div className="p-6 text-red-600 text-center">Error: {error}</div>;
 
   return (
     <>
@@ -94,100 +89,95 @@ const handleCloseFormModal = () => {
                 { value: 'categoria', label: 'Categoría' },
                 { value: 'descripcion', label: 'Descripción' },
                 { value: 'precio', label: 'Precio' },
-                { value: 'stock', label: 'Stock' },
+                { value: 'stock_actual', label: 'Stock' },
               ]}
               defaultFilter="nombre"
             />
             <button
               onClick={() => handleOpenFormModal()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-semibold sm:ml-2"
-              title="Agregar nuevo producto"
+              className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center"
             >
-              <Plus className="h-4 w-4" />
-              Agregar Producto
+              <Plus className="h-4 w-4 mr-1" /> Agregar Producto
             </button>
           </div>
         </div>
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray/20">
-                <th className="th-style">Producto</th>
-                <th className="th-style">Categoría</th>
-                <th className="th-style">Descripcion</th>
-                <th className="th-style">Precio</th>
-                <th className="th-style">Stock</th>
-                <th className="th-style">Acciones</th>
+              <tr className="border-b border-gray/20 text-left">
+                <th className="p-3 text-sm font-bold text-gray-600">Producto</th>
+                <th className="p-3 text-sm font-bold text-gray-600">Categoría</th>
+                <th className="p-3 text-sm font-bold text-gray-600">Descripción</th>
+                <th className="p-3 text-sm font-bold text-gray-600">Precio</th>
+                <th className="p-3 text-sm font-bold text-gray-600">Stock</th>
+                <th className="p-3 text-sm font-bold text-gray-600 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray">No hay productos que coincidan con la búsqueda.</td>
+              {filteredProducts.map((product) => (
+                <tr key={product.id} className="border-b border-gray/5 hover:bg-gray-50">
+                  <td className="p-3 text-sm flex items-center gap-3">
+                    <img 
+                      src={product.imagen_url || 'https://via.placeholder.com/50'} 
+                      alt={product.nombre} 
+                      className="w-12 h-12 object-cover rounded" 
+                    />
+                    <span className="font-bold text-dark">{product.nombre}</span>
+                  </td>
+                  <td className="p-3 text-sm">{product.categoria}</td>
+                  <td className="p-3 text-sm truncate max-w-xs">{product.descripcion}</td>
+                  <td className="p-3 text-sm font-bold text-dark">
+                    ${Number(product.precio).toFixed(2)}
+                  </td>
+                  <td className="p-3 text-sm font-bold">
+                    <span className={Number(product.stock_actual) > 0 ? 'text-green-600' : 'text-red-600'}>
+                      {product.stock_actual !== null && product.stock_actual !== undefined
+                        ? (Number(product.stock_actual) > 0 ? `${product.stock_actual} uds` : 'Agotado')
+                        : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="p-3 text-sm">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleOpenFormModal(product)}
+                        className="p-2 rounded hover:bg-blue-50"
+                        title="Editar"
+                      >
+                        <Edit className="h-4 w-4 text-primary" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRequest(product.id)}
+                        className="p-2 rounded hover:bg-red-50"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              ) : (
-                filteredProducts.map((product) => (
-                  <tr key={product.id} className="border-b border-gray/10">
-                    <td className="td-style flex items-center gap-3">
-                      <img src={product.imagen_url} alt={product.nombre} className="h-10 w-10 object-cover rounded" />
-                      <span className="font-medium text-dark">{product.nombre}</span>
-                    </td>
-                    <td className="td-style text-gray">{product.categoria}</td>
-                    <td className="td-style text-gray">{product.descripcion}</td>
-                    <td className="td-style text-dark font-semibold">${product.precio.toFixed(2)}</td>
-                    <td className="td-style">
-                      <span className={`font-semibold ${product.stock_actual === 0 ? 'text-primary' : product.stock_actual <= 10 ? 'text-yellow-600' : 'text-green-600'}`}>
-                        {product.stock_actual} unidades
-                      </span>
-                    </td>
-                    <td className="td-style">
-                      <div className="flex gap-2">
-                        <button
-                          className="p-2 hover:bg-yellow-100 rounded-full group"
-                          title="Destacar producto"
-                        >
-                          <Star className="h-4 w-4 text-yellow-400 group-hover:scale-110 transition-transform" fill="none" />
-                        </button>
-                        <button
-                          onClick={() => handleOpenFormModal(product)}
-                          className="p-2 hover:bg-light rounded-full"
-                          title="Editar producto"
-                        >
-                          <Edit className="h-4 w-4 text-dark" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteRequest(product.id)}
-                          className="p-2 hover:bg-light rounded-full"
-                          title="Eliminar producto"
-                        >
-                          <Trash2 className="h-4 w-4 text-primary" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-10 text-gray-500">No se encontraron productos.</div>
+          )}
         </div>
       </div>
+
       <ProductFormModal
         isOpen={isFormModalOpen}
         onClose={handleCloseFormModal}
         onSubmit={handleSubmit}
-        product={editingProduct}
+        editingProduct={editingProduct}
       />
+
       <ConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Confirmar Eliminación"
-        message="¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer."
+        message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
       />
-      <style>{`
-        .th-style { text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; color: #4A4A4D; }
-        .td-style { padding: 0.75rem 1rem; font-size: 0.875rem; }
-      `}</style>
     </>
   );
 };

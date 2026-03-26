@@ -36,11 +36,12 @@ const fetchProducts = async () => {
 
     const validatedProducts = data.map((p: any) => ({
       ...p,
-      precio: parseFloat(p.precio) || 0, 
+      precio: parseFloat(p.precio) || 0,
+      stock_actual: Number(p.stock_actual) ?? null, // Asegura el mapeo correcto
       imagen_url: p.imagen_url 
-    ? `${URL_BASE}${p.imagen_url.startsWith('/') ? '' : '/'}${p.imagen_url}`
-    : 'https://via.placeholder.com/150',
-      id: p.id.toString() 
+        ? `${URL_BASE}${p.imagen_url.startsWith('/') ? '' : '/'}${p.imagen_url}`
+        : 'https://via.placeholder.com/150',
+      id: p.id.toString()
     }));
 
     setProducts(validatedProducts);
@@ -58,23 +59,11 @@ const fetchProducts = async () => {
     }, []);
 
   // 2. Agregar producto (Usando FormData para imágenes)
+
 const addProduct = async (productData: FormData) => {
   try {
-    // Cambiado a la ruta correcta del backend para agregar producto
-    const response = await api.post('/administrador/agregar', productData);
-    
-    const nuevoProdBackend = response.data.producto;
-
-    const URL_BASE = "http://localhost:3000";
-    const productoParaEstado: Product = {
-      ...nuevoProdBackend,
-      id: nuevoProdBackend.id.toString(),
-      precio: parseFloat(nuevoProdBackend.precio),
-      imagen_url: `${URL_BASE}${nuevoProdBackend.imagen_url}`
-    };
-
-    setProducts((prev) => [...prev, productoParaEstado]);
-
+    await api.post('/administrador/agregar', productData);
+    await fetchProducts(); // Refresca el inventario tras agregar
   } catch (e) {
     console.error("Error al agregar producto:", e);
     throw e;
@@ -82,27 +71,11 @@ const addProduct = async (productData: FormData) => {
 };
 
   // 3. Actualizar producto
+
 const updateProduct = async (productId: string, productData: FormData) => {
   try {
-    // Cambiado a la ruta correcta del backend para modificar producto
-    const response = await api.patch(`/administrador/modificar/${productId}`, productData);
-    
-    const updatedProdBackend = response.data.producto;
-    const URL_BASE = "http://localhost:3000";
-
-    const productoValidado: Product = {
-      ...updatedProdBackend,
-      id: updatedProdBackend.id.toString(),
-      precio: parseFloat(updatedProdBackend.precio),
-      imagen_url: updatedProdBackend.imagen_url.startsWith('http') 
-                  ? updatedProdBackend.imagen_url 
-                  : `${URL_BASE}${updatedProdBackend.imagen_url}`
-    };
-
-    setProducts((prev) =>
-      prev.map((p) => (p.id === productId ? productoValidado : p))
-    );
-
+    await api.patch(`/administrador/modificar/${productId}`, productData);
+    await fetchProducts(); // Refresca el inventario tras editar
   } catch (e) {
     console.error("Error al editar producto:", e);
     throw e;
@@ -110,13 +83,11 @@ const updateProduct = async (productId: string, productData: FormData) => {
 };
 
   // 4. Eliminar producto
+
   const deleteProduct = async (productId: string) => {
     try {
-      // Si tu backend hace soft delete, usa PATCH o PUT según tu API
-      // Cambiado a la ruta correcta del backend para eliminar producto
       await api.delete(`/administrador/eliminar/${productId}`);
-      
-      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      await fetchProducts(); // Refresca el inventario tras eliminar
     } catch (e) {
       console.error('Error al eliminar:', e);
       throw e;
