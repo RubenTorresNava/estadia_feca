@@ -39,7 +39,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await api.post("/auth/login", { identificador, password });
       const { token, usuario: userData } = response.data;
       if (token && userData) {
-        localStorage.setItem("feca-admin-token", token);
+        if (userData.rol === 'alumno') {
+          localStorage.setItem("feca-alumno-token", token);
+        } else if (userData.rol === 'admin') {
+          localStorage.setItem("feca-admin-token", token);
+        }
         localStorage.setItem("feca-usuario", JSON.stringify(userData));
         setUsuario(userData);
         return true;
@@ -53,6 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem("feca-admin-token");
+    localStorage.removeItem("feca-alumno-token");
     localStorage.removeItem("feca-usuario");
     setUsuario(null);
   };

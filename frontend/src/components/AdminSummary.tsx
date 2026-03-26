@@ -90,10 +90,26 @@ const totalStock = products.reduce((sum, product) => {
                             ? 'bg-green-100 text-green-700'
                             : order.estado === 'pendiente'
                             ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
+                            : order.estado === 'en_revision'
+                            ? 'bg-orange-100 text-orange-700'
+                            : order.estado === 'rechazado'
+                            ? 'bg-red-200 text-red-700'
+                            : order.estado === 'cancelado'
+                            ? 'bg-gray-200 text-gray-700'
+                            : 'bg-gray-100 text-gray-700'
                         }`}
                       >
-                        {order.estado === 'pagada' ? 'Pagada' : order.estado === 'pendiente' ? 'Pendiente' : 'Cancelado'}
+                        {order.estado === 'pagada'
+                          ? 'Pagada'
+                          : order.estado === 'pendiente'
+                          ? 'Pendiente'
+                          : order.estado === 'en_revision'
+                          ? 'En revisión'
+                          : order.estado === 'rechazado'
+                          ? 'Rechazada'
+                          : order.estado === 'cancelado'
+                          ? 'Cancelada'
+                          : order.estado}
                       </span>
                       <button 
                         onClick={() => toggleOrder(order.id.toString())}
