@@ -30,12 +30,12 @@ export const AdminProducts = () => {
     setEditingProduct(null);
   };
 
-  const handleSubmit = async (product: Product) => {
+  const handleSubmit = async (formData: FormData) => {
     try {
       if (editingProduct) {
-        await updateProduct(product);
+        await updateProduct(editingProduct.id, formData);
       } else {
-        await addProduct(product);
+        await addProduct(formData);
       }
       handleCloseFormModal();
     } catch (err) {
@@ -169,7 +169,7 @@ export const AdminProducts = () => {
         isOpen={isFormModalOpen}
         onClose={handleCloseFormModal}
         onSubmit={handleSubmit}
-        editingProduct={editingProduct}
+        product={editingProduct}
       />
 
       <ConfirmationModal
