@@ -41,7 +41,9 @@ const fetchProducts = async () => {
       imagen_url: p.imagen_url 
         ? `${URL_BASE}${p.imagen_url.startsWith('/') ? '' : '/'}${p.imagen_url}`
         : 'https://via.placeholder.com/150',
-      id: p.id.toString()
+      id: p.id.toString(),
+      destacado: p.destacado ?? false,
+      activo: p.activo ?? true
     }));
 
     setProducts(validatedProducts);
