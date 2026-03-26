@@ -27,12 +27,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 const fetchOrders = async () => {
   try {
-    const response = await api.get('/administrador/obtenerOrdenes');
+    const response = await api.get('/administrador/revisiones');
     const rawData = response.data.ordenes || response.data;
 
     const validatedOrders = rawData.map((o: any) => ({
       ...o, // 🔥 IMPORTANTE: Esto mantiene nombre_alumno, total_pago, estado, folio_referencia, etc.
-      id: o.id.toString(),
+      id: (o.id || o.orden_id).toString(),
       // Mapeamos los detalles internos asegurando que los nombres coincidan
       detalles: (o.detalles || []).map((d: any) => ({
         ...d,

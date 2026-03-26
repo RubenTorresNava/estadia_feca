@@ -167,6 +167,7 @@ WHERE stock_actual < 10 AND activo = true;
 
 CREATE OR REPLACE VIEW vista_mis_pedidos AS
 SELECT 
+    ov.id AS id, 
     ov.id AS orden_id,
     ov.usuario_id,
     ov.folio_referencia,
