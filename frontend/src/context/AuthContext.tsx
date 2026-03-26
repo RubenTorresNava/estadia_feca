@@ -7,50 +7,63 @@ import {
 } from "react";
 import api from "../api/api.ts";
 
+
+interface Usuario {
+  id: number;
+  nombre: string;
+  rol: 'admin' | 'alumno' | 'staff';
+}
+
 interface AuthContextType {
+  usuario: Usuario | null;
   isAdmin: boolean;
-  login: (usuario: string, password: string) => Promise<boolean>;
+  isAlumno: boolean;
+  login: (identificador: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return !!localStorage.getItem("feca-admin-token");
+  const [usuario, setUsuario] = useState<Usuario | null>(() => {
+    const stored = localStorage.getItem("feca-usuario");
+    return stored ? JSON.parse(stored) : null;
   });
 
-const login = async (usuario: string, password: string): Promise<boolean> => {
-  try {
-    const response = await api.post("/administrador/login", { usuario, password });
-    const { token } = response.data;
+  const isAdmin = usuario?.rol === 'admin';
+  const isAlumno = usuario?.rol === 'alumno';
 
-    if (token) {
-      localStorage.setItem("feca-admin-token", token);
-      setIsAdmin(true);
-      
-      // Opcional: Si tienes acceso a fetchProducts aquí, puedes llamarlo
-      // o simplemente dejar que la redirección al Dashboard dispare el fetch
-      return true;
+  const login = async (identificador: string, password: string): Promise<boolean> => {
+    try {
+      const response = await api.post("/auth/login", { identificador, password });
+      const { token, usuario: userData } = response.data;
+      if (token && userData) {
+        localStorage.setItem("feca-admin-token", token);
+        localStorage.setItem("feca-usuario", JSON.stringify(userData));
+        setUsuario(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error en el inicio de sesión:", error);
+      return false;
     }
-    return false;
-  } catch (error) {
-    console.error("Error en el inicio de sesión:", error);
-    return false;
-  }
-};
+  };
 
   const logout = () => {
     localStorage.removeItem("feca-admin-token");
-    setIsAdmin(false);
+    localStorage.removeItem("feca-usuario");
+    setUsuario(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ usuario, isAdmin, isAlumno, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

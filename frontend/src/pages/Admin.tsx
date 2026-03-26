@@ -11,9 +11,10 @@ interface AdminProps {
 
 type AdminTab = 'summary' | 'products' | 'reports';
 
+
 export const Admin = ({ onNavigate }: AdminProps) => {
-  const { isAdmin, login, logout } = useAuth();
-  const [usuario, setUsuario] = useState('');
+  const { isAdmin, isAlumno, login, logout, usuario: userData } = useAuth();
+  const [identificador, setIdentificador] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<AdminTab>('summary');
@@ -21,13 +22,13 @@ export const Admin = ({ onNavigate }: AdminProps) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!usuario || !password) {
-      setError('Usuario y contraseña son requeridos.');
+    if (!identificador || !password) {
+      setError('Correo/matrícula y contraseña son requeridos.');
       return;
     }
-    const success = await login(usuario, password);
+    const success = await login(identificador, password);
     if (!success) {
-      setError('Usuario o contraseña incorrectos');
+      setError('Credenciales incorrectas');
     }
   };
 
@@ -36,7 +37,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
     onNavigate('home');
   };
 
-  if (!isAdmin) {
+  if (!isAdmin && !isAlumno) {
     return (
       <div className="min-h-screen bg-light flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
@@ -46,20 +47,20 @@ export const Admin = ({ onNavigate }: AdminProps) => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-dark text-center mb-6">
-            Panel de Administración
+            Iniciar Sesión
           </h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label htmlFor="usuario" className="block text-sm font-medium text-dark">
-                Usuario
+              <label htmlFor="identificador" className="block text-sm font-medium text-dark">
+                Correo o Matrícula
               </label>
               <input
-                id="usuario"
+                id="identificador"
                 type="text"
-                value={usuario}
-                onChange={(e) => setUsuario(e.target.value)}
+                value={identificador}
+                onChange={(e) => setIdentificador(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                title="Ingresa tu usuario de administrador"
+                title="Ingresa tu correo institucional o matrícula"
               />
             </div>
             <div>
@@ -72,19 +73,37 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                title="Ingresa tu contraseña de administrador"
+                title="Ingresa tu contraseña"
               />
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-              title="Iniciar sesión en el panel de administración"
+              title="Iniciar sesión"
             >
               <LogOut className="h-4 w-4" />
               Iniciar Sesión
             </button>
           </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Si es alumno, mostrar mensaje de bienvenida (puedes personalizar esto o redirigir)
+  if (isAlumno) {
+    return (
+      <div className="min-h-screen bg-light flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md text-center">
+          <h1 className="text-2xl font-bold text-dark mb-4">¡Bienvenido, {userData?.nombre}!</h1>
+          <p className="mb-6">Has iniciado sesión como <span className="font-semibold text-primary">alumno</span>.<br/>Próximamente podrás subir tu comprobante de pago desde tu panel personal.</p>
+          <button
+            onClick={() => onNavigate('home')}
+            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            Ir a la tienda
+          </button>
         </div>
       </div>
     );

@@ -187,9 +187,11 @@ FROM orden_venta ov;
 
 -- 1. Usuarios (Password de ejemplo: 'password123' - asumiendo que el hash es genérico)
 -- Nota: En producción, estos passwords deben ser hashes de bcrypt.
+
 INSERT INTO usuarios (matricula, nombre, correo, password, rol) VALUES 
-(NULL, 'Admin Feca', 'admin@feca.edu', '$2b$10$K6Px8mB1R.Xp/N.mE6yGNeS7J2K1V8l.y6Q5W4E3r2t1y0u9i8o7p', 'admin'),
-('20240001', 'Ruben Garcia', 'ruben.garcia@universidad.edu', '$2b$10$K6Px8mB1R.Xp/N.mE6yGNeS7J2K1V8l.y6Q5W4E3r2t1y0u9i8o7p', 'alumno');
+    (NULL, 'Admin Feca', 'admin@feca.edu', '$2b$10$BPYuZcwEzEynnzCmHZCxJOJHE6H4pXBGhy.8JVdcIk9XadaYLKYHi', 'admin'),
+    ('20240001', 'Ruben Garcia', 'ruben.garcia@universidad.edu', '$2b$10$BPYuZcwEzEynnzCmHZCxJOJHE6H4pXBGhy.8JVdcIk9XadaYLKYHi', 'alumno'),
+    ('20240002', 'Test Admin', 'test@test.com', '$2b$10$K6Px8mB1R.Xp/N.mE6yGNeS7J2K1V8l.y6Q5W4E3r2t1y0u9i8o7p', 'admin');   
 
 -- 2. Inventario (Productos de la tienda universitaria)
 INSERT INTO inventario (nombre, descripcion, precio, stock_actual, categoria, imagen_url) VALUES 
