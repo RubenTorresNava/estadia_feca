@@ -91,23 +91,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
     );
   }
 
-  // Si es alumno, mostrar mensaje de bienvenida (puedes personalizar esto o redirigir)
-  if (isAlumno) {
-    return (
-      <div className="min-h-screen bg-light flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md text-center">
-          <h1 className="text-2xl font-bold text-dark mb-4">¡Bienvenido, {userData?.nombre}!</h1>
-          <p className="mb-6">Has iniciado sesión como <span className="font-semibold text-primary">alumno</span>.<br/>Próximamente podrás subir tu comprobante de pago desde tu panel personal.</p>
-          <button
-            onClick={() => onNavigate('home')}
-            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-          >
-            Ir a la tienda
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Si es alumno, la interfaz se maneja desde AppContent (MisCompras)
 
   const renderContent = () => {
     switch (activeTab) {

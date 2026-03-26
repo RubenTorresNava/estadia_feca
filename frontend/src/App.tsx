@@ -11,13 +11,16 @@ import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { Admin } from './pages/Admin';
 import { OrderConfirmation } from './components/OrderConfirmation';
+import { History } from './pages/History';
+
+import { useAuth } from './context/AuthContext';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [lastCreatedOrder, setLastCreatedOrder] = useState<any | null>(null); 
-  
+  const [lastCreatedOrder, setLastCreatedOrder] = useState<any | null>(null);
   const { orders } = useCart();
+  const { isAlumno, logout } = useAuth();
 
   const handleNavigate = (page: string, productId?: string) => {
     setCurrentPage(page);
@@ -27,11 +30,24 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-const handleOrderCreated = (order: any) => {
+  const handleOrderCreated = (order: any) => {
     setLastCreatedOrder(order);
     setCurrentPage('confirmation');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Si es alumno, mostrar la página de History (con header/footer)
+  if (isAlumno) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header onNavigate={handleNavigate} currentPage={currentPage} />
+        <main className="flex-1">
+          <History onLogout={logout} />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -51,14 +67,14 @@ const handleOrderCreated = (order: any) => {
         return <Checkout onNavigate={handleNavigate} onOrderCreated={handleOrderCreated} />;
       case 'admin':
         return <Admin onNavigate={handleNavigate} />;
-        case 'confirmation':
-          return lastCreatedOrder ? (
+      case 'confirmation':
+        return lastCreatedOrder ? (
           <OrderConfirmation order={lastCreatedOrder} onNavigate={handleNavigate} />
         ) : (
-        <Home onNavigate={handleNavigate} />
-      );
+          <Home onNavigate={handleNavigate} />
+        );
       default:
-      return <Home onNavigate={handleNavigate} />;
+        return <Home onNavigate={handleNavigate} />;
     }
   };
 
