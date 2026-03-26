@@ -79,7 +79,7 @@ export const History = ({ onLogout }: HistoryProps) => {
                 <div className="flex-1 text-left">
                   <div className="font-semibold text-dark">Folio: {pedido.id}</div>
                   <div className="text-sm text-gray-600">Estado: <span className="font-medium text-primary">{pedido.estado}</span></div>
-                  <div className="text-sm text-gray-600">Total: ${pedido.total_pago.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Total: ${Number(pedido.total_pago).toFixed(2)}</div>
                   <div className="text-xs text-gray-400">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
                 </div>
                 <div className="flex flex-col items-center gap-2">

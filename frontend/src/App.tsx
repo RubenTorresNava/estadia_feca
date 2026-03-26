@@ -36,13 +36,35 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Si es alumno, mostrar la página de History (con header/footer)
+
+  // Si es alumno, permitir navegación entre catálogo, carrito, checkout e historial
   if (isAlumno) {
+    const renderAlumnoPage = () => {
+      switch (currentPage) {
+        case 'home':
+          return <Home onNavigate={handleNavigate} />;
+        case 'catalog':
+          return <Catalog onNavigate={handleNavigate} />;
+        case 'product':
+          return selectedProductId ? (
+            <ProductDetail productId={selectedProductId} onNavigate={handleNavigate} />
+          ) : (
+            <Catalog onNavigate={handleNavigate} />
+          );
+        case 'cart':
+          return <Cart onNavigate={handleNavigate} />;
+        case 'checkout':
+          return <Checkout onNavigate={handleNavigate} onOrderCreated={handleOrderCreated} />;
+        case 'history':
+        default:
+          return <History onLogout={logout} />;
+      }
+    };
     return (
       <div className="flex flex-col min-h-screen">
         <Header onNavigate={handleNavigate} currentPage={currentPage} />
         <main className="flex-1">
-          <History onLogout={logout} />
+          {renderAlumnoPage()}
         </main>
         <Footer />
       </div>

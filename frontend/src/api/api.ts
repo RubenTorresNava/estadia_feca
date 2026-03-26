@@ -7,7 +7,13 @@ const api = axios.create({
 // En tu archivo de configuración de API (donde creas axios.create)
 // api.ts
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("feca-admin-token");
+  // Detectar si la ruta es de alumno o admin
+  let token = null;
+  if (config.url?.includes('/alumno/')) {
+    token = localStorage.getItem("feca-alumno-token");
+  } else if (config.url?.includes('/administrador/')) {
+    token = localStorage.getItem("feca-admin-token");
+  }
   if (token) {
     config.headers["x-token"] = token;
   }

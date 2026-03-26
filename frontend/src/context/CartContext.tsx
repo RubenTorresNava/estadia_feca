@@ -25,31 +25,41 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const [orders, setOrders] = useState<Order[]>([]);
 
+
 const fetchOrders = async () => {
   try {
-    const response = await api.get('/administrador/revisiones');
+    // Detectar tipo de usuario por el token
+    const alumnoToken = localStorage.getItem('feca-alumno-token');
+    const adminToken = localStorage.getItem('feca-admin-token');
+    let response;
+    if (alumnoToken) {
+      response = await api.get('/alumno/pedidos');
+    } else if (adminToken) {
+      response = await api.get('/administrador/revisiones');
+    } else {
+      throw new Error('No hay sesión activa');
+    }
     const rawData = response.data.ordenes || response.data;
-
     const validatedOrders = rawData.map((o: any) => ({
-      ...o, // 🔥 IMPORTANTE: Esto mantiene nombre_alumno, total_pago, estado, folio_referencia, etc.
+      ...o,
       id: (o.id || o.orden_id).toString(),
-      // Mapeamos los detalles internos asegurando que los nombres coincidan
       detalles: (o.detalles || []).map((d: any) => ({
         ...d,
-        nombre: d.producto?.nombre || 'Producto', 
+        nombre: d.producto?.nombre || 'Producto',
         precio_unitario: parseFloat(d.precio_unitario) || 0
       }))
     }));
-
     setOrders(validatedOrders);
   } catch (err) {
     console.error("Error al cargar órdenes:", err);
   }
 };
 
+
     useEffect(() => {
-      const token = localStorage.getItem('feca-admin-token');
-      if (token) {
+      const alumnoToken = localStorage.getItem('feca-alumno-token');
+      const adminToken = localStorage.getItem('feca-admin-token');
+      if (alumnoToken || adminToken) {
         fetchOrders();
       }
   },[]);
@@ -90,7 +100,7 @@ const fetchOrders = async () => {
 
 const createOrder = async (orderData: any) => {
   try {
-    const response = await api.post('checkout/', orderData);
+    const response = await api.post('/alumno/checkout', orderData);
     
     const ordenFinal = response.data.nuevaOrden;
 
