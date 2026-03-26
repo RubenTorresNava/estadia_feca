@@ -99,27 +99,36 @@ export const AdminSummary = () => {
           <div className="space-y-4">
             {orders.slice().reverse().map((order: any) => (
               <div key={order.id} className="border border-gray/20 rounded-lg p-4 bg-white shadow-sm">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-3">
+                  <div className="flex-1 min-w-0">
                     <p className="font-bold text-dark text-lg">Orden #{order.id}</p>
                     <p className="text-sm text-gray font-medium">Ref: {order.folio_referencia}</p>
                     <p className="text-xs text-gray-500 mt-1">{order.nombre_alumno} - {order.correo || 'Sin correo'}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      order.estado === 'pagada' ? 'bg-green-100 text-green-700' : 
-                      order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100'
-                    }`}>
-                      {order.estado.toUpperCase()}
+                    <span
+                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
+                        ${order.estado === 'pagada' ? 'bg-green-100 text-green-700'
+                        : order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
+                        : order.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : 'bg-gray-100 text-gray-700'}
+                      `}
+                    >
+                      {order.estado === 'pagada'
+                        ? 'Pagada'
+                        : order.estado === 'pendiente'
+                        ? 'Pendiente'
+                        : order.estado === 'en_revision'
+                        ? 'En revisión'
+                        : order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
                     </span>
                     <button 
                       onClick={() => toggleOrder(order.id.toString())}
-                      className="text-primary text-xs font-bold hover:underline"
+                      className="block mt-2 text-primary text-xs font-bold hover:underline"
                     >
                       {expandedOrderId === order.id.toString() ? 'Ocultar detalles ▲' : 'Ver productos ▼'}
                     </button>
-                    
-                    <label className="flex items-center gap-1 cursor-pointer mt-2 text-xs text-blue-700 hover:underline">
+                  </div>
+                  <div className="flex flex-col items-center md:items-end gap-2 md:w-64 w-full">
+                    <label className="flex items-center gap-1 cursor-pointer text-xs text-blue-700 hover:underline">
                       <UploadCloud className="h-4 w-4" /> Subir/Reemplazar comprobante
                       <input
                         type="file"
@@ -132,11 +141,11 @@ export const AdminSummary = () => {
                       />
                     </label>
                     {order.comprobante_url && (
-                      <div className="flex flex-col items-end mt-2">
+                      <div className="flex flex-col items-center md:items-end mt-2 w-full">
                         <img
                           src={order.comprobante_url}
                           alt="Comprobante actual"
-                          className="w-full max-w-xs md:max-w-md object-contain rounded border"
+                          className="w-full max-w-xs md:max-w-xs object-contain rounded border"
                         />
                         <span className="text-xs text-gray-500">Comprobante actual</span>
                       </div>
