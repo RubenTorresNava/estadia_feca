@@ -157,14 +157,16 @@ export const AdminSummary = () => {
 
                 {expandedOrderId === order.id.toString() && (
                   <div className="mt-3 bg-gray-50 rounded-md p-3 border-l-4 border-primary">
-                    <ul className="space-y-2">
-                      {order.detalles?.map((detalle: any, idx: number) => (
-                        <li key={idx} className="flex justify-between text-sm">
-                          <span><span className="font-bold text-primary">{detalle.cantidad}x</span> {detalle.producto?.nombre}</span>
-                          <span className="text-gray-600">${(Number(detalle.precio_unitario) * detalle.cantidad).toFixed(2)}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="text-sm text-dark font-medium mb-1">Productos:</div>
+                    {order.resumen_productos ? (
+                      <ul className="list-disc pl-5">
+                        {order.resumen_productos.split(',').map((prod: string, idx: number) => (
+                          <li key={idx}>{prod.trim()}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-gray-400 text-xs">Sin productos</div>
+                    )}
                   </div>
                 )}
 
