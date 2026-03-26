@@ -35,7 +35,8 @@ const fetchOrders = async () => {
     if (alumnoToken) {
       response = await api.get('/alumno/pedidos');
     } else if (adminToken) {
-      response = await api.get('/administrador/revisiones');
+      // Para admin, usar historial completo
+      response = await api.get('/administrador/historial');
     } else {
       throw new Error('No hay sesión activa');
     }

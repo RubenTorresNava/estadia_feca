@@ -56,7 +56,5 @@ Usuario.init({
     }
 });
 
-Usuario.hasMany(OrdenVenta, { foreignKey: 'usuario_id' });
-OrdenVenta.belongsTo(Usuario, { foreignKey: 'usuario_id' });
 
 export default Usuario;

@@ -48,7 +48,7 @@ OrdenVenta.init({
     timestamps: false 
 });
 
-OrdenVenta.hasMany(DetalleOrden, { foreignKey: 'orden_id', as: 'detalles' });
-DetalleOrden.belongsTo(OrdenVenta, { foreignKey: 'orden_id' });
+
+// Asociaciones explícitas para Sequelize
 
 export default OrdenVenta;

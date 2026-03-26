@@ -1,23 +1,42 @@
-import { useState } from 'react';
-import { Package, Clock, DollarSign, CheckCircle, UploadCloud, XCircle } from 'lucide-react';
+
+import { useState, useEffect } from 'react';
+import { Package, Clock, DollarSign, CheckCircle, UploadCloud, XCircle, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import api from '../api/api';
 
+
 export const AdminSummary = () => {
   // 1. Hooks de Contexto (Siempre al inicio)
   const { orders, fetchOrders } = useCart();
-    // Estado para modal/campo de rechazo
-    const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
-    const [rejectNote, setRejectNote] = useState<string>('');
-    const [actionLoading, setActionLoading] = useState<string | null>(null); // Para loading de confirm/reject
   const { products } = useProducts();
-
-  // 2. Estados Locales (Estaban comentados, por eso el error de "Cannot read properties of null")
+  // Estados para resumen y alertas
+  const [dashboard, setDashboard] = useState<any>(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+  // Estado para modal/campo de rechazo
+  const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
+  const [rejectNote, setRejectNote] = useState<string>('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null); // Para loading de confirm/reject
+  // Estados locales
   const [uploadingOrderId, setUploadingOrderId] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoadingDashboard(true);
+      try {
+        const res = await api.get('/dashboard');
+        setDashboard(res.data);
+      } catch (err) {
+        setDashboard(null);
+      } finally {
+        setLoadingDashboard(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
 
   // 3. Lógica de Negocio (Handled Events)
   const toggleOrder = (orderId: string) => {
@@ -84,20 +103,18 @@ export const AdminSummary = () => {
   };
 
 
-  // 4. Cálculos de Memoria (Derivados del estado/contexto)
-  const totalStock = products.reduce((sum, product) => {
-    return sum + (Number(product.stock_actual) || 0);
-  }, 0);
 
-  // Órdenes que requieren acción del admin: 'pendiente' o 'en_revision'
-  const reviewOrders = orders.filter((o) => o.estado === 'pendiente' || o.estado === 'en_revision');
-  const totalRevenue = orders
-    .filter((o) => o.estado === 'pagada')
-    .reduce((sum, o) => sum + Number(o.total_pago), 0);
+  // 4. Datos de resumen y alertas
+  const totalStock = products.reduce((sum, product) => sum + (Number(product.stock_actual) || 0), 0);
+  const resumenContable = dashboard?.resumen_contable?.[0] || {};
+  const totalPagadas = resumenContable.total_ordenes_pagadas || 0;
+  const ingresosTotales = resumenContable.ingresos_totales || 0;
+  const pagosPendientes = resumenContable.pagos_pendientes_revisar || 0;
+  const alertasStock = dashboard?.alertas_stock || [];
 
   return (
     <>
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="grid md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <Package className="h-8 w-8 text-primary" />
@@ -106,25 +123,46 @@ export const AdminSummary = () => {
           <p className="text-3xl font-bold text-dark">{totalStock}</p>
           <p className="text-sm text-gray">Total en catálogo</p>
         </div>
-
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Clock className="h-8 w-8 text-primary" />
+            <h3 className="text-lg font-semibold text-dark">Pagadas</h3>
+          </div>
+          <p className="text-3xl font-bold text-dark">{totalPagadas}</p>
+          <p className="text-sm text-gray">Órdenes pagadas</p>
+        </div>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Pendientes</h3>
           </div>
-          <p className="text-3xl font-bold text-dark">{reviewOrders.length}</p>
+          <p className="text-3xl font-bold text-dark">{pagosPendientes}</p>
           <p className="text-sm text-gray">Órdenes por revisar</p>
         </div>
-
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <DollarSign className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Ingresos</h3>
           </div>
-          <p className="text-3xl font-bold text-dark">${totalRevenue.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-dark">${Number(ingresosTotales).toFixed(2)}</p>
           <p className="text-sm text-gray">Total generado</p>
         </div>
       </div>
+
+      {/* Alertas de stock crítico */}
+      {alertasStock.length > 0 && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded flex items-center gap-3">
+          <AlertTriangle className="text-yellow-500" />
+          <div>
+            <span className="font-bold text-yellow-800">¡Atención!</span> Hay productos con stock crítico:
+            <ul className="list-disc pl-5 text-yellow-900 text-sm mt-1">
+              {alertasStock.map((prod: any) => (
+                <li key={prod.id}>{prod.nombre} (Stock: {prod.stock_actual})</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold text-dark mb-4">Órdenes Recientes</h2>
@@ -138,7 +176,8 @@ export const AdminSummary = () => {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-dark text-lg">Orden #{order.id}</p>
                     <p className="text-sm text-gray font-medium">Ref: {order.folio_referencia}</p>
-                    <p className="text-xs text-gray-500 mt-1">{order.nombre_alumno} - {order.correo || 'Sin correo'}</p>
+                    <p className="text-xs text-gray-500 mt-1">{order.usuario?.nombre || order.nombre_alumno} - {order.usuario?.correo || order.correo || 'Sin correo'}</p>
+                    <p className="text-xs text-gray-500">Matrícula: {order.usuario?.matricula || order.matricula || 'N/A'}</p>
                     <span
                       className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
                         ${order.estado === 'pagada' ? 'bg-green-100 text-green-700'
@@ -193,10 +232,12 @@ export const AdminSummary = () => {
                 {expandedOrderId === order.id.toString() && (
                   <div className="mt-3 bg-gray-50 rounded-md p-3 border-l-4 border-primary">
                     <div className="text-sm text-dark font-medium mb-1">Productos:</div>
-                    {order.resumen_productos ? (
+                    {order.detalles && order.detalles.length > 0 ? (
                       <ul className="list-disc pl-5">
-                        {order.resumen_productos.split(',').map((prod: string, idx: number) => (
-                          <li key={idx}>{prod.trim()}</li>
+                        {order.detalles.map((detalle: any, idx: number) => (
+                          <li key={idx}>
+                            {detalle.producto?.nombre || 'Producto'} x{detalle.cantidad} - ${Number(detalle.precio_unitario).toFixed(2)}
+                          </li>
                         ))}
                       </ul>
                     ) : (

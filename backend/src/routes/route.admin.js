@@ -6,6 +6,7 @@ import { upload } from '../services/service.upload.js';
 const router = express.Router();
 
 router.get('/revisiones', [verificarToken, esAdmin] , adminController.obtenerRevisiones);
+router.get('/historial', [verificarToken, esAdmin], adminController.obtenerHistorialOrdenes);
 router.put('/revisiones/:id', [verificarToken, esAdmin], adminController.procesarPago);
 router.post('/agregar', [verificarToken, esAdmin], upload.single('imagen'), adminController.agregarProducto);
 router.patch('/modificar/:id', [verificarToken, esAdmin], upload.single('imagen'), adminController.actualizarProducto);

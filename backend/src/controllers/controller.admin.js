@@ -1,5 +1,33 @@
-import OrdenVenta from '../models/model.ordenventa.js';
-import Producto from '../models/model.producto.js';
+// Historial completo de órdenes para el admin
+import { Usuario, OrdenVenta, DetalleOrden, Producto } from '../models/index.js';
+
+export const obtenerHistorialOrdenes = async (req, res) => {
+    try {
+        const ordenes = await OrdenVenta.findAll({
+            order: [['fecha_creacion', 'DESC']],
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    attributes: ['nombre', 'matricula', 'correo']
+                },
+                {
+                    association: 'detalles',
+                    include: [
+                        {
+                            association: 'producto',
+                            attributes: ['nombre', 'categoria', 'precio']
+                        }
+                    ]
+                }
+            ]
+        });
+        res.json(ordenes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+// Las importaciones de modelos individuales ya no son necesarias
 import OrdenesRevision from '../models/views/view.ordenespendientes.js';
 import sequelize from '../services/service.connection.js';
 

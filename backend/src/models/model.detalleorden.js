@@ -36,6 +36,7 @@ DetalleOrden.init({
     timestamps: false
 });
 
-DetalleOrden.belongsTo(Producto, { foreignKey: 'producto_id', as: 'producto' });
+
+// Asociación explícita para Sequelize
 
 export default DetalleOrden;

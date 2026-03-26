@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { useCart } from "../context/CartContext";
+import { useState, useMemo, useEffect } from "react";
 import { useProducts } from "../context/ProductContext";
+import api from "../api/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,11 +30,27 @@ ChartJS.register(
 type ReportTab = "analysis" | "clients";
 
 export const AdminReports = () => {
-  const { orders } = useCart();
   const { products } = useProducts();
+  const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState<ReportTab>("analysis");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("id");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistorial = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get("/administrador/historial");
+        setOrders(res.data);
+      } catch (err) {
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistorial();
+  }, []);
 
   // Filtrado de órdenes general (para ambos tabs) por campo
   const filteredOrders = useMemo(() => {
