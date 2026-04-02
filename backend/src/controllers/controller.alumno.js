@@ -1,4 +1,6 @@
 import MisPedidos from '../models/views/view.pedidosalumn.js';
+import { enviarNotificacionEstado } from '../services/service.email.js';
+import Usuario from '../models/model.usuario.js';
 import OrdenVenta from '../models/model.ordenventa.js';
 import Producto from '../models/model.producto.js';
 import DetalleOrden from '../models/model.detalleorden.js';
@@ -55,10 +57,9 @@ export const checkout = async (req, res) => {
     const { carrito } = req.body;
     const usuario_id = req.usuario.id; 
 
-    if (!carrito || carrito.length === 0) {
-        return res.status(400).json({ error: "El carrito está vacío" });
-    }
+    if (!carrito || carrito.length === 0) return res.status(400).json({ error: "El carrito está vacío" });
 
+    // 1. Iniciamos la transacción
     const t = await sequelize.transaction();
 
     try {
@@ -66,12 +67,14 @@ export const checkout = async (req, res) => {
         const detallesParaInsertar = [];
 
         for (const item of carrito) {
-            const producto = await Producto.findByPk(item.id);
+            // Lectura con bloqueo (FOR UPDATE) para asegurar el stock
+            const producto = await Producto.findByPk(item.id, { transaction: t });
 
             if (!producto) {
                 throw new Error(`El producto con ID ${item.id} no existe`);
             }
 
+            // Validación de stock
             if (!producto.validarDisponibilidad(item.cantidad)) {
                 throw new Error(`Stock insuficiente para: ${producto.nombre}`);
             }
@@ -85,12 +88,14 @@ export const checkout = async (req, res) => {
             });
         }
 
+        // 2. Creación de la orden (Vinculada a T)
         const nuevaOrden = await OrdenVenta.create({
             usuario_id,
             total_pago: totalAcumulado,
             estado: 'pendiente'
         }, { transaction: t });
 
+        // 3. Creación de detalles (Vinculada a T)
         const mapeoDetalles = detallesParaInsertar.map(d => ({ 
             ...d, 
             orden_id: nuevaOrden.id 
@@ -98,17 +103,37 @@ export const checkout = async (req, res) => {
         
         await DetalleOrden.bulkCreate(mapeoDetalles, { transaction: t });
 
+        // 4. COMMIT - Solo aquí los cambios son permanentes
         await t.commit();
 
-        res.status(201).json({ 
+        // 5. PROCESO POST-COMMIT (Fuera de la transacción)
+        // Buscamos al alumno para el correo
+        const alumno = await Usuario.findByPk(usuario_id);
+        if (alumno?.correo) {
+            enviarNotificacionEstado(
+                alumno.correo, 
+                alumno.nombre, 
+                nuevaOrden.folio_referencia, 
+                'pendiente', 
+                totalAcumulado.toFixed(2)
+            ).catch(err => console.error("Error envío correo checkout:", err));
+        }
+
+        return res.status(201).json({ 
             msg: "Pedido generado exitosamente", 
-            orden_id: nuevaOrden.id,
-            folio: nuevaOrden.folio_referencia,
-            total: totalAcumulado
+            folio: nuevaOrden.folio_referencia 
         });
 
     } catch (error) {
-        if (t) await t.rollback();
-        res.status(400).json({ error: error.message });
+        // REGLA DE ORO: Si entramos aquí, ROLLBACK inmediato
+        // Verificamos que la transacción exista y no haya terminado
+        if (t && !t.finished) {
+            await t.rollback();
+        }
+
+        console.error("VENTA FALLIDA - Deshaciendo cambios:", error.message);
+        
+        // Enviamos el 400 asegurando que la DB no cambió
+        return res.status(400).json({ error: error.message });
     }
 };

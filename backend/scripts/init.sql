@@ -6,7 +6,7 @@ DROP TYPE IF EXISTS estado_orden, rol_usuario CASCADE;
 
 -- 2. Tipos ENUM
 CREATE TYPE rol_usuario AS ENUM ('alumno', 'admin', 'staff');
-CREATE TYPE estado_orden AS ENUM ('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado');
+CREATE TYPE estado_orden AS ENUM ('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado', 'listo');
 
 -- 3. Tabla de Usuarios (Unificada)
 CREATE TABLE usuarios (
