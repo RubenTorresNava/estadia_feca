@@ -17,18 +17,24 @@ const storage = multer.diskStorage({
     },
 
     filename: (req, file, cb) =>{
-        const uniqueName = `${Date.now()}-${file.originalname}`;
+        const extension = path.extname(file.originalname).toLowerCase();
+        const safeExtension = ['.jpg', '.jpeg', '.png'].includes(extension) ? extension : '';
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${safeExtension}`;
         cb(null, uniqueName);
     }
 });
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = [ 'image/jpeg', 'image/png', 'image/jpg'];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    const extension = path.extname(file.originalname).toLowerCase();
+
+    if (!allowedTypes.includes(file.mimetype) || !allowedExtensions.includes(extension)) {
         cb(new Error('Tipo de archivo no permitido. Solo se permiten imágenes (.jpeg, .png, .jpg).'), false);
+        return;
     }
+
+    cb(null, true);
 };
 
 export const upload = multer({

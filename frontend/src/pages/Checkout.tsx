@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 
 interface CheckoutProps {
   onNavigate: (page: string) => void;
-  onOrderCreated: (orderId: string) => void;
+  onOrderCreated: (order: any) => void;
 }
 
 export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
@@ -25,7 +25,7 @@ export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
 
   if (cart.length === 0) return null;
 
-  const handleCreateOrder = () => {
+  const handleCreateOrder = async () => {
     if (!customerName || !customerEmail || !matricula) {
       setError(
         "Por favor, completa todos los campos (Nombre, Matrícula y Correo).",
@@ -46,13 +46,12 @@ export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
         })),
       };
 
-      const ordenGenerada = createOrder(
+      const ordenGenerada = await createOrder(
         orderData as unknown as Parameters<typeof createOrder>[0],
-      ) as unknown;
+      );
 
-      if (typeof ordenGenerada === "string" && ordenGenerada.length > 0) {
-        onOrderCreated(ordenGenerada);
-      }
+      onOrderCreated(ordenGenerada);
+      onNavigate("history");
     } catch (err) {
       setError("Hubo un problema al procesar tu pedido. Intenta de nuevo.");
     } finally {

@@ -37,6 +37,7 @@ export interface Order {
   total_pago: number;       // Antes total
   estado: 'pendiente' | 'en_revision' | 'pagada' | 'rechazado' | 'cancelado' | 'listo';
   fecha_creacion: string;
+  nota_admin?: string | null;
   detalles?: any[];         // Aquí vendrán los datos de detalle_orden
   comprobante_url?: string; // URL del comprobante de pago
 }

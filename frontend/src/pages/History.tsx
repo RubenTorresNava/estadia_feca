@@ -13,6 +13,7 @@ interface Pedido {
   usuario_id: number;
   total_pago: number;
   estado: string;
+  nota_admin?: string | null;
   fecha_creacion: string;
   comprobante_url: string | null;
   folio_referencia?: string;
@@ -95,6 +96,7 @@ export const History = ({ onLogout }: HistoryProps) => {
                         ${pedido.estado === 'pagada' ? 'bg-green-100 text-green-700'
                         : pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : pedido.estado === 'rechazado' ? 'bg-red-100 text-red-700'
                         : pedido.estado === 'listo' ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-700'}
                       `}
@@ -105,11 +107,19 @@ export const History = ({ onLogout }: HistoryProps) => {
                         ? 'Pendiente'
                         : pedido.estado === 'en_revision'
                         ? 'En revisión'
+                        : pedido.estado === 'rechazado'
+                        ? 'Rechazado'
                         : pedido.estado === 'listo'
                         ? 'Listo para entrega'
                         : pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
                     </span>
                   </div>
+                  {pedido.estado === 'rechazado' && pedido.nota_admin && (
+                    <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Motivo del rechazo</p>
+                      <p className="text-sm text-red-800 mt-1">{pedido.nota_admin}</p>
+                    </div>
+                  )}
                   <div className="text-sm text-gray-600">Total: ${Number(pedido.total_pago).toFixed(2)}</div>
                   <div className="text-xs text-gray-400">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
                 </div>

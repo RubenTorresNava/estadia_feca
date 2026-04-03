@@ -22,6 +22,10 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+  const allowedImageExtensions = ['.jpg', '.jpeg', '.png'];
+  const maxImageSizeBytes = 5 * 1024 * 1024;
+
   useEffect(() => {
     if (product) {
       setNombre(product.nombre);
@@ -60,6 +64,11 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
       .replace(/\s+/g, ' ')
       .replace(/[<>"'`\\]/g, '')
       .slice(0, maxLen);
+  };
+
+  const isValidImageFile = (file: File) => {
+    const extension = `.${file.name.split('.').pop()?.toLowerCase() || ''}`;
+    return allowedImageTypes.includes(file.type) && allowedImageExtensions.includes(extension) && file.size <= maxImageSizeBytes;
   };
 
   const validateInputs = () => {
@@ -109,22 +118,33 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-    const file = e.target.files[0];
-    
-    
-    setImagen(file);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
 
-    
-    
-    if (imagePreview && !imagePreview.startsWith('http')) {
-      URL.revokeObjectURL(imagePreview);
+      if (!isValidImageFile(file)) {
+        setErrors((prev) => ({
+          ...prev,
+          imagen: 'Tipo de archivo no permitido. Solo se permiten imágenes (.jpeg, .png, .jpg) y hasta 5MB.',
+        }));
+        e.target.value = '';
+        return;
+      }
+
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.imagen;
+        return next;
+      });
+      setImagen(file);
+
+      if (imagePreview && !imagePreview.startsWith('http')) {
+        URL.revokeObjectURL(imagePreview);
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
-    
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-  }
-};
+  };
 
   if (!isOpen) return null;
 
@@ -230,11 +250,12 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
                 <div className="mt-4 flex text-sm leading-6 text-gray">
                   <label htmlFor="file-upload" className="relative cursor-pointer rounded-md bg-white font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-primary-dark">
                     <span>Sube un archivo</span>
-                    <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleImageChange} accept="image/*" />
+                    <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleImageChange} accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
                   </label>
                   <p className="pl-1">o arrastra y suelta</p>
                 </div>
-                <p className="text-xs leading-5 text-gray">PNG, JPG, GIF hasta 10MB</p>
+                <p className="text-xs leading-5 text-gray">PNG, JPG o JPEG hasta 5MB</p>
+                {errors.imagen && <p className="text-red-500 text-xs mt-2">{errors.imagen}</p>}
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ interface CartContextType {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, cantidad: number) => void;
   clearCart: () => void;
-  createOrder: (order: Order) => void;
+  createOrder: (order: Order) => Promise<any>;
   confirmOrder: (orderId: string) => Promise<void>;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
@@ -104,12 +104,8 @@ const createOrder = async (orderData: any) => {
   try {
     const response = await api.post('/alumno/checkout', orderData);
     
-    const ordenFinal = response.data.nuevaOrden;
-
-    if (ordenFinal) {
-      clearCart();
-      return ordenFinal;
-    }
+    clearCart();
+    return response.data;
   } catch (err) {
     console.error(err);
     throw err;

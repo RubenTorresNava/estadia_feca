@@ -33,7 +33,7 @@ function AppContent() {
 
   const handleOrderCreated = (order: any) => {
     setLastCreatedOrder(order);
-    setCurrentPage('confirmation');
+    setCurrentPage('history');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

@@ -168,6 +168,7 @@ export const AdminSummary = () => {
                         ${order.estado === 'pagada' ? 'bg-green-100 text-green-700'
                         : order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : order.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : order.estado === 'rechazado' ? 'bg-red-100 text-red-700'
                         : order.estado === 'listo' ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-700'}
                       `}
@@ -178,10 +179,18 @@ export const AdminSummary = () => {
                         ? 'Pendiente'
                         : order.estado === 'en_revision'
                         ? 'En revisión'
+                        : order.estado === 'rechazado'
+                        ? 'Rechazado'
                         : order.estado === 'listo'
                         ? 'Listo'
                         : order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
                     </span>
+                    {order.estado === 'rechazado' && order.nota_admin && (
+                      <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Motivo enviado al alumno</p>
+                        <p className="text-sm text-red-800 mt-1">{order.nota_admin}</p>
+                      </div>
+                    )}
                     <button 
                       onClick={() => toggleOrder(order.id.toString())}
                       className="block mt-2 text-primary text-xs font-bold hover:underline"
