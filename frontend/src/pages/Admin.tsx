@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, Package, BarChart3 } from 'lucide-react';
+import { LogOut, LayoutDashboard, Package, BarChart3, ArrowLeft } from 'lucide-react';
 import { AdminSummary } from '../components/AdminSummary';
 import { AdminProducts } from '../components/AdminProducts';
 import { AdminReports } from '../components/AdminReports';
@@ -13,7 +13,7 @@ type AdminTab = 'summary' | 'products' | 'reports';
 
 
 export const Admin = ({ onNavigate }: AdminProps) => {
-  const { isAdmin, isAlumno, login, logout, usuario: userData } = useAuth();
+  const { isAdmin, isAlumno, login, logout } = useAuth();
   const [identificador, setIdentificador] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -41,6 +41,15 @@ export const Admin = ({ onNavigate }: AdminProps) => {
     return (
       <div className="min-h-screen bg-light flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="inline-flex items-center gap-1.5 text-sm text-dark/70 hover:text-primary transition-colors mb-4"
+            title="Volver a la página principal"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver al inicio
+          </button>
           <div className="flex justify-center mb-8">
             <div className="bg-white rounded-full shadow-lg border-2 border-primary flex items-center justify-center" style={{ width: 140, height: 140 }}>
               <img src="/fecastor.png" alt="FECA" className="h-32 w-32 object-contain" />
