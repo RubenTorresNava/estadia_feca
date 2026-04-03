@@ -54,7 +54,7 @@ export const History = ({ onLogout }: HistoryProps) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl text-center mb-8">
         <h1 className="text-2xl font-bold text-dark mb-4">¡Bienvenido, {usuario?.nombre}!</h1>
         <p className="mb-6">
-          Has iniciado sesión como <span className="font-semibold text-primary">alumno</span>.<br/>
+          {/* Has iniciado sesión como <span className="font-semibold text-primary">alumno</span>.<br/> */}
           Aquí puedes ver tus compras y subir comprobantes de pago.
         </p>
         <button

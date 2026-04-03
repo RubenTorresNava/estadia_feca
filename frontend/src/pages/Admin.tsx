@@ -86,6 +86,12 @@ export const Admin = ({ onNavigate }: AdminProps) => {
               Iniciar Sesión
             </button>
           </form>
+          <p className="text-center text-sm text-dark mt-4">
+            ¿No tienes una cuenta?{' '}
+            <button onClick={() => onNavigate('register')} className="font-medium text-primary hover:underline">
+              Regístrate
+            </button>
+          </p>
         </div>
       </div>
     );

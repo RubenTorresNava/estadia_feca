@@ -10,6 +10,7 @@ import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Checkout } from './pages/Checkout';
 import { Admin } from './pages/Admin';
+import { Register } from './pages/Register';
 import { OrderConfirmation } from './components/OrderConfirmation';
 import { History } from './pages/History';
 
@@ -89,6 +90,8 @@ function AppContent() {
         return <Checkout onNavigate={handleNavigate} onOrderCreated={handleOrderCreated} />;
       case 'admin':
         return <Admin onNavigate={handleNavigate} />;
+      case 'register':
+        return <Register onNavigate={handleNavigate} />;
       case 'confirmation':
         return lastCreatedOrder ? (
           <OrderConfirmation order={lastCreatedOrder} onNavigate={handleNavigate} />
