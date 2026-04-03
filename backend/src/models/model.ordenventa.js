@@ -24,6 +24,11 @@ class OrdenVenta extends Model {
 }
 
 OrdenVenta.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     folio_referencia: {
         type: DataTypes.STRING,
         unique: true,
@@ -31,15 +36,16 @@ OrdenVenta.init({
     },
     usuario_id: { 
         type: DataTypes.INTEGER, 
-        references: { model: 'usuarios', key: 'id' } 
+        references: { model: 'Usuario', key: 'id' } 
     },
     total_pago: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     estado: {
-        type: DataTypes.ENUM('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado'),
+        type: DataTypes.ENUM('pendiente', 'en_revision', 'pagada', 'rechazado', 'cancelado', 'listo'),
         defaultValue: 'pendiente'
     },
     comprobante_url: { type: DataTypes.STRING, allowNull: true },
     nota_admin: { type: DataTypes.TEXT, allowNull: true },
+    fecha_pago: { type: DataTypes.DATE, allowNull: true },
     fecha_creacion: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 }, { 
     sequelize, 
@@ -47,8 +53,5 @@ OrdenVenta.init({
     tableName: 'orden_venta', 
     timestamps: false 
 });
-
-
-// Asociaciones explícitas para Sequelize
 
 export default OrdenVenta;

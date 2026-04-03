@@ -1,4 +1,6 @@
 import MisPedidos from '../models/views/view.pedidosalumn.js';
+import { enviarNotificacionEstado } from '../services/service.email.js';
+import Usuario from '../models/model.usuario.js';
 import OrdenVenta from '../models/model.ordenventa.js';
 import Producto from '../models/model.producto.js';
 import DetalleOrden from '../models/model.detalleorden.js';
@@ -26,12 +28,27 @@ export const enviarComprobante = async (req, res) => {
             estado: 'en_revision'
         });
 
+        try {
+            const alumno = await Usuario.findByPk(usuario_id);
+            if (alumno && alumno.correo) {
+                enviarNotificacionEstado(
+                    alumno.correo,
+                    alumno.nombre,
+                    orden.folio_referencia,
+                    'en_revision',
+                ).catch(err => console.error("Error enviando correo de comprobante:", err));
+            }
+        } catch (errorCorreo) {
+            console.error("Error al recuperar datos del alumno para el correo:", errorCorreo);
+        }
+
         res.json({ 
             msg: "Comprobante subido con éxito. Tu pedido está en revisión.",
             url: orden.comprobante_url 
         });
 
     } catch (error) {
+        console.error("Error en enviarComprobante:", error.message);
         res.status(500).json({ error: error.message });
     }
 };
@@ -48,6 +65,7 @@ export const obtenerMisPedidos = async (req, res) => {
         res.json(pedidos);
     } catch (error) {
         res.status(500).json({ error: error.message });
+        console.error("Error en obtenerMisPedidos:", error.message, req.usuario);
     }
 };
 
@@ -55,9 +73,7 @@ export const checkout = async (req, res) => {
     const { carrito } = req.body;
     const usuario_id = req.usuario.id; 
 
-    if (!carrito || carrito.length === 0) {
-        return res.status(400).json({ error: "El carrito está vacío" });
-    }
+    if (!carrito || carrito.length === 0) return res.status(400).json({ error: "El carrito está vacío" });
 
     const t = await sequelize.transaction();
 
@@ -66,7 +82,7 @@ export const checkout = async (req, res) => {
         const detallesParaInsertar = [];
 
         for (const item of carrito) {
-            const producto = await Producto.findByPk(item.id);
+            const producto = await Producto.findByPk(item.id, { transaction: t });
 
             if (!producto) {
                 throw new Error(`El producto con ID ${item.id} no existe`);
@@ -100,15 +116,30 @@ export const checkout = async (req, res) => {
 
         await t.commit();
 
-        res.status(201).json({ 
+        const alumno = await Usuario.findByPk(usuario_id);
+        if (alumno?.correo) {
+            enviarNotificacionEstado(
+                alumno.correo, 
+                alumno.nombre, 
+                nuevaOrden.folio_referencia, 
+                'pendiente', 
+                totalAcumulado.toFixed(2)
+            ).catch(err => console.error("Error envío correo checkout:", err));
+        }
+
+        return res.status(201).json({ 
             msg: "Pedido generado exitosamente", 
-            orden_id: nuevaOrden.id,
-            folio: nuevaOrden.folio_referencia,
-            total: totalAcumulado
+            folio: nuevaOrden.folio_referencia 
         });
 
     } catch (error) {
-        if (t) await t.rollback();
-        res.status(400).json({ error: error.message });
+
+        if (t && !t.finished) {
+            await t.rollback();
+        }
+
+        console.error("VENTA FALLIDA - Deshaciendo cambios:", error.message);
+        
+        return res.status(400).json({ error: error.message });
     }
 };

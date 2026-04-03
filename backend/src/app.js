@@ -2,6 +2,7 @@ import express, {json} from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
+import { configurarRelaciones } from './models/index.js';
 import AuthRoute from './routes/route.auth.js'
 import AdministradorRoute from './routes/route.admin.js'
 import DashboarRoute from './routes/route.dashboard.js'
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+configurarRelaciones();
 app.use('/api/auth', AuthRoute)
 app.use('/uploads', express.static('uploads'))
 app.use('/api/alumno', AlumnoRoute)
