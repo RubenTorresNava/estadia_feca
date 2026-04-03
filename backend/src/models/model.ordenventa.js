@@ -24,6 +24,11 @@ class OrdenVenta extends Model {
 }
 
 OrdenVenta.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     folio_referencia: {
         type: DataTypes.STRING,
         unique: true,
@@ -31,7 +36,7 @@ OrdenVenta.init({
     },
     usuario_id: { 
         type: DataTypes.INTEGER, 
-        references: { model: 'usuarios', key: 'id' } 
+        references: { model: 'Usuario', key: 'id' } 
     },
     total_pago: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     estado: {
@@ -48,8 +53,5 @@ OrdenVenta.init({
     tableName: 'orden_venta', 
     timestamps: false 
 });
-
-
-// Asociaciones explícitas para Sequelize
 
 export default OrdenVenta;

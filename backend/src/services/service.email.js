@@ -3,28 +3,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configuración del transporte de Google (Gmail)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Tu correo de Gmail
-        pass: process.env.EMAIL_PASS  // Tu "Contraseña de Aplicación" de Google
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
-/**
- * Servicio centralizado para enviar notificaciones de FecaStore
- * @param {string} emailAlumno - Destinatario
- * @param {string} nombreAlumno - Nombre para personalizar el saludo
- * @param {string} folio - Folio de la orden (ej: FECA-XXXX)
- * @param {string} nuevoEstado - El estado actual ('pendiente', 'pagada', 'listo', etc.)
- * @param {string} nota - Información extra (motivo de rechazo, total de la compra o mensaje del admin)
- */
 export const enviarNotificacionEstado = async (emailAlumno, nombreAlumno, folio, nuevoEstado, nota = '') => {
     let asunto = '';
     let mensajeHtml = '';
 
-    // Normalizamos el estado para evitar fallos por mayúsculas o espacios
     const estadoLimpio = nuevoEstado ? nuevoEstado.toString().trim().toLowerCase() : '';
 
     switch (estadoLimpio) {
@@ -40,6 +30,14 @@ export const enviarNotificacionEstado = async (emailAlumno, nombreAlumno, folio,
                     <p>Para continuar, por favor sube tu comprobante de pago en la sección de "Mis Pedidos" dentro de la plataforma.</p>
                 </div>
             `;
+            break;
+        case 'en_revision':
+            asunto = `Comprobante Recibido - ${folio}`;
+            mensajeHtml = `
+                <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px;">
+                    <h1 style="color: #27ae60;">Hemos recibido tu comprobante de pago</h1>
+                    <p>En breve te avisaremos cuando tu pago sea aprobado.</p>
+                </div>            `;
             break;
 
         case 'pagada':
@@ -80,18 +78,6 @@ export const enviarNotificacionEstado = async (emailAlumno, nombreAlumno, folio,
             `;
             break;
 
-        case 'actualizacion':
-            asunto = `Notificación sobre tu orden - ${folio}`;
-            mensajeHtml = `
-                <div style="font-family: sans-serif; border-left: 5px solid #f39c12; padding: 20px; background: #fffcf5;">
-                    <h2 style="color: #e67e22;">Mensaje de Administración</h2>
-                    <p>Hola ${nombreAlumno}, se ha realizado una actualización en tu pedido <strong>${folio}</strong>:</p>
-                    <p style="font-style: italic; color: #555;">"${nota}"</p>
-                    <p>Puedes consultar los detalles entrando a tu perfil en FecaStore.</p>
-                </div>
-            `;
-            break;
-
         default:
             asunto = `Cambio de estado en tu pedido - ${folio}`;
             mensajeHtml = `<p>Hola ${nombreAlumno}, tu pedido con folio <strong>${folio}</strong> ahora está en estado: <strong>${estadoLimpio}</strong>.</p>`;
@@ -103,14 +89,12 @@ export const enviarNotificacionEstado = async (emailAlumno, nombreAlumno, folio,
             to: emailAlumno,
             subject: asunto,
             html: mensajeHtml,
-            // Agregamos el replyTo por si el alumno responde, que llegue a la oficina de la FECA
             replyTo: 'administracion.feca@ujed.mx' 
         });
 
         console.log(`Email enviado con éxito a ${emailAlumno} (Estado: ${estadoLimpio})`);
     } catch (error) {
         console.error("Error crítico al enviar email:", error);
-        // Lanzamos el error para que el controlador pueda capturarlo si es necesario
         throw error;
     }
 };

@@ -28,12 +28,27 @@ export const enviarComprobante = async (req, res) => {
             estado: 'en_revision'
         });
 
+        try {
+            const alumno = await Usuario.findByPk(usuario_id);
+            if (alumno && alumno.correo) {
+                enviarNotificacionEstado(
+                    alumno.correo,
+                    alumno.nombre,
+                    orden.folio_referencia,
+                    'en_revision',
+                ).catch(err => console.error("Error enviando correo de comprobante:", err));
+            }
+        } catch (errorCorreo) {
+            console.error("Error al recuperar datos del alumno para el correo:", errorCorreo);
+        }
+
         res.json({ 
             msg: "Comprobante subido con éxito. Tu pedido está en revisión.",
             url: orden.comprobante_url 
         });
 
     } catch (error) {
+        console.error("Error en enviarComprobante:", error.message);
         res.status(500).json({ error: error.message });
     }
 };
@@ -50,6 +65,7 @@ export const obtenerMisPedidos = async (req, res) => {
         res.json(pedidos);
     } catch (error) {
         res.status(500).json({ error: error.message });
+        console.error("Error en obtenerMisPedidos:", error.message, req.usuario);
     }
 };
 
@@ -59,7 +75,6 @@ export const checkout = async (req, res) => {
 
     if (!carrito || carrito.length === 0) return res.status(400).json({ error: "El carrito está vacío" });
 
-    // 1. Iniciamos la transacción
     const t = await sequelize.transaction();
 
     try {
@@ -67,14 +82,12 @@ export const checkout = async (req, res) => {
         const detallesParaInsertar = [];
 
         for (const item of carrito) {
-            // Lectura con bloqueo (FOR UPDATE) para asegurar el stock
             const producto = await Producto.findByPk(item.id, { transaction: t });
 
             if (!producto) {
                 throw new Error(`El producto con ID ${item.id} no existe`);
             }
 
-            // Validación de stock
             if (!producto.validarDisponibilidad(item.cantidad)) {
                 throw new Error(`Stock insuficiente para: ${producto.nombre}`);
             }
@@ -88,14 +101,12 @@ export const checkout = async (req, res) => {
             });
         }
 
-        // 2. Creación de la orden (Vinculada a T)
         const nuevaOrden = await OrdenVenta.create({
             usuario_id,
             total_pago: totalAcumulado,
             estado: 'pendiente'
         }, { transaction: t });
 
-        // 3. Creación de detalles (Vinculada a T)
         const mapeoDetalles = detallesParaInsertar.map(d => ({ 
             ...d, 
             orden_id: nuevaOrden.id 
@@ -103,11 +114,8 @@ export const checkout = async (req, res) => {
         
         await DetalleOrden.bulkCreate(mapeoDetalles, { transaction: t });
 
-        // 4. COMMIT - Solo aquí los cambios son permanentes
         await t.commit();
 
-        // 5. PROCESO POST-COMMIT (Fuera de la transacción)
-        // Buscamos al alumno para el correo
         const alumno = await Usuario.findByPk(usuario_id);
         if (alumno?.correo) {
             enviarNotificacionEstado(
@@ -125,15 +133,13 @@ export const checkout = async (req, res) => {
         });
 
     } catch (error) {
-        // REGLA DE ORO: Si entramos aquí, ROLLBACK inmediato
-        // Verificamos que la transacción exista y no haya terminado
+
         if (t && !t.finished) {
             await t.rollback();
         }
 
         console.error("VENTA FALLIDA - Deshaciendo cambios:", error.message);
         
-        // Enviamos el 400 asegurando que la DB no cambió
         return res.status(400).json({ error: error.message });
     }
 };
