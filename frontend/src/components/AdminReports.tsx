@@ -39,9 +39,11 @@ interface OrderDetail {
 
 interface Order {
   id: number | string;
-  nombre_alumno?: string;
-  matricula?: string;
-  correo?: string;
+  usuario?: {
+    nombre?: string;
+    matricula?: string;
+    correo?: string;
+  };
   estado?: string;
   fecha_creacion?: string;
   total_pago?: number | string;
@@ -76,10 +78,9 @@ export const AdminReports = () => {
     const lower = search.trim().toLowerCase();
     return orders.filter((order) => {
       if (!lower) return true;
-      if (filter === 'id') return order.id?.toString().includes(lower);
-      if (filter === 'nombre_alumno') return order.nombre_alumno?.toLowerCase().includes(lower);
-      if (filter === 'matricula') return order.matricula?.toLowerCase().includes(lower);
-      if (filter === 'correo') return order.correo?.toLowerCase().includes(lower);
+      if (filter === 'nombre_alumno') return order.usuario?.nombre?.toLowerCase().includes(lower);
+      if (filter === 'matricula') return order.usuario?.matricula?.toLowerCase().includes(lower);
+      if (filter === 'correo') return order.usuario?.correo?.toLowerCase().includes(lower);
       if (filter === 'estado') return order.estado?.toLowerCase().includes(lower);
       if (filter === 'fecha_creacion') return order.fecha_creacion?.toLowerCase().includes(lower);
       if (filter === 'total_pago') return order.total_pago?.toString().includes(lower);
@@ -174,7 +175,6 @@ export const AdminReports = () => {
                 onSearch={(q, f) => { setSearch(q); setFilter(f); }}
                 className="sm:w-72 w-full"
                 options={[
-                  { value: 'id', label: 'ID' },
                   { value: 'nombre_alumno', label: 'Alumno' },
                   { value: 'matricula', label: 'Matrícula' },
                   { value: 'correo', label: 'Correo' },
@@ -182,14 +182,14 @@ export const AdminReports = () => {
                   { value: 'fecha_creacion', label: 'Fecha' },
                   { value: 'total_pago', label: 'Total' },
                 ]}
-                defaultFilter="id"
+                defaultFilter="nombre_alumno"
               />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray/20 text-left">
-                    <th className="p-3 text-sm font-bold text-gray-600">ID</th>
+                    {/* <th className="p-3 text-sm font-bold text-gray-600">ID</th> */}
                     <th className="p-3 text-sm font-bold text-gray-600">Alumno</th>
                     <th className="p-3 text-sm font-bold text-gray-600">Matrícula</th>
                     <th className="p-3 text-sm font-bold text-gray-600">Correo</th>
@@ -206,12 +206,12 @@ export const AdminReports = () => {
                   ) : (
                     filteredOrders.slice().reverse().map((order) => (
                       <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
-                        <td className="p-3 text-sm">{order.id}</td>
+                        {/* <td className="p-3 text-sm">{order.id}</td> */}
                         <td className="p-3 text-sm">
-                          <p className="font-bold text-dark">{order.nombre_alumno}</p>
+                          <p className="font-bold text-dark">{order.usuario?.nombre}</p>
                         </td>
-                        <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
-                        <td className="p-3 text-sm text-gray-600">{order.correo}</td>
+                        <td className="p-3 text-sm text-gray-600">{order.usuario?.matricula}</td>
+                        <td className="p-3 text-sm text-gray-600">{order.usuario?.correo}</td>
                         <td className="p-3 text-sm text-gray-600">{order.fecha_creacion}</td>
                         <td className="p-3 text-sm font-bold text-primary">
                           ${Number(order.total_pago).toFixed(2)}
@@ -290,10 +290,10 @@ export const AdminReports = () => {
                   filteredOrders.slice().reverse().map((order) => (
                     <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
                       <td className="p-3 text-sm">
-                        <p className="font-bold text-dark">{order.nombre_alumno}</p>
-                        <p className="text-xs text-gray">{order.correo}</p>
+                        <p className="font-bold text-dark">{order.usuario?.nombre}</p>
+                        <p className="text-xs text-gray">{order.usuario?.correo}</p>
                       </td>
-                      <td className="p-3 text-sm text-gray-600">{order.matricula}</td>
+                      <td className="p-3 text-sm text-gray-600">{order.usuario?.matricula}</td>
                       <td className="p-3 text-sm font-bold text-primary">
                         ${Number(order.total_pago).toFixed(2)}
                       </td>
