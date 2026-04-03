@@ -212,7 +212,15 @@ export const AdminReports = () => {
                         </td>
                         <td className="p-3 text-sm text-gray-600">{order.usuario?.matricula}</td>
                         <td className="p-3 text-sm text-gray-600">{order.usuario?.correo}</td>
-                        <td className="p-3 text-sm text-gray-600">{order.fecha_creacion}</td>
+                        <td className="p-3 text-sm text-gray-600">
+                          {order.fecha_creacion
+                            ? new Date(order.fecha_creacion).toLocaleDateString('es-MX', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                              })
+                            : 'N/A'}
+                        </td>
                         <td className="p-3 text-sm font-bold text-primary">
                           ${Number(order.total_pago).toFixed(2)}
                         </td>

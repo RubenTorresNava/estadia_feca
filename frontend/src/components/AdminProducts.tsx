@@ -200,6 +200,7 @@ export const AdminProducts = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
+        title="Confirmar Eliminación"
         message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
       />
     </>
