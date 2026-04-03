@@ -9,11 +9,13 @@ interface HistoryProps {
 
 interface Pedido {
   id: number;
+  orden_id?: number;
   usuario_id: number;
   total_pago: number;
   estado: string;
   fecha_creacion: string;
   comprobante_url: string | null;
+  folio_referencia?: string;
 }
 
 export const History = ({ onLogout }: HistoryProps) => {
@@ -28,7 +30,11 @@ export const History = ({ onLogout }: HistoryProps) => {
       setError('');
       try {
         const res = await api.get('/alumno/pedidos');
-        setPedidos(res.data);
+        const pedidosNormalizados = res.data.map((pedido: Pedido) => ({
+          ...pedido,
+          id: pedido.id ?? pedido.orden_id,
+        }));
+        setPedidos(pedidosNormalizados);
       } catch (err) {
         setError('No se pudieron cargar tus pedidos.');
       } finally {
@@ -39,6 +45,10 @@ export const History = ({ onLogout }: HistoryProps) => {
   }, []);
 
   const handleUpload = async (ordenId: number, file: File) => {
+    if (!ordenId) {
+      throw new Error('No se encontró el ID de la orden.');
+    }
+
     const formData = new FormData();
     formData.append('comprobante', file);
     await api.post(`/alumno/comprobante/${ordenId}`, formData, {
@@ -77,7 +87,7 @@ export const History = ({ onLogout }: HistoryProps) => {
             {pedidos.map((pedido) => (
               <div key={pedido.id} className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-gray-100">
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-dark">Folio: {pedido.id}</div>
+                  <div className="font-semibold text-dark">Folio: {pedido.folio_referencia || pedido.id}</div>
                   <div className="text-sm text-gray-600">Estado: 
                     <span
                       className={`font-medium px-2 py-1 rounded-full text-xs

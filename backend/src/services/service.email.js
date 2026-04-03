@@ -3,15 +3,26 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+const emailUser = process.env.EMAIL_USER?.trim();
+const emailPass = process.env.EMAIL_PASS?.trim();
+const emailConfigured = Boolean(emailUser && emailPass);
+
+const transporter = emailConfigured
+    ? nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: emailUser,
+            pass: emailPass
+        }
+    })
+    : null;
 
 export const enviarNotificacionEstado = async (emailAlumno, nombreAlumno, folio, nuevoEstado, nota = '') => {
+    if (!emailConfigured || !transporter) {
+        console.warn('Notificaciones por correo deshabilitadas: faltan credenciales EMAIL_USER/EMAIL_PASS.');
+        return;
+    }
+
     let asunto = '';
     let mensajeHtml = '';
 
