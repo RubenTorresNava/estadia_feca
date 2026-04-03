@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Package, Clock, DollarSign, CheckCircle, UploadCloud, XCircle, AlertTriangle } from 'lucide-react';
+import { Package, Clock, DollarSign, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import api from '../api/api';
@@ -14,27 +14,21 @@ export const AdminSummary = () => {
   const { products } = useProducts();
   // Estados para resumen y alertas
   const [dashboard, setDashboard] = useState<any>(null);
-  const [loadingDashboard, setLoadingDashboard] = useState(true);
   // Estado para modal/campo de rechazo
   const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
   const [rejectNote, setRejectNote] = useState<string>('');
   const [actionLoading, setActionLoading] = useState<string | null>(null); // Para loading de confirm/reject
   // Estados locales
-  const [uploadingOrderId, setUploadingOrderId] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [previewComprobante, setPreviewComprobante] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
-      setLoadingDashboard(true);
       try {
         const res = await api.get('/dashboard');
         setDashboard(res.data);
       } catch (err) {
         setDashboard(null);
-      } finally {
-        setLoadingDashboard(false);
       }
     };
     fetchDashboard();
@@ -79,28 +73,6 @@ export const AdminSummary = () => {
       console.error('Error al rechazar la orden:', err);
     } finally {
       setActionLoading(null);
-    }
-  };
-
-  const handleAdminUpload = async (orderId: string, file: File) => {
-    setUploadingOrderId(orderId);
-    setUploadError(null);
-    setUploadSuccess(null);
-    
-    const formData = new FormData();
-    formData.append('comprobante', file);
-    
-    try {
-      await api.post(`/alumno/comprobante/${orderId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setUploadSuccess('Comprobante subido con éxito.');
-      if (fetchOrders) await fetchOrders(); // Actualizar lista si existe la función
-    } catch (err) {
-      setUploadError('Error al subir el comprobante.');
-      console.error(err);
-    } finally {
-      setUploadingOrderId(null);
     }
   };
 
@@ -221,13 +193,12 @@ export const AdminSummary = () => {
                         <img
                           src={order.comprobante_url}
                           alt="Comprobante actual"
-                          className="w-full max-w-xs md:max-w-xs object-contain rounded border"
+                          className="w-full max-w-xs md:max-w-xs object-contain rounded border cursor-zoom-in"
+                          onClick={() => setPreviewComprobante(order.comprobante_url)}
                         />
                         <span className="text-xs text-gray-500">Comprobante actual</span>
                       </div>
                     )}
-                    {uploadingOrderId === order.id && <span className="text-xs text-gray-500">Subiendo...</span>}
-                    {uploadSuccess && uploadingOrderId === null && <span className="text-xs text-green-600">{uploadSuccess}</span>}
                   </div>
                 </div>
 
@@ -311,6 +282,30 @@ export const AdminSummary = () => {
           </div>
         )}
       </div>
+
+      {previewComprobante && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-8"
+          onClick={() => setPreviewComprobante(null)}
+        >
+          <div className="relative max-h-full max-w-5xl w-full flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setPreviewComprobante(null)}
+              className="absolute -top-3 -right-3 z-10 h-10 w-10 rounded-full bg-white text-dark shadow-lg hover:bg-gray-100"
+              aria-label="Cerrar vista previa"
+            >
+              ×
+            </button>
+            <img
+              src={previewComprobante}
+              alt="Vista ampliada del comprobante"
+              className="max-h-[85vh] max-w-full rounded-lg bg-white object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -23,6 +23,7 @@ export const History = ({ onLogout }: HistoryProps) => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [previewComprobante, setPreviewComprobante] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -115,7 +116,8 @@ export const History = ({ onLogout }: HistoryProps) => {
                       <img
                         src={pedido.comprobante_url}
                         alt="Comprobante"
-                        className="w-full max-w-xs md:max-w-md object-contain rounded border"
+                        className="w-full max-w-xs md:max-w-md object-contain rounded border cursor-zoom-in"
+                        onClick={() => setPreviewComprobante(pedido.comprobante_url)}
                       />
                       <span className="text-xs text-green-600">Comprobante enviado</span>
                     </>
@@ -131,6 +133,30 @@ export const History = ({ onLogout }: HistoryProps) => {
           </div>
         )}
       </div>
+
+      {previewComprobante && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-8"
+          onClick={() => setPreviewComprobante(null)}
+        >
+          <div className="relative max-h-full max-w-5xl w-full flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setPreviewComprobante(null)}
+              className="absolute -top-3 -right-3 z-10 h-10 w-10 rounded-full bg-white text-dark shadow-lg hover:bg-gray-100"
+              aria-label="Cerrar vista previa"
+            >
+              ×
+            </button>
+            <img
+              src={previewComprobante}
+              alt="Vista ampliada del comprobante"
+              className="max-h-[85vh] max-w-full rounded-lg bg-white object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
