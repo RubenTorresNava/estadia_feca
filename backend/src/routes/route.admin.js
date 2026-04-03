@@ -12,5 +12,6 @@ router.post('/agregar', [verificarToken, esAdmin], upload.single('imagen'), admi
 router.patch('/modificar/:id', [verificarToken, esAdmin], upload.single('imagen'), adminController.actualizarProducto);
 router.delete('/eliminar/:id', [verificarToken, esAdmin], adminController.eliminarProducto);
 router.patch('/destacado/:id', [verificarToken, esAdmin], adminController.alternarDestacado);
+router.put('/listo/:id', [verificarToken, esAdmin], adminController.marcarComoListo);
 
 export default router;

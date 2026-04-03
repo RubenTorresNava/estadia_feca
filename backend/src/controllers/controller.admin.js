@@ -168,3 +168,51 @@ export const obtenerHistorialOrdenes = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const marcarComoListo = async (req, res) => {
+    const { id } = req.params;
+    const t = await sequelize.transaction();
+
+    try {
+        const orden = await OrdenVenta.findByPk(id, { transaction: t });
+        
+        if (!orden) {
+            await t.rollback();
+            return res.status(404).json({ msg: "Orden no encontrada" });
+        }
+
+        if (orden.estado !== 'pagada') {
+            await t.rollback();
+            return res.status(400).json({ 
+                msg: "La orden aún no ha sido pagada o validada. No se puede marcar como lista." 
+            });
+        }
+
+        await orden.update({ estado: 'listo' }, { transaction: t });
+        
+        await t.commit();
+
+        try {
+            const alumno = await Usuario.findByPk(orden.usuario_id);
+            if (alumno?.correo) {
+                enviarNotificacionEstado(
+                    alumno.correo,
+                    alumno.nombre,
+                    orden.folio_referencia,
+                    'listo'
+                ).catch(err => console.error("Error al notificar pedido listo:", err));
+            }
+        } catch (errorPost) {
+            console.error("Error al obtener datos del alumno para entrega:", errorPost);
+        }
+
+        return res.json({ 
+            msg: "Orden lista para entrega. Se ha notificado al alumno." 
+        });
+
+    } catch (error) {
+        if (t && !t.finished) await t.rollback();
+        console.error("Error en marcarComoListo:", error.message);
+        return res.status(500).json({ error: error.message });
+    }
+};
