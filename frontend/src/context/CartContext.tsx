@@ -5,6 +5,7 @@ import api from '../api/api';
 interface CartContextType {
   cart: CartItem[];
   orders: Order[];
+  fetchOrders: () => Promise<void>;
   addToCart: (product: Product, cantidad: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, cantidad: number) => void;
@@ -144,6 +145,7 @@ const createOrder = async (orderData: any) => {
       value={{
         cart,
         orders,
+        fetchOrders,
         addToCart,
         removeFromCart,
         updateQuantity,

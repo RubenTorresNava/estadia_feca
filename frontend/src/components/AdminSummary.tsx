@@ -8,9 +8,7 @@ import api from '../api/api';
 
 export const AdminSummary = () => {
   // 1. Hooks de Contexto (Siempre al inicio)
-  const cart = useCart();
-  const { orders } = cart;
-  const fetchOrders = (cart as { fetchOrders?: () => void | Promise<void> }).fetchOrders;
+  const { orders, fetchOrders } = useCart();
   const { products } = useProducts();
   // Estados para resumen y alertas
   const [dashboard, setDashboard] = useState<any>(null);
