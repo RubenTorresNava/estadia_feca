@@ -57,7 +57,6 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
   // Función para limpiar y validar entradas
   const sanitizeText = (text: string, maxLen: number = 100) => {
     return text
-      .trim()
       .replace(/\s+/g, ' ')
       .replace(/[<>"'`\\]/g, '')
       .slice(0, maxLen);
@@ -90,8 +89,8 @@ export const ProductFormModal = ({ isOpen, onClose, onSubmit, product }: Product
     const cleanStock = String(Number(stock_actual));
 
     const formData = new FormData();
-    formData.append('nombre', cleanNombre);
-    formData.append('descripcion', cleanDescripcion);
+    formData.append('nombre', nombre.trim());
+    formData.append('descripcion', descripcion.trim());
     formData.append('precio', cleanPrecio);
     formData.append('stock_actual', cleanStock);
     formData.append('categoria', categoria === 'Otro' ? customCategoria : categoria);
