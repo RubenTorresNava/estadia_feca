@@ -8,7 +8,9 @@ import api from '../api/api';
 
 export const AdminSummary = () => {
   // 1. Hooks de Contexto (Siempre al inicio)
-  const { orders, fetchOrders } = useCart();
+  const cart = useCart();
+  const { orders } = cart;
+  const fetchOrders = (cart as { fetchOrders?: () => void | Promise<void> }).fetchOrders;
   const { products } = useProducts();
   // Estados para resumen y alertas
   const [dashboard, setDashboard] = useState<any>(null);
@@ -202,7 +204,7 @@ export const AdminSummary = () => {
                     </button>
                   </div>
                   <div className="flex flex-col items-center md:items-end gap-2 md:w-64 w-full">
-                    <label className="flex items-center gap-1 cursor-pointer text-xs text-blue-700 hover:underline">
+                    {/* <label className="flex items-center gap-1 cursor-pointer text-xs text-blue-700 hover:underline">
                       <UploadCloud className="h-4 w-4" /> Subir/Reemplazar comprobante
                       <input
                         type="file"
@@ -213,7 +215,7 @@ export const AdminSummary = () => {
                         }}
                         disabled={uploadingOrderId === order.id}
                       />
-                    </label>
+                    </label> */}
                     {order.comprobante_url && (
                       <div className="flex flex-col items-center md:items-end mt-2 w-full">
                         <img

@@ -29,9 +29,28 @@ ChartJS.register(
 
 type ReportTab = "analysis" | "clients";
 
+interface OrderDetail {
+  precio_unitario: number | string;
+  cantidad: number;
+  producto?: {
+    categoria?: string;
+  };
+}
+
+interface Order {
+  id: number | string;
+  nombre_alumno?: string;
+  matricula?: string;
+  correo?: string;
+  estado?: string;
+  fecha_creacion?: string;
+  total_pago?: number | string;
+  detalles?: OrderDetail[];
+}
+
 export const AdminReports = () => {
   const { products } = useProducts();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<ReportTab>("analysis");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("id");
@@ -68,7 +87,6 @@ export const AdminReports = () => {
     });
   }, [orders, search, filter]);
 
-  // --- 1. Lógica para Ventas por Categoría ---
   const salesByCategory = products.reduce((acc, product) => {
     if (product.categoria) {
       acc[product.categoria] = 0;
@@ -78,7 +96,7 @@ export const AdminReports = () => {
 
   orders.forEach((order) => {
     if (order.estado === "pagada") {
-      order.detalles?.forEach((detalle: any) => {
+      order.detalles?.forEach((detalle) => {
         const cat = detalle.producto?.categoria;
         if (cat && salesByCategory[cat] !== undefined) {
           salesByCategory[cat] += Number(detalle.precio_unitario) * detalle.cantidad;
@@ -102,7 +120,12 @@ export const AdminReports = () => {
 
   // --- 2. Evolución de órdenes ---
   const ordersByDate = orders.reduce((acc, order) => {
-    const date = new Date(order.fecha_creacion).toLocaleDateString();
+    if (!order.fecha_creacion) return acc;
+
+    const parsedDate = new Date(order.fecha_creacion);
+    if (Number.isNaN(parsedDate.getTime())) return acc;
+
+    const date = parsedDate.toLocaleDateString();
     acc[date] = (acc[date] || 0) + 1;
     return acc;
   }, {} as { [key: string]: number });
