@@ -232,6 +232,8 @@ export const AdminReports = () => {
                               ? "bg-yellow-100 text-yellow-700"
                               : order.estado === "en_revision"
                               ? "bg-orange-100 text-orange-700"
+                              : order.estado === "listo"
+                              ? "bg-blue-100 text-blue-700"
                               : order.estado === "rechazado"
                               ? "bg-red-200 text-red-700"
                               : order.estado === "cancelado"
@@ -244,6 +246,8 @@ export const AdminReports = () => {
                               ? "Pendiente"
                               : order.estado === "en_revision"
                               ? "En revisión"
+                              : order.estado === "listo"
+                              ? "Listo"
                               : order.estado === "rechazado"
                               ? "Rechazada"
                               : order.estado === "cancelado"
@@ -309,6 +313,7 @@ export const AdminReports = () => {
                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
                           order.estado === "pagada" ? "bg-green-100 text-green-700" : 
                           order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
+                          order.estado === "listo" ? "bg-blue-100 text-blue-700" : 
                           "bg-red-100 text-red-700"
                         }`}>
                           {order.estado}
@@ -343,7 +348,13 @@ export const AdminReports = () => {
           </button>
         </nav>
       </div>
-      {orders.length > 0 ? renderContent() : (
+      {loading ? (
+        <div className="text-center py-20 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-200">
+          <p className="text-gray font-medium">Cargando reportes...</p>
+        </div>
+      ) : orders.length > 0 ? (
+        renderContent()
+      ) : (
         <div className="text-center py-20 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-200">
           <p className="text-gray font-medium">No hay órdenes registradas para generar reportes.</p>
         </div>

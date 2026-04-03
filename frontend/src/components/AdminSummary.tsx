@@ -76,6 +76,19 @@ export const AdminSummary = () => {
     }
   };
 
+  const handleMarkAsReady = async (orderId: string) => {
+    setActionLoading(orderId + '-ready');
+    try {
+      await api.put(`/administrador/listo/${orderId}`);
+      if (fetchOrders) await fetchOrders();
+    } catch (err) {
+      alert('Error al marcar la orden como lista.');
+      console.error('Error al marcar la orden como lista:', err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
 
 
   // 4. Datos de resumen y alertas
@@ -157,6 +170,7 @@ export const AdminSummary = () => {
                         ${order.estado === 'pagada' ? 'bg-green-100 text-green-700'
                         : order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : order.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : order.estado === 'listo' ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-700'}
                       `}
                     >
@@ -166,6 +180,8 @@ export const AdminSummary = () => {
                         ? 'Pendiente'
                         : order.estado === 'en_revision'
                         ? 'En revisión'
+                        : order.estado === 'listo'
+                        ? 'Listo'
                         : order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
                     </span>
                     <button 
@@ -244,6 +260,19 @@ export const AdminSummary = () => {
                     >
                       <XCircle className="h-4 w-4" />
                       {actionLoading === order.id + '-reject' ? 'Rechazando...' : 'Rechazar'}
+                    </button>
+                  </div>
+                )}
+
+                {order.estado === 'pagada' && (
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => handleMarkAsReady(order.id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold disabled:opacity-60"
+                      disabled={actionLoading === order.id + '-ready'}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      {actionLoading === order.id + '-ready' ? 'Marcando...' : 'LISTO'}
                     </button>
                   </div>
                 )}

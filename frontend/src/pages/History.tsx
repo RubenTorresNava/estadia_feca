@@ -95,6 +95,7 @@ export const History = ({ onLogout }: HistoryProps) => {
                         ${pedido.estado === 'pagada' ? 'bg-green-100 text-green-700'
                         : pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
+                        : pedido.estado === 'listo' ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-700'}
                       `}
                     >
@@ -104,6 +105,8 @@ export const History = ({ onLogout }: HistoryProps) => {
                         ? 'Pendiente'
                         : pedido.estado === 'en_revision'
                         ? 'En revisión'
+                        : pedido.estado === 'listo'
+                        ? 'Listo para entrega'
                         : pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
                     </span>
                   </div>
