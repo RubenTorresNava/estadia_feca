@@ -23,7 +23,7 @@ const palette = {
     line: '#E2DDD5'
 };
 
-const assetsDir = path.resolve(__dirname, '../../../frontend/public');
+const assetsDir = path.resolve(__dirname, '../logos');
 const logoFecaPath = path.join(assetsDir, 'fecastor.png');
 const logoUjedPath = path.join(assetsDir, 'logoUjed.png');
 
