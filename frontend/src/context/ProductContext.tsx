@@ -16,7 +16,7 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-const URL_BASE = 'http://localhost:3000';
+const URL_BASE = 'https://api.fecastore-ujed.com';
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);

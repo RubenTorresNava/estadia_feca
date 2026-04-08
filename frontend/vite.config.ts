@@ -9,7 +9,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/uploads': 'http://localhost:3000',
+      '/uploads': 'https://api.fecastore-ujed.com',
     },
   },
 });

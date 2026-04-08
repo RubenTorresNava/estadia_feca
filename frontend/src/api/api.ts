@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api'
+  baseURL: 'https://api.fecastore-ujed.com/api'
 });
 
 // En tu archivo de configuración de API (donde creas axios.create)

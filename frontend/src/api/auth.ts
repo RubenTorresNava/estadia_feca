@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://api.fecastore-ujed.com/api';
 
 export const registerUser = async (userData: any) => {
   const response = await fetch(`${API_URL}/auth/register`, {

@@ -76,7 +76,7 @@ const fetchOrders = async () => {
             : item
         );
       }
-      return [...prev, { product, cantidad }];
+      return [...prev, { product, cantidad, precio_unitario: product.precio }];
     });
   };
 
