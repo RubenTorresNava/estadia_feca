@@ -9,11 +9,18 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   // Detectar si la ruta es de alumno o admin
   let token = null;
+  const adminToken = localStorage.getItem("feca-admin-token");
+  const alumnoToken = localStorage.getItem("feca-alumno-token");
+
   if (config.url?.includes('/alumno/')) {
-    token = localStorage.getItem("feca-alumno-token");
+    token = alumnoToken;
   } else if (config.url?.includes('/administrador/')) {
-    token = localStorage.getItem("feca-admin-token");
+    token = adminToken;
+  } else if (config.url?.includes('/auth/me')) {
+    // Perfil puede ser solicitado por cualquier rol autenticado.
+    token = adminToken || alumnoToken;
   }
+
   if (token) {
     config.headers["x-token"] = token;
   }

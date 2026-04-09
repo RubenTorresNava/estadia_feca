@@ -72,3 +72,20 @@ export const register = async (req, res) => {
 export const logout = (req, res) => {
     res.json({ msg: "Sesión cerrada" });
 };
+
+export const perfil = async (req, res) => {
+    try {
+        const usuario = await Usuario.findByPk(req.usuario.id, {
+            attributes: ['id', 'nombre', 'correo', 'matricula', 'rol']
+        });
+
+        if (!usuario) {
+            return res.status(404).json({ msg: 'Usuario no encontrado' });
+        }
+
+        res.json({ usuario });
+    } catch (error) {
+        console.error('Error en perfil:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};

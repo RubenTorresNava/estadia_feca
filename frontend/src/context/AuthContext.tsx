@@ -33,6 +33,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return stored ? JSON.parse(stored) : null;
   });
 
+  useEffect(() => {
+    const syncUsuario = async () => {
+      const adminToken = localStorage.getItem("feca-admin-token");
+      const alumnoToken = localStorage.getItem("feca-alumno-token");
+
+      if (!adminToken && !alumnoToken) return;
+
+      try {
+        const response = await api.get('/auth/me');
+        const usuarioActual = response.data?.usuario;
+
+        if (usuarioActual) {
+          localStorage.setItem("feca-usuario", JSON.stringify(usuarioActual));
+          setUsuario(usuarioActual);
+        }
+      } catch (error) {
+        console.error("Error al sincronizar perfil:", error);
+      }
+    };
+
+    syncUsuario();
+  }, []);
+
   const isAdmin = usuario?.rol === 'admin';
   const isAlumno = usuario?.rol === 'alumno';
 
