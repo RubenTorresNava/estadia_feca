@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import api from '../api/api';
 import { ComprobanteUpload } from '../components/ComprobanteUpload';
 import { formatCurrency } from '../utils/currency';
-import { Hand, Package } from 'lucide-react';
+import { Package, LogOut } from 'lucide-react';
 
 interface HistoryProps {
   onLogout: () => void;
@@ -93,19 +93,21 @@ export const History = ({ onLogout }: HistoryProps) => {
   return (
     <div className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-4xl font-extrabold text-dark inline-flex items-center gap-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-4xl font-extrabold text-dark inline-flex items-center gap-2 leading-tight">
               Hola, {usuario?.nombre}
-              <Hand className="h-8 w-8 text-primary" />
             </h1>
             <p className="mt-2 text-lg text-dark/70">Aqui tienes el resumen de tus compras y estados de pago.</p>
           </div>
           <button
             onClick={onLogout}
-            className="inline-flex items-center justify-center self-start rounded-xl border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-dark hover:bg-light"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white text-dark shadow-sm transition hover:bg-light sm:h-auto sm:w-auto sm:rounded-xl sm:px-4 sm:py-2.5"
+            title="Cerrar sesión"
+            aria-label="Cerrar sesión"
           >
-            Salir
+            <LogOut className="h-5 w-5" />
+            <span className="hidden sm:inline sm:ml-2 sm:text-sm sm:font-semibold">Salir</span>
           </button>
         </div>
 
