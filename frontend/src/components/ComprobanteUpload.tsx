@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Camera } from 'lucide-react';
 
 interface ComprobanteUploadProps {
   ordenId: number;
@@ -75,7 +76,9 @@ export const ComprobanteUpload = ({ ordenId, onUpload }: ComprobanteUploadProps)
           onChange={handleFileChange}
           className="hidden"
         />
-        <div className="text-4xl">📸</div>
+        <div className="flex justify-center">
+          <Camera className="h-10 w-10 text-primary" />
+        </div>
         <p className="mt-2 font-semibold text-dark/80">{file ? file.name : 'Seleccionar archivo'}</p>
         <p className="mt-1 text-xs text-dark/50">JPG o PNG, maximo 5MB</p>
       </label>

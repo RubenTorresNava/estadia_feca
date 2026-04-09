@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import api from '../api/api';
 import { ComprobanteUpload } from '../components/ComprobanteUpload';
 import { formatCurrency } from '../utils/currency';
+import { Hand, Package } from 'lucide-react';
 
 interface HistoryProps {
   onLogout: () => void;
@@ -94,7 +95,10 @@ export const History = ({ onLogout }: HistoryProps) => {
       <div className="mx-auto w-full max-w-6xl space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-4xl font-extrabold text-dark">Hola, {usuario?.nombre} <span className="text-2xl">👋</span></h1>
+            <h1 className="text-4xl font-extrabold text-dark inline-flex items-center gap-2">
+              Hola, {usuario?.nombre}
+              <Hand className="h-8 w-8 text-primary" />
+            </h1>
             <p className="mt-2 text-lg text-dark/70">Aqui tienes el resumen de tus compras y estados de pago.</p>
           </div>
           <button
@@ -107,7 +111,10 @@ export const History = ({ onLogout }: HistoryProps) => {
 
         <div>
           <div className="mb-5 flex items-center justify-between gap-4">
-            <h2 className="text-3xl font-extrabold text-dark">📦 Mis pedidos</h2>
+            <h2 className="text-3xl font-extrabold text-dark inline-flex items-center gap-2">
+              <Package className="h-7 w-7 text-primary" />
+              Mis pedidos
+            </h2>
             <span className="rounded-lg bg-white/80 px-3 py-1 text-sm font-semibold text-dark/60 border border-black/5">
               {pendientes} pedido{pendientes === 1 ? '' : 's'} pendiente{pendientes === 1 ? '' : 's'}
             </span>
