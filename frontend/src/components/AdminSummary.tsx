@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Package, Clock, DollarSign, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
@@ -19,6 +19,7 @@ export const AdminSummary = () => {
   // Estados locales
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [previewComprobante, setPreviewComprobante] = useState<string | null>(null);
+  const [orderSearch, setOrderSearch] = useState('');
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -97,6 +98,27 @@ export const AdminSummary = () => {
   const pagosPendientes = resumenContable.pagos_pendientes_revisar || 0;
   const alertasStock = dashboard?.alertas_stock || [];
 
+  const filteredOrders = useMemo(() => {
+    const query = orderSearch.trim().toLowerCase();
+    const sortedOrders = orders.slice().reverse();
+
+    if (!query) return sortedOrders;
+
+    return sortedOrders.filter((order: any) => {
+      const nombreAlumno = (order.usuario?.nombre || order.nombre_alumno || '').toString().toLowerCase();
+      const matriculaAlumno = (order.usuario?.matricula || order.matricula || '').toString().toLowerCase();
+      const numeroOrden = (order.id || order.orden_id || '').toString().toLowerCase();
+      const folio = (order.folio_referencia || '').toString().toLowerCase();
+
+      return (
+        nombreAlumno.includes(query) ||
+        matriculaAlumno.includes(query) ||
+        numeroOrden.includes(query) ||
+        folio.includes(query)
+      );
+    });
+  }, [orders, orderSearch]);
+
   return (
     <>
       <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -150,14 +172,30 @@ export const AdminSummary = () => {
       )}
 
       <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6 md:p-7">
-        <h2 className="text-xl font-bold text-dark mb-4">Órdenes Recientes</h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+          <h2 className="text-xl font-bold text-dark">Órdenes Recientes</h2>
+          <div className="w-full md:w-80">
+            <input
+              type="text"
+              value={orderSearch}
+              onChange={(e) => setOrderSearch(e.target.value)}
+              placeholder="Busqueda rápida..."
+              className="w-full rounded-xl border border-gray/30 bg-white px-3 py-2 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </div>
+
         {orders.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray/40 text-gray text-center py-10">
             No hay órdenes registradas por ahora.
           </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray/40 text-gray text-center py-10">
+            No se encontraron órdenes con ese criterio de búsqueda.
+          </div>
         ) : (
           <div className="space-y-4">
-            {orders.slice().reverse().map((order: any) => (
+            {filteredOrders.map((order: any) => (
               <div key={order.id} className="border border-gray/20 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
