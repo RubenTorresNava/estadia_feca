@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { Package, Clock, DollarSign, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Package, Clock, DollarSign, CheckCircle, XCircle, AlertTriangle, Search, ReceiptText } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import api from '../api/api';
@@ -120,48 +120,87 @@ export const AdminSummary = () => {
     });
   }, [orders, orderSearch]);
 
+  const getStatusMeta = (estado: string) => {
+    if (estado === 'pagada') return { label: 'Pagada', style: 'bg-green-100 text-green-700 border-green-200' };
+    if (estado === 'pendiente') return { label: 'Pendiente', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
+    if (estado === 'en_revision') return { label: 'En revision', style: 'bg-orange-100 text-orange-700 border-orange-200' };
+    if (estado === 'rechazado') return { label: 'Rechazado', style: 'bg-red-100 text-red-700 border-red-200' };
+    if (estado === 'cancelado') return { label: 'Cancelado', style: 'bg-slate-200 text-slate-700 border-slate-300' };
+    if (estado === 'listo') return { label: 'Listo', style: 'bg-blue-100 text-blue-700 border-blue-200' };
+    return { label: estado.charAt(0).toUpperCase() + estado.slice(1), style: 'bg-gray-100 text-gray-700 border-gray-200' };
+  };
+
+  const ordersCount = orders.length;
+
   return (
     <>
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Package className="h-8 w-8 text-primary" />
-            <h3 className="text-lg font-semibold text-dark">Productos</h3>
+      <section className="mb-6 rounded-2xl border border-black/5 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-dark/45">Panel Administrativo</p>
+            <h1 className="mt-1 text-2xl font-extrabold text-dark">Resumen operativo de FECA Store</h1>
+            <p className="mt-1 text-sm text-dark/70">Monitorea ventas, pagos pendientes y actividad reciente desde un solo lugar.</p>
           </div>
-          <p className="text-3xl font-bold text-dark">{totalStock}</p>
-          <p className="text-sm text-gray">Total en catálogo</p>
+          <div className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-light/60 px-3 py-2 text-sm font-semibold text-dark/70">
+            <ReceiptText className="h-4 w-4 text-primary" />
+            {ordersCount} orden{ordersCount === 1 ? '' : 'es'} registradas
+          </div>
         </div>
-        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="h-8 w-8 text-primary" />
-            <h3 className="text-lg font-semibold text-dark">Pagadas</h3>
+      </section>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        <div className="group bg-white rounded-2xl border border-black/5 shadow-sm p-5 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-dark/55">Productos</h3>
+            <div className="rounded-xl bg-primary/10 p-2.5">
+              <Package className="h-5 w-5 text-primary" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-dark">{totalPagadas}</p>
-          <p className="text-sm text-gray">Órdenes pagadas</p>
+          <p className="text-4xl font-extrabold text-dark leading-none">{totalStock}</p>
+          <p className="mt-2 text-sm text-dark/60">Stock total en catalogo</p>
         </div>
-        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="h-8 w-8 text-primary" />
-            <h3 className="text-lg font-semibold text-dark">Pendientes</h3>
+
+        <div className="group bg-white rounded-2xl border border-black/5 shadow-sm p-5 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-dark/55">Pagadas</h3>
+            <div className="rounded-xl bg-green-100 p-2.5">
+              <Clock className="h-5 w-5 text-green-700" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-dark">{pagosPendientes}</p>
-          <p className="text-sm text-gray">Órdenes por revisar</p>
+          <p className="text-4xl font-extrabold text-dark leading-none">{totalPagadas}</p>
+          <p className="mt-2 text-sm text-dark/60">Ordenes validadas</p>
         </div>
-        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <DollarSign className="h-8 w-8 text-primary" />
-            <h3 className="text-lg font-semibold text-dark">Ingresos</h3>
+
+        <div className="group bg-white rounded-2xl border border-black/5 shadow-sm p-5 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-dark/55">Pendientes</h3>
+            <div className="rounded-xl bg-yellow-100 p-2.5">
+              <Clock className="h-5 w-5 text-yellow-700" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-dark">{formatCurrency(ingresosTotales)}</p>
-          <p className="text-sm text-gray">Total generado</p>
+          <p className="text-4xl font-extrabold text-dark leading-none">{pagosPendientes}</p>
+          <p className="mt-2 text-sm text-dark/60">Comprobantes por revisar</p>
+        </div>
+
+        <div className="group bg-white rounded-2xl border border-black/5 shadow-sm p-5 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-dark/55">Ingresos</h3>
+            <div className="rounded-xl bg-primary/10 p-2.5">
+              <DollarSign className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold text-dark leading-none">{formatCurrency(ingresosTotales)}</p>
+          <p className="mt-2 text-sm text-dark/60">Ingreso confirmado acumulado</p>
         </div>
       </div>
 
       {/* Alertas de stock crítico */}
       {alertasStock.length > 0 && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded flex items-center gap-3">
-          <AlertTriangle className="text-yellow-500" />
-          <div>
+        <div className="bg-yellow-50 border border-yellow-200 p-4 mb-6 rounded-xl flex items-start gap-3">
+          <div className="mt-0.5 rounded-lg bg-yellow-100 p-2">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          </div>
+          <div className="text-sm">
             <span className="font-bold text-yellow-800">¡Atención!</span> Hay productos con stock crítico:
             <ul className="list-disc pl-5 text-yellow-900 text-sm mt-1">
               {alertasStock.map((prod: any) => (
@@ -173,15 +212,20 @@ export const AdminSummary = () => {
       )}
 
       <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6 md:p-7">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-          <h2 className="text-xl font-bold text-dark">Órdenes Recientes</h2>
-          <div className="w-full md:w-80">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+          <div>
+            <h2 className="text-2xl font-extrabold text-dark">Órdenes Recientes</h2>
+            <p className="text-sm text-dark/60 mt-1">Seguimiento de pedidos con acciones rápidas para aprobación.</p>
+          </div>
+
+          <div className="w-full md:w-80 relative">
+            <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-dark/40" />
             <input
               type="text"
               value={orderSearch}
               onChange={(e) => setOrderSearch(e.target.value)}
               placeholder="Busqueda rápida..."
-              className="w-full rounded-xl border border-gray/30 bg-white px-3 py-2 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-gray/30 bg-white pl-9 pr-3 py-2 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -200,34 +244,26 @@ export const AdminSummary = () => {
               <div key={order.id} className="border border-gray/20 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-dark text-lg">Orden #{order.id}</p>
-                    <p className="text-sm text-gray font-medium">Ref: {order.folio_referencia}</p>
-                    <p className="text-xs text-gray-500 mt-1">{order.usuario?.nombre || order.nombre_alumno} - {order.usuario?.correo || order.correo || 'Sin correo'}</p>
-                    <p className="text-xs text-gray-500">Matrícula: {order.usuario?.matricula || order.matricula || 'N/A'}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-extrabold text-dark text-xl">Orden #{order.id}</p>
+                      <span className="text-xs rounded-full bg-light px-2 py-1 text-dark/60 font-semibold">Ref: {order.folio_referencia}</span>
+                    </div>
+                    <p className="text-sm text-dark/75 mt-1">{order.usuario?.nombre || order.nombre_alumno} · {order.usuario?.correo || order.correo || 'Sin correo'}</p>
+                    <p className="text-xs text-dark/55 mt-0.5">Matrícula: {order.usuario?.matricula || order.matricula || 'N/A'}</p>
+
+                    {(() => {
+                      const status = getStatusMeta(order.estado);
+                      return (
+                        <span className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold border ${status.style}`}>
+                          {status.label}
+                        </span>
+                      );
+                    })()}
+
                     <span
-                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
-                        ${order.estado === 'pagada' ? 'bg-green-100 text-green-700'
-                        : order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
-                        : order.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
-                        : order.estado === 'rechazado' ? 'bg-red-100 text-red-700'
-                        : order.estado === 'cancelado' ? 'bg-slate-200 text-slate-700'
-                        : order.estado === 'listo' ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'}
-                      `}
+                      className="sr-only"
                     >
-                      {order.estado === 'pagada'
-                        ? 'Pagada'
-                        : order.estado === 'pendiente'
-                        ? 'Pendiente'
-                        : order.estado === 'en_revision'
-                        ? 'En revisión'
-                        : order.estado === 'rechazado'
-                        ? 'Rechazado'
-                        : order.estado === 'cancelado'
-                        ? 'Cancelado'
-                        : order.estado === 'listo'
-                        ? 'Listo'
-                        : order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
+                      Estado
                     </span>
                     {order.estado === 'rechazado' && order.nota_admin && (
                       <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2">
@@ -235,9 +271,9 @@ export const AdminSummary = () => {
                         <p className="text-sm text-red-800 mt-1">{order.nota_admin}</p>
                       </div>
                     )}
-                    <button 
+                    <button
                       onClick={() => toggleOrder(order.id.toString())}
-                      className="block mt-2 text-primary text-xs font-bold hover:underline"
+                      className="inline-flex mt-3 items-center text-primary text-xs font-bold hover:underline"
                     >
                       {expandedOrderId === order.id.toString() ? 'Ocultar detalles ▲' : 'Ver productos ▼'}
                     </button>
@@ -286,9 +322,9 @@ export const AdminSummary = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between mt-4 pt-3 border-t">
-                  <p className="text-sm font-medium text-gray">Total de la orden:</p>
-                  <p className="font-extrabold text-primary text-xl">{formatCurrency(order.total_pago)}</p>
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-black/10">
+                  <p className="text-sm font-semibold text-dark/55">Total de la orden</p>
+                  <p className="font-extrabold text-primary text-2xl">{formatCurrency(order.total_pago)}</p>
                 </div>
 
                 {(order.estado === 'pendiente' || order.estado === 'en_revision') && (
