@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CartItem, Product, Order } from '../types';
 import api from '../api/api';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
   cart: CartItem[];
@@ -19,6 +20,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const { usuario } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('feca-cart');
     return saved ? JSON.parse(saved) : [];
@@ -61,10 +63,13 @@ const fetchOrders = async () => {
     useEffect(() => {
       const alumnoToken = localStorage.getItem('feca-alumno-token');
       const adminToken = localStorage.getItem('feca-admin-token');
+
       if (alumnoToken || adminToken) {
         fetchOrders();
+      } else {
+        setOrders([]);
       }
-  },[]);
+  }, [usuario]);
 
   const addToCart = (product: Product, cantidad: number) => {
     setCart((prev) => {
