@@ -1,17 +1,40 @@
 import ResumenVenta from "../models/views/vew.resumenventa.js";
 import StockCritico from "../models/views/view.stockcritico.js";
 import OrdenesPendientes from "../models/views/view.ordenespendientes.js";
-import ResumenContable from "../models/views/view.resumencontable.js";
+import OrdenVenta from "../models/model.ordenventa.js";
+import { Op, fn, col } from "sequelize";
 
 
 export const obtenerResumenVenta = async (req, res) => {
     try{
-        const [caja, alertas, pendientes, resumen_contable] = await Promise.all([
+        const [caja, alertas, pendientes, resumenPagadas, pagosPendientesRevisar] = await Promise.all([
             ResumenVenta.findAll(),
             StockCritico.findAll(),
             OrdenesPendientes.findAll(),
-            ResumenContable.findAll()
+            OrdenVenta.findOne({
+                attributes: [
+                    [fn('COUNT', col('id')), 'total_ordenes_pagadas'],
+                    [fn('COALESCE', fn('SUM', col('total_pago')), 0), 'ingresos_totales']
+                ],
+                where: {
+                    estado: {
+                        [Op.in]: ['pagada', 'listo']
+                    }
+                },
+                raw: true
+            }),
+            OrdenVenta.count({
+                where: {
+                    estado: 'en_revision'
+                }
+            })
         ]);
+
+        const resumen_contable = [{
+            total_ordenes_pagadas: Number(resumenPagadas?.total_ordenes_pagadas || 0),
+            ingresos_totales: Number(resumenPagadas?.ingresos_totales || 0),
+            pagos_pendientes_revisar: Number(pagosPendientesRevisar || 0)
+        }];
 
         res.json({
             resumen_caja: caja,

@@ -145,14 +145,14 @@ JOIN usuarios u ON ov.usuario_id = u.id
 WHERE ov.estado IN ('pendiente', 'en_revision', 'rechazado');
 
 -- 3. Vista Resumen Contable (Para el "Dashboard")
--- Calcula ingresos solo de lo que ya está marcado como 'pagada'
+-- Calcula ingresos de órdenes pagadas y listas para entrega
 CREATE OR REPLACE VIEW vista_resumen_contable AS 
 SELECT 
     COUNT(id) AS total_ordenes_pagadas, 
     COALESCE(SUM(total_pago), 0) AS ingresos_totales,
     (SELECT COUNT(*) FROM orden_venta WHERE estado = 'en_revision') AS pagos_pendientes_revisar
 FROM orden_venta 
-WHERE estado = 'pagada';
+WHERE estado IN ('pagada', 'listo');
 
 -- 4. Vista de Stock Crítico
 -- Ayuda al cliente a saber qué productos están por agotarse (menos de 10 unidades)
