@@ -3,7 +3,7 @@ import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 import { ConfirmationModal } from './ConfirmationModal'; 
-import { Plus, Edit, Trash2, Star } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, Boxes, Sparkles, AlertCircle } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import api from '../api/api';
 import { formatCurrency } from '../utils/currency';
@@ -88,20 +88,73 @@ export const AdminProducts = () => {
     });
   }, [products, search, filter]);
 
+  const stats = useMemo(() => {
+    const total = products.length;
+    const destacados = products.filter((p) => p.destacado).length;
+    const agotados = products.filter((p) => Number(p.stock_actual) <= 0).length;
+    const stockBajo = products.filter((p) => Number(p.stock_actual) > 0 && Number(p.stock_actual) <= 10).length;
+    return { total, destacados, agotados, stockBajo };
+  }, [products]);
+
   // 5. Renderizado de contingencia
   if (loading) return <div className="p-6 text-center">Cargando inventario...</div>;
   if (error) return <div className="p-6 text-red-600 text-center">Error: {error}</div>;
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <h2 className="text-xl font-bold text-dark">Inventario de Productos</h2>
+      <section className="mb-5 rounded-2xl border border-black/5 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-dark/45">Inventario</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-dark inline-flex items-center gap-2">
+              <Boxes className="h-6 w-6 text-primary" />
+              Inventario de Productos
+            </h2>
+            <p className="mt-1 text-sm text-dark/65">Gestiona catálogo, stock y destacados desde esta vista.</p>
+          </div>
+
+          <button
+            onClick={() => handleOpenFormModal()}
+            className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Agregar Producto
+          </button>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
+            <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Total</p>
+            <p className="text-2xl font-extrabold text-dark">{stats.total}</p>
+          </div>
+          <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
+            <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Destacados</p>
+            <p className="text-2xl font-extrabold text-dark inline-flex items-center gap-1">
+              {stats.destacados}
+              <Sparkles className="h-4 w-4 text-yellow-500" />
+            </p>
+          </div>
+          <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
+            <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Stock bajo</p>
+            <p className="text-2xl font-extrabold text-dark inline-flex items-center gap-1">
+              {stats.stockBajo}
+              <AlertCircle className="h-4 w-4 text-yellow-600" />
+            </p>
+          </div>
+          <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
+            <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Agotados</p>
+            <p className="text-2xl font-extrabold text-dark">{stats.agotados}</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+          <h3 className="text-lg font-bold text-dark">Listado de productos</h3>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <SearchBar
-              placeholder="Buscar..."
+              placeholder="Buscar en inventario..."
               onSearch={(q, f) => { setSearch(q); setFilter(f); }}
-              className="sm:w-72 w-full"
+              className="sm:w-80 w-full"
               options={[
                 { value: 'nombre', label: 'Producto' },
                 { value: 'categoria', label: 'Categoría' },
@@ -111,69 +164,80 @@ export const AdminProducts = () => {
               ]}
               defaultFilter="nombre"
             />
-            <button
-              onClick={() => handleOpenFormModal()}
-              className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Agregar Producto
-            </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-gray/15">
           <table className="w-full">
-            <thead>
+            <thead className="bg-light/70">
               <tr className="border-b border-gray/20 text-left">
-                <th className="p-3 text-sm font-bold text-gray-600">Producto</th>
-                <th className="p-3 text-sm font-bold text-gray-600">Categoría</th>
-                <th className="p-3 text-sm font-bold text-gray-600">Descripción</th>
-                <th className="p-3 text-sm font-bold text-gray-600">Precio</th>
-                <th className="p-3 text-sm font-bold text-gray-600">Stock</th>
-                <th className="p-3 text-sm font-bold text-gray-600 text-center">Acciones</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Producto</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Categoría</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Descripción</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Precio</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Stock</th>
+                <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="border-b border-gray/5 hover:bg-gray-50">
-                  <td className="p-3 text-sm flex items-center gap-3">
+                <tr key={product.id} className="border-b border-gray/10 hover:bg-light/35 transition-colors">
+                  <td className="p-3 text-sm">
+                    <div className="flex items-center gap-3 min-w-[220px]">
                     <img 
                       src={product.imagen_url || 'https://via.placeholder.com/50'} 
                       alt={product.nombre} 
-                      className="w-12 h-12 object-cover rounded" 
+                      className="w-12 h-12 object-cover rounded-lg border border-black/10 bg-white"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/50';
+                      }}
                     />
-                    <span className="font-bold text-dark">{product.nombre}</span>
+                    <div>
+                      <p className="font-bold text-dark leading-tight">{product.nombre}</p>
+                    </div>
+                    </div>
                   </td>
-                  <td className="p-3 text-sm">{product.categoria}</td>
-                  <td className="p-3 text-sm truncate max-w-xs">{product.descripcion}</td>
+                  <td className="p-3 text-sm">
+                    <span className="inline-flex rounded-full border border-black/10 bg-white px-2.5 py-1 text-xs font-semibold text-dark/75">
+                      {product.categoria}
+                    </span>
+                  </td>
+                  <td className="p-3 text-sm text-dark/75 max-w-xs truncate" title={product.descripcion}>{product.descripcion}</td>
                   <td className="p-3 text-sm font-bold text-dark">
                     {formatCurrency(product.precio)}
                   </td>
                   <td className="p-3 text-sm font-bold">
-                    <span className={Number(product.stock_actual) > 0 ? 'text-green-600' : 'text-red-600'}>
+                    <span className={
+                      Number(product.stock_actual) > 10
+                        ? 'text-green-600'
+                        : Number(product.stock_actual) > 0
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                    }>
                       {product.stock_actual !== null && product.stock_actual !== undefined
                         ? (Number(product.stock_actual) > 0 ? `${product.stock_actual} uds` : 'Agotado')
                         : 'N/A'}
                     </span>
                   </td>
                   <td className="p-3 text-sm">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-2 min-w-[132px]">
                       <button
                         onClick={() => handleToggleFeatured(product)}
-                        className={`p-2 rounded hover:bg-yellow-50 transition-colors ${product.destacado ? 'bg-yellow-100' : ''}`}
+                        className={`p-2 rounded-lg border transition-colors ${product.destacado ? 'bg-yellow-100 border-yellow-200 hover:bg-yellow-200' : 'bg-white border-black/10 hover:bg-yellow-50'}`}
                         title={product.destacado ? 'Quitar de destacados' : 'Destacar producto'}
                       >
                         <Star className={`h-4 w-4 ${product.destacado ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
                       </button>
                       <button
                         onClick={() => handleOpenFormModal(product)}
-                        className="p-2 rounded hover:bg-blue-50"
+                        className="p-2 rounded-lg border border-black/10 bg-white hover:bg-blue-50"
                         title="Editar"
                       >
                         <Edit className="h-4 w-4 text-primary" />
                       </button>
                       <button
                         onClick={() => handleDeleteRequest(product.id)}
-                        className="p-2 rounded hover:bg-red-50"
+                        className="p-2 rounded-lg border border-black/10 bg-white hover:bg-red-50"
                         title="Eliminar"
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
@@ -185,7 +249,7 @@ export const AdminProducts = () => {
             </tbody>
           </table>
           {filteredProducts.length === 0 && (
-            <div className="text-center py-10 text-gray-500">No se encontraron productos.</div>
+            <div className="text-center py-14 text-dark/60 bg-white">No se encontraron productos con el criterio actual.</div>
           )}
         </div>
       </div>
