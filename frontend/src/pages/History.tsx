@@ -62,37 +62,53 @@ export const History = ({ onLogout }: HistoryProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-light flex flex-col items-center py-8">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl text-center mb-8">
-        <h1 className="text-2xl font-bold text-dark mb-4">¡Bienvenido, {usuario?.nombre}!</h1>
-        <p className="mb-6">
-          {/* Has iniciado sesión como <span className="font-semibold text-primary">alumno</span>.<br/> */}
-          Aquí puedes ver tus compras y subir comprobantes de pago.
-        </p>
-        <button
-          onClick={onLogout}
-          className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors mt-4"
-        >
-          Cerrar sesión
-        </button>
-      </div>
-      <div className="w-full max-w-2xl">
-        <h2 className="text-xl font-bold text-dark mb-4 text-left">Mis pedidos</h2>
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-5xl mx-auto space-y-8">
+        <div className="relative overflow-hidden rounded-2xl border border-black/5 bg-white p-8 text-center shadow-lg">
+          <div className="pointer-events-none absolute -top-16 -left-14 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
+          <div className="pointer-events-none absolute -right-14 -bottom-16 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
+
+          <h1 className="relative text-3xl font-extrabold text-dark mb-3">Hola, {usuario?.nombre}</h1>
+          <p className="relative text-dark/80 mb-6 max-w-2xl mx-auto">
+            Consulta el estado de tus compras y sube tu comprobante cuando el pedido esté pendiente.
+          </p>
+          <button
+            onClick={onLogout}
+            className="relative inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-semibold"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+
+        <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-md">
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <h2 className="text-2xl font-extrabold text-dark">Mis pedidos</h2>
+            <span className="text-sm rounded-full bg-light px-3 py-1 font-semibold text-dark/70">
+              {pedidos.length} registro{pedidos.length === 1 ? '' : 's'}
+            </span>
+          </div>
+
         {loading ? (
-          <div className="text-center py-8">Cargando...</div>
+          <div className="text-center py-10 text-dark/70">Cargando tus pedidos...</div>
         ) : error ? (
-          <div className="text-red-500 text-center py-8">{error}</div>
+          <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 text-center py-8 px-4">{error}</div>
         ) : pedidos.length === 0 ? (
-          <div className="text-center py-8">No tienes pedidos registrados.</div>
+          <div className="rounded-xl border border-dashed border-gray/40 text-center py-12 text-dark/60">
+            Aún no tienes pedidos registrados.
+          </div>
         ) : (
           <div className="space-y-6">
             {pedidos.map((pedido) => (
-              <div key={pedido.id} className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-gray-100">
+              <div key={pedido.id} className="rounded-2xl border border-black/10 bg-white p-4 md:p-5 flex flex-col md:flex-row md:items-start md:justify-between gap-5 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex-1 text-left">
-                  <div className="font-semibold text-dark">Folio: {pedido.folio_referencia || pedido.id}</div>
-                  <div className="text-sm text-gray-600">Estado: 
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <span className="text-xs uppercase tracking-wide font-semibold text-dark/50">Folio</span>
+                    <span className="font-bold text-dark">{pedido.folio_referencia || pedido.id}</span>
+                  </div>
+
+                  <div className="text-sm text-dark/80 flex items-center gap-2">Estado:
                     <span
-                      className={`font-medium px-2 py-1 rounded-full text-xs
+                      className={`font-semibold px-2.5 py-1 rounded-full text-xs
                         ${pedido.estado === 'pagada' ? 'bg-green-100 text-green-700'
                         : pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
@@ -120,19 +136,20 @@ export const History = ({ onLogout }: HistoryProps) => {
                       <p className="text-sm text-red-800 mt-1">{pedido.nota_admin}</p>
                     </div>
                   )}
-                  <div className="text-sm text-gray-600">Total: ${Number(pedido.total_pago).toFixed(2)}</div>
-                  <div className="text-xs text-gray-400">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
+                  <div className="mt-3 text-sm text-dark/80">Total: <span className="font-bold text-primary">${Number(pedido.total_pago).toFixed(2)}</span></div>
+                  <div className="text-xs text-dark/50 mt-1">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
                 </div>
-                <div className="flex flex-col items-center gap-2">
+
+                <div className="flex flex-col items-stretch md:items-end gap-2 md:w-[340px]">
                   {pedido.comprobante_url ? (
                     <>
                       <img
                         src={pedido.comprobante_url}
                         alt="Comprobante"
-                        className="w-full max-w-xs md:max-w-md object-contain rounded border cursor-zoom-in"
+                        className="w-full max-w-xs md:max-w-md max-h-56 object-contain rounded-lg border border-black/10 cursor-zoom-in bg-light/50"
                         onClick={() => setPreviewComprobante(pedido.comprobante_url)}
                       />
-                      <span className="text-xs text-green-600">Comprobante enviado</span>
+                      <span className="text-xs text-green-700 font-semibold">Comprobante enviado</span>
                     </>
                   ) : (
                     <ComprobanteUpload
@@ -145,6 +162,7 @@ export const History = ({ onLogout }: HistoryProps) => {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {previewComprobante && (

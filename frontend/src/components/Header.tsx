@@ -20,31 +20,31 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
   ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <button
               onClick={() => onNavigate("home")}
-              className="flex items-center"
+              className="flex items-center rounded-xl px-1 transition-transform hover:scale-[1.01]"
               title="Ir a inicio"
             >
               <img
                 src="/fecastor.png"
                 alt="FECA Store Logo"
-                className="h-20 w-auto"
+                className="h-14 w-auto"
               />
             </button>
           </div>
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center gap-1 rounded-2xl border border-black/5 bg-white px-2 py-1 shadow-sm">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`text-sm font-medium transition-colors ${
+                className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
                   currentPage === item.id
-                    ? "text-primary"
-                    : "text-dark hover:text-primary"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-dark hover:bg-light"
                 }`}
                 title={item.id === 'home' ? 'Ir a inicio' : item.id === 'catalog' ? 'Ver catálogo' : item.label}
               >
@@ -53,10 +53,10 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => onNavigate("cart")}
-              className="relative p-2 text-dark hover:text-primary transition-colors"
+              className="relative rounded-xl p-2 text-dark hover:bg-light hover:text-primary transition-colors"
               title="Ver carrito"
             >
               <ShoppingCart className="h-6 w-6" />
@@ -69,8 +69,8 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
 
             <button
               onClick={() => onNavigate("admin")}
-              className={`p-2 transition-colors ${
-                isAdmin ? "text-primary" : "text-dark hover:text-primary"
+              className={`rounded-xl p-2 transition-colors ${
+                isAdmin ? "bg-primary/10 text-primary" : "text-dark hover:bg-light hover:text-primary"
               }`}
               title="Panel de administración"
             >
@@ -79,7 +79,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-dark"
+              className="md:hidden rounded-xl p-2 text-dark hover:bg-light"
               title={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
             >
               {mobileMenuOpen ? (
@@ -100,7 +100,7 @@ export const Header = ({ onNavigate, currentPage }: HeaderProps) => {
                   onNavigate(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`block w-full text-left px-4 py-2 text-sm font-medium ${
+                className={`block w-full text-left rounded-lg px-4 py-2 text-sm font-medium ${
                   currentPage === item.id
                     ? "text-primary bg-light"
                     : "text-dark hover:bg-light"

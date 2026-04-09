@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+	:root {
+		color-scheme: light;
+	}
+
+	body {
+		font-family: 'Manrope', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+		@apply text-dark bg-light;
+		background-image:
+			radial-gradient(circle at 10% 20%, rgba(199, 58, 58, 0.07), transparent 35%),
+			radial-gradient(circle at 90% 0%, rgba(110, 44, 47, 0.08), transparent 30%);
+		background-attachment: fixed;
+	}
+
+	#root {
+		min-height: 100vh;
+	}
+}

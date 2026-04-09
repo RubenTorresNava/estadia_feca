@@ -100,7 +100,7 @@ export const AdminSummary = () => {
   return (
     <>
       <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <Package className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Productos</h3>
@@ -108,7 +108,7 @@ export const AdminSummary = () => {
           <p className="text-3xl font-bold text-dark">{totalStock}</p>
           <p className="text-sm text-gray">Total en catálogo</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Pagadas</h3>
@@ -116,7 +116,7 @@ export const AdminSummary = () => {
           <p className="text-3xl font-bold text-dark">{totalPagadas}</p>
           <p className="text-sm text-gray">Órdenes pagadas</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Pendientes</h3>
@@ -124,7 +124,7 @@ export const AdminSummary = () => {
           <p className="text-3xl font-bold text-dark">{pagosPendientes}</p>
           <p className="text-sm text-gray">Órdenes por revisar</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6">
           <div className="flex items-center gap-3 mb-2">
             <DollarSign className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Ingresos</h3>
@@ -149,14 +149,16 @@ export const AdminSummary = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-black/5 shadow-md p-6 md:p-7">
         <h2 className="text-xl font-bold text-dark mb-4">Órdenes Recientes</h2>
         {orders.length === 0 ? (
-          <p className="text-gray text-center py-8">No hay órdenes registradas</p>
+          <div className="rounded-xl border border-dashed border-gray/40 text-gray text-center py-10">
+            No hay órdenes registradas por ahora.
+          </div>
         ) : (
           <div className="space-y-4">
             {orders.slice().reverse().map((order: any) => (
-              <div key={order.id} className="border border-gray/20 rounded-lg p-4 bg-white shadow-sm">
+              <div key={order.id} className="border border-gray/20 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-dark text-lg">Orden #{order.id}</p>
