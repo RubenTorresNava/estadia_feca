@@ -97,7 +97,7 @@ export const AdminReports = () => {
   }, {} as { [key: string]: number });
 
   orders.forEach((order) => {
-    if (order.estado === "pagada") {
+    if (order.estado === "pagada" || order.estado === "listo") {
       order.detalles?.forEach((detalle) => {
         const cat = detalle.producto?.categoria;
         if (cat && salesByCategory[cat] !== undefined) {
