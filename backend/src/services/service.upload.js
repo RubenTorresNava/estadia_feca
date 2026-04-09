@@ -3,17 +3,24 @@ import fs from 'fs';
 import path from 'path';
 
 const dir = './uploads';
+const comprobantesDir = './uploads/comprobantes';
+
 if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
 }
 
+if (!fs.existsSync(comprobantesDir)) {
+    fs.mkdirSync(comprobantesDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const comprobantesDir = 'uploads/comprobantes';
-        if (!fs.existsSync(comprobantesDir)) {
-            fs.mkdirSync(comprobantesDir, { recursive: true });
+        // Solo los comprobantes van a su subcarpeta; las demás imágenes van al root de uploads.
+        if (file.fieldname === 'comprobante') {
+            return cb(null, comprobantesDir);
         }
-        cb(null, comprobantesDir);
+
+        cb(null, dir);
     },
 
     filename: (req, file, cb) =>{
