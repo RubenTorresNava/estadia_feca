@@ -1,7 +1,8 @@
 import { useAuth } from '../context/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '../api/api';
 import { ComprobanteUpload } from '../components/ComprobanteUpload';
+import { formatCurrency } from '../utils/currency';
 
 interface HistoryProps {
   onLogout: () => void;
@@ -25,6 +26,33 @@ export const History = ({ onLogout }: HistoryProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [previewComprobante, setPreviewComprobante] = useState<string | null>(null);
+
+  const estadoMeta = (estado: string) => {
+    switch (estado) {
+      case 'pendiente':
+        return { label: 'PENDIENTE DE PAGO' };
+      case 'en_revision':
+        return { label: 'EN REVISION' };
+      case 'pagada':
+        return { label: 'PAGADA' };
+      case 'listo':
+        return { label: 'LISTA PARA ENTREGA' };
+      case 'rechazado':
+        return { label: 'PAGO RECHAZADO' };
+      case 'cancelado':
+        return { label: 'PEDIDO CANCELADO' };
+      default:
+        return { label: estado.toUpperCase() };
+    }
+  };
+
+  const ordenes = useMemo(() => {
+    return pedidos.slice().sort((a, b) => new Date(b.fecha_creacion).getTime() - new Date(a.fecha_creacion).getTime());
+  }, [pedidos]);
+
+  const pendientes = useMemo(() => {
+    return ordenes.filter((p) => p.estado === 'pendiente' || p.estado === 'en_revision').length;
+  }, [ordenes]);
 
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -62,29 +90,26 @@ export const History = ({ onLogout }: HistoryProps) => {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-5xl mx-auto space-y-8">
-        <div className="relative overflow-hidden rounded-2xl border border-black/5 bg-white p-8 text-center shadow-lg">
-          <div className="pointer-events-none absolute -top-16 -left-14 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
-          <div className="pointer-events-none absolute -right-14 -bottom-16 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
-
-          <h1 className="relative text-3xl font-extrabold text-dark mb-3">Hola, {usuario?.nombre}</h1>
-          <p className="relative text-dark/80 mb-6 max-w-2xl mx-auto">
-            Consulta el estado de tus compras y sube tu comprobante cuando el pedido esté pendiente.
-          </p>
+    <div className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl space-y-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-4xl font-extrabold text-dark">Hola, {usuario?.nombre} <span className="text-2xl">👋</span></h1>
+            <p className="mt-2 text-lg text-dark/70">Aqui tienes el resumen de tus compras y estados de pago.</p>
+          </div>
           <button
             onClick={onLogout}
-            className="relative inline-flex items-center justify-center px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-semibold"
+            className="inline-flex items-center justify-center self-start rounded-xl border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-dark hover:bg-light"
           >
-            Cerrar sesión
+            Salir
           </button>
         </div>
 
-        <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-md">
-          <div className="flex items-center justify-between gap-4 mb-5">
-            <h2 className="text-2xl font-extrabold text-dark">Mis pedidos</h2>
-            <span className="text-sm rounded-full bg-light px-3 py-1 font-semibold text-dark/70">
-              {pedidos.length} registro{pedidos.length === 1 ? '' : 's'}
+        <div>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <h2 className="text-3xl font-extrabold text-dark">📦 Mis pedidos</h2>
+            <span className="rounded-lg bg-white/80 px-3 py-1 text-sm font-semibold text-dark/60 border border-black/5">
+              {pendientes} pedido{pendientes === 1 ? '' : 's'} pendiente{pendientes === 1 ? '' : 's'}
             </span>
           </div>
 
@@ -98,68 +123,89 @@ export const History = ({ onLogout }: HistoryProps) => {
           </div>
         ) : (
           <div className="space-y-6">
-            {pedidos.map((pedido) => (
-              <div key={pedido.id} className="rounded-2xl border border-black/10 bg-white p-4 md:p-5 flex flex-col md:flex-row md:items-start md:justify-between gap-5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex-1 text-left">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className="text-xs uppercase tracking-wide font-semibold text-dark/50">Folio</span>
-                    <span className="font-bold text-dark">{pedido.folio_referencia || pedido.id}</span>
-                  </div>
+            {ordenes.map((pedido) => {
+              const meta = estadoMeta(pedido.estado);
 
-                  <div className="text-sm text-dark/80 flex items-center gap-2">Estado:
-                    <span
-                      className={`font-semibold px-2.5 py-1 rounded-full text-xs
-                        ${pedido.estado === 'pagada' ? 'bg-green-100 text-green-700'
-                        : pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
-                        : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
-                        : pedido.estado === 'rechazado' ? 'bg-red-100 text-red-700'
-                        : pedido.estado === 'listo' ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-700'}
-                      `}
-                    >
-                      {pedido.estado === 'pagada'
-                        ? 'Pagada'
-                        : pedido.estado === 'pendiente'
-                        ? 'Pendiente'
-                        : pedido.estado === 'en_revision'
-                        ? 'En revisión'
-                        : pedido.estado === 'rechazado'
-                        ? 'Rechazado'
-                        : pedido.estado === 'listo'
-                        ? 'Listo para entrega'
-                        : pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)}
+              return (
+              <div key={pedido.id} className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div className="border-b border-black/10 px-6 py-5">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-8">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-dark/35">Folio</p>
+                        <p className="text-2xl font-extrabold text-dark mt-1">{pedido.folio_referencia || pedido.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-dark/35">Fecha</p>
+                        <p className="text-2xl font-semibold text-dark mt-1">
+                          {new Date(pedido.fecha_creacion).toLocaleDateString('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className={`inline-flex items-center self-start rounded-full px-4 py-2 text-xs font-extrabold tracking-wide ${
+                      pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800'
+                      : pedido.estado === 'en_revision' ? 'bg-orange-100 text-orange-800'
+                      : pedido.estado === 'pagada' ? 'bg-blue-100 text-blue-800'
+                      : pedido.estado === 'listo' ? 'bg-green-100 text-green-800'
+                      : pedido.estado === 'rechazado' ? 'bg-red-100 text-red-800'
+                      : pedido.estado === 'cancelado' ? 'bg-slate-200 text-slate-700'
+                      : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {meta.label}
                     </span>
                   </div>
-                  {pedido.estado === 'rechazado' && pedido.nota_admin && (
-                    <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Motivo del rechazo</p>
-                      <p className="text-sm text-red-800 mt-1">{pedido.nota_admin}</p>
-                    </div>
-                  )}
-                  <div className="mt-3 text-sm text-dark/80">Total: <span className="font-bold text-primary">${Number(pedido.total_pago).toFixed(2)}</span></div>
-                  <div className="text-xs text-dark/50 mt-1">Fecha: {new Date(pedido.fecha_creacion).toLocaleString()}</div>
                 </div>
 
-                <div className="flex flex-col items-stretch md:items-end gap-2 md:w-[340px]">
-                  {pedido.comprobante_url ? (
-                    <>
-                      <img
-                        src={pedido.comprobante_url}
-                        alt="Comprobante"
-                        className="w-full max-w-xs md:max-w-md max-h-56 object-contain rounded-lg border border-black/10 cursor-zoom-in bg-light/50"
-                        onClick={() => setPreviewComprobante(pedido.comprobante_url)}
+                <div className="grid gap-6 p-6 md:grid-cols-[1.15fr_1fr]">
+                  <div className="space-y-5">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-dark/70">Monto total:</span>
+                      <span className="text-5xl font-extrabold text-dark">{formatCurrency(pedido.total_pago)}</span>
+                      <span className="font-semibold text-dark/35">MXN</span>
+                    </div>
+
+                    <div className="rounded-xl border border-black/5 bg-light/70 px-4 py-4 text-xl italic text-dark/80">
+                      {pedido.estado === 'cancelado'
+                        ? '"Tu pedido se canceló automáticamente por no recibir comprobante en el tiempo establecido."'
+                        : pedido.estado === 'rechazado' && pedido.nota_admin
+                        ? `"${pedido.nota_admin}"`
+                        : '"Por favor, sube una foto clara del comprobante de pago para procesar tu pedido."'}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-black/5 bg-white p-4">
+                    {pedido.comprobante_url ? (
+                      <div className="space-y-3">
+                        <p className="text-center text-2xl font-extrabold text-dark">Comprobante enviado</p>
+                        <img
+                          src={pedido.comprobante_url}
+                          alt="Comprobante"
+                          className="mx-auto w-full max-h-64 rounded-xl border border-black/10 object-contain bg-light/30 cursor-zoom-in"
+                          onClick={() => setPreviewComprobante(pedido.comprobante_url)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewComprobante(pedido.comprobante_url)}
+                          className="w-full rounded-xl border border-black/10 bg-white px-4 py-2 font-semibold text-dark hover:bg-light"
+                        >
+                          Ver comprobante
+                        </button>
+                      </div>
+                    ) : (
+                      <ComprobanteUpload
+                        ordenId={pedido.id}
+                        onUpload={async (file) => await handleUpload(pedido.id, file)}
                       />
-                      <span className="text-xs text-green-700 font-semibold">Comprobante enviado</span>
-                    </>
-                  ) : (
-                    <ComprobanteUpload
-                      ordenId={pedido.id}
-                      onUpload={async (file) => await handleUpload(pedido.id, file)}
-                    />
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
         </div>

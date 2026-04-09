@@ -1,5 +1,6 @@
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface CartItemProps {
   item: CartItemType;
@@ -22,7 +23,7 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
       <div className="flex-1">
         <h3 className="font-semibold text-dark mb-1 line-clamp-1">{product.nombre}</h3>
         <p className="text-xs text-gray uppercase mb-2 tracking-wide">{product.categoria}</p>
-        <p className="text-primary font-bold">${Number(product.precio).toFixed(2)}</p>
+        <p className="text-primary font-bold">{formatCurrency(product.precio)}</p>
       </div>
       <div className="flex flex-col items-end justify-between">
         <button
@@ -52,7 +53,7 @@ export const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) =>
         </div>
         
         <p className="font-extrabold text-dark text-sm">
-          ${total.toFixed(2)}
+          {formatCurrency(total)}
         </p>
       </div>
     </div>

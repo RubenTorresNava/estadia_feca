@@ -4,6 +4,7 @@ import { Package, Clock, DollarSign, CheckCircle, XCircle, AlertTriangle } from 
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import api from '../api/api';
+import { formatCurrency } from '../utils/currency';
 
 
 export const AdminSummary = () => {
@@ -151,7 +152,7 @@ export const AdminSummary = () => {
             <DollarSign className="h-8 w-8 text-primary" />
             <h3 className="text-lg font-semibold text-dark">Ingresos</h3>
           </div>
-          <p className="text-3xl font-bold text-dark">${Number(ingresosTotales).toFixed(2)}</p>
+          <p className="text-3xl font-bold text-dark">{formatCurrency(ingresosTotales)}</p>
           <p className="text-sm text-gray">Total generado</p>
         </div>
       </div>
@@ -209,6 +210,7 @@ export const AdminSummary = () => {
                         : order.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700'
                         : order.estado === 'en_revision' ? 'bg-orange-100 text-orange-700'
                         : order.estado === 'rechazado' ? 'bg-red-100 text-red-700'
+                        : order.estado === 'cancelado' ? 'bg-slate-200 text-slate-700'
                         : order.estado === 'listo' ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-700'}
                       `}
@@ -221,6 +223,8 @@ export const AdminSummary = () => {
                         ? 'En revisión'
                         : order.estado === 'rechazado'
                         ? 'Rechazado'
+                        : order.estado === 'cancelado'
+                        ? 'Cancelado'
                         : order.estado === 'listo'
                         ? 'Listo'
                         : order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
@@ -272,7 +276,7 @@ export const AdminSummary = () => {
                       <ul className="list-disc pl-5">
                         {order.detalles.map((detalle: any, idx: number) => (
                           <li key={idx}>
-                            {detalle.producto?.nombre || 'Producto'} x{detalle.cantidad} - ${Number(detalle.precio_unitario).toFixed(2)}
+                            {detalle.producto?.nombre || 'Producto'} x{detalle.cantidad} - {formatCurrency(detalle.precio_unitario)}
                           </li>
                         ))}
                       </ul>
@@ -284,7 +288,7 @@ export const AdminSummary = () => {
 
                 <div className="flex items-center justify-between mt-4 pt-3 border-t">
                   <p className="text-sm font-medium text-gray">Total de la orden:</p>
-                  <p className="font-extrabold text-primary text-xl">${Number(order.total_pago).toFixed(2)}</p>
+                  <p className="font-extrabold text-primary text-xl">{formatCurrency(order.total_pago)}</p>
                 </div>
 
                 {(order.estado === 'pendiente' || order.estado === 'en_revision') && (

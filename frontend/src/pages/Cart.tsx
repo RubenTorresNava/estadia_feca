@@ -1,6 +1,7 @@
 import { CartItem } from '../components/CartItem';
 import { useCart } from '../context/CartContext';
 import { ShoppingBag, ArrowLeft } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
 
 interface CartProps {
   onNavigate: (page: string) => void;
@@ -59,7 +60,7 @@ export const Cart = ({ onNavigate }: CartProps) => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-gray">
                   <span>Subtotal</span>
-                  <span>${total}</span>
+                  <span>{formatCurrency(total)}</span>
                 </div>
                 <div className="flex justify-between text-gray">
                   <span>Envío</span>
@@ -68,7 +69,7 @@ export const Cart = ({ onNavigate }: CartProps) => {
                 <div className="border-t border-gray/20 pt-3">
                   <div className="flex justify-between text-dark font-bold text-xl">
                     <span>Total</span>
-                    <span>${total}</span>
+                    <span>{formatCurrency(total)}</span>
                   </div>
                 </div>
               </div>

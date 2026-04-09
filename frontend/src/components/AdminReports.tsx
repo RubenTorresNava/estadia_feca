@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import { SearchBar } from "./SearchBar";
 import { Bar, Line } from "react-chartjs-2";
+import { formatCurrency } from "../utils/currency";
 
 ChartJS.register(
   CategoryScale,
@@ -110,7 +111,7 @@ export const AdminReports = () => {
     labels: Object.keys(salesByCategory),
     datasets: [
       {
-        label: "Ingresos por Categoría ($)",
+        label: "Ingresos por Categoría (MXN)",
         data: Object.values(salesByCategory),
         backgroundColor: "#C73A3A",
         borderColor: "#6E2C2F",
@@ -222,7 +223,7 @@ export const AdminReports = () => {
                             : 'N/A'}
                         </td>
                         <td className="p-3 text-sm font-bold text-primary">
-                          ${Number(order.total_pago).toFixed(2)}
+                          {formatCurrency(order.total_pago)}
                         </td>
                         <td className="p-3 text-sm">
                           <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
@@ -307,16 +308,19 @@ export const AdminReports = () => {
                       </td>
                       <td className="p-3 text-sm text-gray-600">{order.usuario?.matricula}</td>
                       <td className="p-3 text-sm font-bold text-primary">
-                        ${Number(order.total_pago).toFixed(2)}
+                        {formatCurrency(order.total_pago)}
                       </td>
                       <td className="p-3 text-sm">
                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
                           order.estado === "pagada" ? "bg-green-100 text-green-700" : 
                           order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
+                          order.estado === "en_revision" ? "bg-orange-100 text-orange-700" : 
                           order.estado === "listo" ? "bg-blue-100 text-blue-700" : 
-                          "bg-red-100 text-red-700"
+                          order.estado === "rechazado" ? "bg-red-100 text-red-700" : 
+                          order.estado === "cancelado" ? "bg-slate-200 text-slate-700" : 
+                          "bg-gray-100 text-gray-700"
                         }`}>
-                          {order.estado}
+                          {order.estado === "cancelado" ? "Cancelado" : order.estado}
                         </span>
                       </td>
                     </tr>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { Loader2 } from "lucide-react";
+import { formatCurrency } from "../utils/currency";
 
 interface CheckoutProps {
   onNavigate: (page: string) => void;
@@ -115,7 +116,7 @@ export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
           <div className="flex justify-between items-center text-lg mb-4">
             <span className="text-gray">Total a pagar:</span>
             <span className="text-3xl font-extrabold text-primary">
-              ${total.toFixed(2)}
+              {formatCurrency(total)}
             </span>
           </div>
           <p className="text-xs text-gray-500 italic">

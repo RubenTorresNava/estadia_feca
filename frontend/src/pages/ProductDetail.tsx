@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
+import { formatCurrency } from '../utils/currency';
 
 interface ProductDetailProps {
   productId: string;
@@ -63,7 +64,7 @@ export const ProductDetail = ({ productId, onNavigate }: ProductDetailProps) => 
           <div>
             <p className="text-sm text-gray uppercase tracking-widest mb-2">{product.categoria}</p>
             <h1 className="text-4xl font-bold text-dark mb-4">{product.nombre}</h1>
-            <p className="text-3xl font-bold text-primary mb-6">${Number(product.precio).toFixed(2)}</p>
+            <p className="text-3xl font-bold text-primary mb-6">{formatCurrency(product.precio)}</p>
 
             <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
               <h2 className="font-semibold text-dark mb-2">Descripción</h2>

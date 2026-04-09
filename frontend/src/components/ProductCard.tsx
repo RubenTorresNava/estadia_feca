@@ -1,4 +1,5 @@
 import { Product } from '../types';
+import { formatCurrency } from '../utils/currency';
 
 interface ProductCardProps {
   product: Product;
@@ -33,7 +34,7 @@ export const ProductCard = ({ product, onViewDetails }: ProductCardProps) => {
           <div className="flex items-center justify-between">
             {/* CORRECCIÓN: precio */}
             <p className="text-xl font-bold text-primary">
-              ${Number(product.precio).toFixed(2)}
+              {formatCurrency(product.precio)}
             </p>
             <button
               onClick={() => onViewDetails(product.id)}

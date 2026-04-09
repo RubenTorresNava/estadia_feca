@@ -61,22 +61,38 @@ export const ComprobanteUpload = ({ ordenId, onUpload }: ComprobanteUploadProps)
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-auto mt-8">
-      <h2 className="text-xl font-bold text-dark mb-4">Subir comprobante de pago</h2>
-      <div className="mb-4">
-        <input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onChange={handleFileChange} className="block w-full" />
-        {preview && (
-          <img src={preview} alt="Vista previa" className="mt-4 h-40 object-contain mx-auto rounded-md border" />
-        )}
-      </div>
-      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-      {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
+    <form onSubmit={handleSubmit} className="w-full rounded-2xl border border-black/5 bg-white p-3 sm:p-4">
+      <h3 className="mb-3 text-center text-2xl font-extrabold text-dark">Subir comprobante</h3>
+
+      <label
+        htmlFor={`comprobante-${ordenId}`}
+        className="group block cursor-pointer rounded-2xl border-2 border-dashed border-black/15 bg-light/50 p-6 text-center transition-colors hover:border-primary/40"
+      >
+        <input
+          id={`comprobante-${ordenId}`}
+          type="file"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <div className="text-4xl">📸</div>
+        <p className="mt-2 font-semibold text-dark/80">{file ? file.name : 'Seleccionar archivo'}</p>
+        <p className="mt-1 text-xs text-dark/50">JPG o PNG, maximo 5MB</p>
+      </label>
+
+      {preview && (
+        <img src={preview} alt="Vista previa" className="mt-3 h-40 w-full rounded-xl border border-black/10 bg-white object-contain" />
+      )}
+
+      {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {success && <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{success}</p>}
+
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray"
+        className="mt-4 w-full rounded-xl bg-primary px-4 py-3 text-xl font-bold text-white shadow-md transition hover:bg-primary-dark disabled:bg-gray"
       >
-        {isSubmitting ? 'Subiendo...' : 'Subir comprobante'}
+        {isSubmitting ? 'Enviando...' : 'Enviar Pago'}
       </button>
     </form>
   );

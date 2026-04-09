@@ -6,6 +6,7 @@ import { ConfirmationModal } from './ConfirmationModal';
 import { Plus, Edit, Trash2, Star } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import api from '../api/api';
+import { formatCurrency } from '../utils/currency';
   // Botón destacar producto
   const handleToggleFeatured = async (product: Product) => {
     try {
@@ -145,7 +146,7 @@ export const AdminProducts = () => {
                   <td className="p-3 text-sm">{product.categoria}</td>
                   <td className="p-3 text-sm truncate max-w-xs">{product.descripcion}</td>
                   <td className="p-3 text-sm font-bold text-dark">
-                    ${Number(product.precio).toFixed(2)}
+                    {formatCurrency(product.precio)}
                   </td>
                   <td className="p-3 text-sm font-bold">
                     <span className={Number(product.stock_actual) > 0 ? 'text-green-600' : 'text-red-600'}>

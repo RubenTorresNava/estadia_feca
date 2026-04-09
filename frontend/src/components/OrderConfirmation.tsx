@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Order } from '../types';
 import { CheckCircle, Copy, Home } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
 
 interface OrderConfirmationProps {
   order: Order;
@@ -64,7 +65,7 @@ export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps)
               </li>
               <li>
                 4. Realiza el pago por:{' '}
-                <span className="font-bold text-primary">${Number(order.total_pago).toFixed(2)}</span>
+                <span className="font-bold text-primary">{formatCurrency(order.total_pago)}</span>
               </li>
               <li>
                 5. El pedido será autorizado en 1-2 horas después del pago.
@@ -75,7 +76,7 @@ export const OrderConfirmation = ({ order, onNavigate }: OrderConfirmationProps)
           <div className="border-t border-gray/20 pt-6 mb-6">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray">Total a pagar:</span>
-              <span className="font-bold text-dark text-xl">${order.total_pago}</span>
+              <span className="font-bold text-dark text-xl">{formatCurrency(order.total_pago)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray">Expira en:</span>
