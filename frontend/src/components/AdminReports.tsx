@@ -15,6 +15,7 @@ import {
 import { SearchBar } from "./SearchBar";
 import { Bar, Line } from "react-chartjs-2";
 import { formatCurrency } from "../utils/currency";
+import { BarChart3, Users, ReceiptText, Clock4 } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -150,25 +151,122 @@ export const AdminReports = () => {
     ],
   };
 
+  const ordersChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#4A4A4D',
+          boxWidth: 18,
+          font: {
+            size: 12,
+            weight: '600',
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#6B7280',
+          font: {
+            size: 11,
+          },
+        },
+        grid: {
+          color: 'rgba(74, 74, 77, 0.08)',
+        },
+      },
+      y: {
+        ticks: {
+          color: '#6B7280',
+          font: {
+            size: 11,
+          },
+        },
+        grid: {
+          color: 'rgba(74, 74, 77, 0.08)',
+        },
+      },
+    },
+  } as const;
+
+  const confirmedOrders = useMemo(
+    () => orders.filter((o) => o.estado === 'pagada' || o.estado === 'listo'),
+    [orders]
+  );
+
+  const totalIngresos = useMemo(
+    () => confirmedOrders.reduce((sum, o) => sum + Number(o.total_pago || 0), 0),
+    [confirmedOrders]
+  );
+
+  const alumnosUnicos = useMemo(() => {
+    const keys = new Set(
+      orders.map((o) => o.usuario?.matricula || o.usuario?.correo || o.usuario?.nombre).filter(Boolean)
+    );
+    return keys.size;
+  }, [orders]);
+
+  const enRevision = useMemo(
+    () => orders.filter((o) => o.estado === 'en_revision').length,
+    [orders]
+  );
+
+  const getStatusMeta = (estado?: string) => {
+    if (estado === 'pagada') return { label: 'Pagada', style: 'bg-green-100 text-green-700' };
+    if (estado === 'pendiente') return { label: 'Pendiente', style: 'bg-yellow-100 text-yellow-700' };
+    if (estado === 'en_revision') return { label: 'En revisión', style: 'bg-orange-100 text-orange-700' };
+    if (estado === 'listo') return { label: 'Listo', style: 'bg-blue-100 text-blue-700' };
+    if (estado === 'rechazado') return { label: 'Rechazado', style: 'bg-red-100 text-red-700' };
+    if (estado === 'cancelado') return { label: 'Cancelado', style: 'bg-slate-200 text-slate-700' };
+    return { label: estado || 'N/A', style: 'bg-gray-100 text-gray-700' };
+  };
+
   const renderContent = () => {
     if (activeTab === "analysis") {
       return (
         <>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-4">
+              <p className="text-xs uppercase tracking-wide text-dark/50 font-semibold">Órdenes</p>
+              <p className="text-3xl font-extrabold text-dark mt-1">{orders.length}</p>
+              <p className="text-xs text-dark/55 mt-1">Registradas en sistema</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-4">
+              <p className="text-xs uppercase tracking-wide text-dark/50 font-semibold">Ingresos</p>
+              <p className="text-2xl font-extrabold text-dark mt-1">{formatCurrency(totalIngresos)}</p>
+              <p className="text-xs text-dark/55 mt-1">Pagadas y listas</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-4">
+              <p className="text-xs uppercase tracking-wide text-dark/50 font-semibold">Alumnos</p>
+              <p className="text-3xl font-extrabold text-dark mt-1">{alumnosUnicos}</p>
+              <p className="text-xs text-dark/55 mt-1">Con actividad</p>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-4">
+              <p className="text-xs uppercase tracking-wide text-dark/50 font-semibold">En revisión</p>
+              <p className="text-3xl font-extrabold text-dark mt-1">{enRevision}</p>
+              <p className="text-xs text-dark/55 mt-1">Pagos pendientes</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
               <h3 className="text-lg font-bold text-dark mb-4">Ventas por Categoría</h3>
               <div className="h-[300px]">
-                <Bar data={categoryChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                <Bar data={categoryChartData} options={ordersChartOptions} />
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
               <h3 className="text-lg font-bold text-dark mb-4">Evolución de Órdenes</h3>
               <div className="h-[300px]">
-                <Line data={ordersChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                <Line data={ordersChartData} options={ordersChartOptions} />
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
+
+          <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <h3 className="text-lg font-bold text-dark">Órdenes Recientes</h3>
               <SearchBar
@@ -186,27 +284,27 @@ export const AdminReports = () => {
                 defaultFilter="nombre_alumno"
               />
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-gray/15">
               <table className="w-full">
-                <thead>
+                <thead className="bg-light/60">
                   <tr className="border-b border-gray/20 text-left">
                     {/* <th className="p-3 text-sm font-bold text-gray-600">ID</th> */}
-                    <th className="p-3 text-sm font-bold text-gray-600">Alumno</th>
-                    <th className="p-3 text-sm font-bold text-gray-600">Matrícula</th>
-                    <th className="p-3 text-sm font-bold text-gray-600">Correo</th>
-                    <th className="p-3 text-sm font-bold text-gray-600">Fecha</th>
-                    <th className="p-3 text-sm font-bold text-gray-600">Total</th>
-                    <th className="p-3 text-sm font-bold text-gray-600">Estado</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Alumno</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Matrícula</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Correo</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Fecha</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Total</th>
+                    <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-8 text-gray">No hay órdenes que coincidan con la búsqueda.</td>
+                      <td colSpan={7} className="text-center py-10 text-dark/55">No hay órdenes que coincidan con la búsqueda.</td>
                     </tr>
                   ) : (
                     filteredOrders.slice().reverse().map((order) => (
-                      <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
+                      <tr key={order.id} className="border-b border-gray/10 hover:bg-light/35 transition-colors">
                         {/* <td className="p-3 text-sm">{order.id}</td> */}
                         <td className="p-3 text-sm">
                           <p className="font-bold text-dark">{order.usuario?.nombre}</p>
@@ -226,34 +324,8 @@ export const AdminReports = () => {
                           {formatCurrency(order.total_pago)}
                         </td>
                         <td className="p-3 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            order.estado === "pagada"
-                              ? "bg-green-100 text-green-700"
-                              : order.estado === "pendiente"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : order.estado === "en_revision"
-                              ? "bg-orange-100 text-orange-700"
-                              : order.estado === "listo"
-                              ? "bg-blue-100 text-blue-700"
-                              : order.estado === "rechazado"
-                              ? "bg-red-200 text-red-700"
-                              : order.estado === "cancelado"
-                              ? "bg-gray-200 text-gray-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}>
-                            {order.estado === "pagada"
-                              ? "Pagada"
-                              : order.estado === "pendiente"
-                              ? "Pendiente"
-                              : order.estado === "en_revision"
-                              ? "En revisión"
-                              : order.estado === "listo"
-                              ? "Listo"
-                              : order.estado === "rechazado"
-                              ? "Rechazada"
-                              : order.estado === "cancelado"
-                              ? "Cancelada"
-                              : order.estado}
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusMeta(order.estado).style}`}>
+                            {getStatusMeta(order.estado).label}
                           </span>
                         </td>
                       </tr>
@@ -269,7 +341,7 @@ export const AdminReports = () => {
 
     if (activeTab === "clients") {
       return (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-6">
           <h3 className="text-lg font-bold text-dark mb-4">Resumen de Alumnos</h3>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <SearchBar
@@ -284,24 +356,24 @@ export const AdminReports = () => {
               defaultFilter="nombre_alumno"
             />
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-xl border border-gray/15">
             <table className="w-full">
-              <thead>
+              <thead className="bg-light/60">
                 <tr className="border-b border-gray/20 text-left">
-                  <th className="p-3 text-sm font-bold text-gray-600">Alumno</th>
-                  <th className="p-3 text-sm font-bold text-gray-600">Matrícula</th>
-                  <th className="p-3 text-sm font-bold text-gray-600">Total</th>
-                  <th className="p-3 text-sm font-bold text-gray-600">Estado</th>
+                  <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Alumno</th>
+                  <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Matrícula</th>
+                  <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Total</th>
+                  <th className="p-3 text-xs font-bold uppercase tracking-wide text-dark/60">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center py-8 text-gray">No hay órdenes que coincidan con la búsqueda.</td>
+                    <td colSpan={4} className="text-center py-10 text-dark/55">No hay órdenes que coincidan con la búsqueda.</td>
                   </tr>
                 ) : (
                   filteredOrders.slice().reverse().map((order) => (
-                    <tr key={order.id} className="border-b border-gray/5 hover:bg-gray-50">
+                    <tr key={order.id} className="border-b border-gray/10 hover:bg-light/35 transition-colors">
                       <td className="p-3 text-sm">
                         <p className="font-bold text-dark">{order.usuario?.nombre}</p>
                         <p className="text-xs text-gray">{order.usuario?.correo}</p>
@@ -311,16 +383,8 @@ export const AdminReports = () => {
                         {formatCurrency(order.total_pago)}
                       </td>
                       <td className="p-3 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
-                          order.estado === "pagada" ? "bg-green-100 text-green-700" : 
-                          order.estado === "pendiente" ? "bg-yellow-100 text-yellow-700" : 
-                          order.estado === "en_revision" ? "bg-orange-100 text-orange-700" : 
-                          order.estado === "listo" ? "bg-blue-100 text-blue-700" : 
-                          order.estado === "rechazado" ? "bg-red-100 text-red-700" : 
-                          order.estado === "cancelado" ? "bg-slate-200 text-slate-700" : 
-                          "bg-gray-100 text-gray-700"
-                        }`}>
-                          {order.estado === "cancelado" ? "Cancelado" : order.estado}
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusMeta(order.estado).style}`}>
+                          {getStatusMeta(order.estado).label}
                         </span>
                       </td>
                     </tr>
@@ -336,30 +400,53 @@ export const AdminReports = () => {
 
   return (
     <div className="animate-in fade-in duration-500">
+      <section className="mb-5 rounded-2xl border border-black/5 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-dark/45">Reportes</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-dark inline-flex items-center gap-2">
+              <BarChart3 className="h-6 w-6 text-primary" />
+              Centro de análisis
+            </h2>
+            <p className="mt-1 text-sm text-dark/60">Visualiza tendencias, comportamiento de órdenes y actividad de alumnos.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-black/10 bg-light/60 px-3 py-2 text-center">
+              <p className="text-[11px] uppercase tracking-wide text-dark/50 font-semibold">Órdenes</p>
+              <p className="text-xl font-extrabold text-dark inline-flex items-center gap-1 justify-center"><ReceiptText className="h-4 w-4 text-primary" />{orders.length}</p>
+            </div>
+            <div className="rounded-xl border border-black/10 bg-light/60 px-3 py-2 text-center">
+              <p className="text-[11px] uppercase tracking-wide text-dark/50 font-semibold">Alumnos</p>
+              <p className="text-xl font-extrabold text-dark inline-flex items-center gap-1 justify-center"><Users className="h-4 w-4 text-primary" />{alumnosUnicos}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="mb-6 border-b border-gray/20">
-        <nav className="flex space-x-4">
+        <nav className="flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab("analysis")}
-            className={`py-3 px-4 font-bold text-sm transition-colors ${activeTab === "analysis" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
+            className={`py-2.5 px-4 rounded-xl font-bold text-sm transition-colors ${activeTab === "analysis" ? "bg-primary/10 text-primary" : "text-gray hover:text-dark hover:bg-light"}`}
           >
-            Análisis de Ventas
+            <span className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4" />Análisis de Ventas</span>
           </button>
           <button
             onClick={() => setActiveTab("clients")}
-            className={`py-3 px-4 font-bold text-sm transition-colors ${activeTab === "clients" ? "border-b-2 border-primary text-primary" : "text-gray hover:text-dark"}`}
+            className={`py-2.5 px-4 rounded-xl font-bold text-sm transition-colors ${activeTab === "clients" ? "bg-primary/10 text-primary" : "text-gray hover:text-dark hover:bg-light"}`}
           >
-            Lista de Alumnos
+            <span className="inline-flex items-center gap-2"><Clock4 className="h-4 w-4" />Lista de Alumnos</span>
           </button>
         </nav>
       </div>
       {loading ? (
-        <div className="text-center py-20 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-200">
+        <div className="text-center py-20 bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-200">
           <p className="text-gray font-medium">Cargando reportes...</p>
         </div>
       ) : orders.length > 0 ? (
         renderContent()
       ) : (
-        <div className="text-center py-20 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-200">
+        <div className="text-center py-20 bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-200">
           <p className="text-gray font-medium">No hay órdenes registradas para generar reportes.</p>
         </div>
       )}
