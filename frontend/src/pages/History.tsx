@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import api from '../api/api';
 import { ComprobanteUpload } from '../components/ComprobanteUpload';
 import { formatCurrency } from '../utils/currency';
+import { resolveMediaUrl } from '../utils/media';
 import { Package, LogOut } from 'lucide-react';
 
 interface HistoryProps {
@@ -64,6 +65,7 @@ export const History = ({ onLogout }: HistoryProps) => {
         const pedidosNormalizados = res.data.map((pedido: Pedido) => ({
           ...pedido,
           id: pedido.id ?? pedido.orden_id,
+          comprobante_url: resolveMediaUrl(pedido.comprobante_url),
         }));
         setPedidos(pedidosNormalizados);
       } catch (err) {
@@ -87,7 +89,12 @@ export const History = ({ onLogout }: HistoryProps) => {
     });
     // Refrescar pedidos para mostrar el comprobante subido
     const res = await api.get('/alumno/pedidos');
-    setPedidos(res.data);
+    const pedidosNormalizados = res.data.map((pedido: Pedido) => ({
+      ...pedido,
+      id: pedido.id ?? pedido.orden_id,
+      comprobante_url: resolveMediaUrl(pedido.comprobante_url),
+    }));
+    setPedidos(pedidosNormalizados);
   };
 
   return (

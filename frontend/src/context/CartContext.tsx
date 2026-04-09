@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { CartItem, Product, Order } from '../types';
 import api from '../api/api';
 import { useAuth } from './AuthContext';
+import { resolveMediaUrl } from '../utils/media';
 
 interface CartContextType {
   cart: CartItem[];
@@ -47,6 +48,7 @@ const fetchOrders = async () => {
     const validatedOrders = rawData.map((o: any) => ({
       ...o,
       id: (o.id || o.orden_id).toString(),
+      comprobante_url: resolveMediaUrl(o.comprobante_url),
       detalles: (o.detalles || []).map((d: any) => ({
         ...d,
         nombre: d.producto?.nombre || 'Producto',
