@@ -11,6 +11,8 @@ import api from "../api/api.ts";
 interface Usuario {
   id: number;
   nombre: string;
+  correo?: string;
+  matricula?: string;
   rol: 'admin' | 'alumno' | 'staff';
 }
 

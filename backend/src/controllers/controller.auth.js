@@ -33,7 +33,13 @@ export const login = async (req, res) => {
 
         res.json({ 
             token, 
-            usuario: { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol } 
+            usuario: {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                correo: usuario.correo,
+                matricula: usuario.matricula,
+                rol: usuario.rol
+            } 
         });
 
     } catch (error) {

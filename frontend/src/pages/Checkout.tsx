@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { Loader2 } from "lucide-react";
 import { formatCurrency } from "../utils/currency";
+import { useAuth } from "../context/AuthContext";
 
 interface CheckoutProps {
   onNavigate: (page: string) => void;
@@ -10,6 +11,7 @@ interface CheckoutProps {
 
 export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
   const { cart, getCartTotal, createOrder } = useCart();
+  const { usuario } = useAuth();
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [matricula, setMatricula] = useState("");
@@ -23,6 +25,14 @@ export const Checkout = ({ onNavigate, onOrderCreated }: CheckoutProps) => {
       onNavigate("catalog");
     }
   }, [cart.length, onNavigate]);
+
+  useEffect(() => {
+    if (!usuario) return;
+
+    setCustomerName((prev) => prev || usuario.nombre || "");
+    setMatricula((prev) => prev || usuario.matricula || "");
+    setCustomerEmail((prev) => prev || usuario.correo || "");
+  }, [usuario]);
 
   if (cart.length === 0) return null;
 
