@@ -3,7 +3,7 @@ import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 import { ConfirmationModal } from './ConfirmationModal'; 
-import { Plus, Edit, Trash2, Star, Boxes, Sparkles, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash, BadgeCheck, Package, AlertTriangle, CircleOff } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import api from '../api/api';
 import { formatCurrency } from '../utils/currency';
@@ -107,7 +107,7 @@ export const AdminProducts = () => {
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-dark/45">Inventario</p>
             <h2 className="mt-1 text-2xl font-extrabold text-dark inline-flex items-center gap-2">
-              <Boxes className="h-6 w-6 text-primary" />
+              <Package className="h-6 w-6 text-primary" />
               Inventario de Productos
             </h2>
             <p className="mt-1 text-sm text-dark/65">Gestiona catálogo, stock y destacados desde esta vista.</p>
@@ -130,19 +130,22 @@ export const AdminProducts = () => {
             <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Destacados</p>
             <p className="text-2xl font-extrabold text-dark inline-flex items-center gap-1">
               {stats.destacados}
-              <Sparkles className="h-4 w-4 text-yellow-500" />
+              <BadgeCheck className="h-4 w-4 text-primary" />
             </p>
           </div>
           <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
             <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Stock bajo</p>
             <p className="text-2xl font-extrabold text-dark inline-flex items-center gap-1">
               {stats.stockBajo}
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
             </p>
           </div>
           <div className="rounded-xl border border-black/10 bg-light/60 px-4 py-3">
             <p className="text-xs uppercase tracking-wide text-dark/55 font-semibold">Agotados</p>
-            <p className="text-2xl font-extrabold text-dark">{stats.agotados}</p>
+            <p className="text-2xl font-extrabold text-dark inline-flex items-center gap-1">
+              {stats.agotados}
+              <CircleOff className="h-4 w-4 text-red-600" />
+            </p>
           </div>
         </div>
       </section>
@@ -226,21 +229,21 @@ export const AdminProducts = () => {
                         className={`p-2 rounded-lg border transition-colors ${product.destacado ? 'bg-yellow-100 border-yellow-200 hover:bg-yellow-200' : 'bg-white border-black/10 hover:bg-yellow-50'}`}
                         title={product.destacado ? 'Quitar de destacados' : 'Destacar producto'}
                       >
-                        <Star className={`h-4 w-4 ${product.destacado ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                        <BadgeCheck className={`h-4 w-4 ${product.destacado ? 'text-primary' : 'text-gray-300'}`} />
                       </button>
                       <button
                         onClick={() => handleOpenFormModal(product)}
                         className="p-2 rounded-lg border border-black/10 bg-white hover:bg-blue-50"
                         title="Editar"
                       >
-                        <Edit className="h-4 w-4 text-primary" />
+                        <Pencil className="h-4 w-4 text-primary" />
                       </button>
                       <button
                         onClick={() => handleDeleteRequest(product.id)}
                         className="p-2 rounded-lg border border-black/10 bg-white hover:bg-red-50"
                         title="Eliminar"
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <Trash className="h-4 w-4 text-red-600" />
                       </button>
                     </div>
                   </td>
