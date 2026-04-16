@@ -10,7 +10,6 @@ export const Register = ({ onNavigate }: RegisterProps) => {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  const [matricula, setMatricula] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -19,19 +18,18 @@ export const Register = ({ onNavigate }: RegisterProps) => {
     setError('');
     setSuccess('');
 
-    if (!nombre || !correo || !password || !matricula) {
+    if (!nombre || !correo || !password) {
       setError('Todos los campos son requeridos.');
       return;
     }
 
     try {
-      const data = await registerUser({ nombre, correo, password, matricula });
+      const data = await registerUser({ nombre, correo, password });
       setSuccess(data.msg);
       // Limpiar formulario
       setNombre('');
       setCorreo('');
       setPassword('');
-      setMatricula('');
       // Opcional: redirigir a login después de un registro exitoso
       setTimeout(() => onNavigate('admin'), 2000);
     } catch (err: any) {
@@ -60,30 +58,20 @@ export const Register = ({ onNavigate }: RegisterProps) => {
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ej. Juan Perez Lopez"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             />
           </div>
           <div>
             <label htmlFor="correo" className="block text-sm font-medium text-dark">
-              Correo Institucional
+              Correo 
             </label>
             <input
               id="correo"
               type="email"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-            />
-          </div>
-          <div>
-            <label htmlFor="matricula" className="block text-sm font-medium text-dark">
-              Matrícula
-            </label>
-            <input
-              id="matricula"
-              type="text"
-              value={matricula}
-              onChange={(e) => setMatricula(e.target.value)}
+              placeholder="alumno@ujed.mx"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             />
           </div>
@@ -96,6 +84,7 @@ export const Register = ({ onNavigate }: RegisterProps) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Crea una contraseña segura"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             />
           </div>

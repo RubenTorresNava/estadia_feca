@@ -68,6 +68,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                 type="text"
                 value={identificador}
                 onChange={(e) => setIdentificador(e.target.value)}
+                placeholder="correo@ujed.mx o 2020123456"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 title="Ingresa tu correo institucional o matrícula"
               />
@@ -81,6 +82,7 @@ export const Admin = ({ onNavigate }: AdminProps) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ingresa tu contraseña"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 title="Ingresa tu contraseña"
               />
